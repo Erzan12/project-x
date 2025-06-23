@@ -1,8 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+// import { JwtService } from '@nestjs/jwt';
+// import { JwtMiddleware } from './middleware/jwt.middleware';
+// import { PrismaService } from 'prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+
+  // const jwtService = app.get(JwtService);
+  // const prisma = app.get(PrismaService);
+  // app.use(new JwtMiddleware(jwtService, prisma).use);
+
+  await app.listen(3000);
 }
 bootstrap();
