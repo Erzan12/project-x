@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Person {
+  id                        Int      @id @default(autoincrement())
+  first_name                String
+  last_name                 String
+  middle_name               String?
+  suffix                    String?
+  date_of_birth             DateTime
+  gender                    String?
+  civil_status              String?
+  nationality               String?
+  created_at                DateTime @default(now())
+  anonymization_preferences Json?
+  other_person_data         Json?
+
+  // Relations
+  users           User[]
+  email_addresses EmailAddress[]
+  employee        Employee?      @relation("PersonEmployee")
+}
+
+model User {
+  id                 Int       @id @default(autoincrement())
+  person_id          Int
+  username           String    @unique
+  password           String
+  email              String    @unique
+  role_id            Int
+  reports_to         Int?
+  is_active          Boolean   @default(true)
+  last_login         DateTime?
+  security_questions Json?
+  created_at         DateTime  @default(now())
+
+  // Relations
+  person           Person           @relation(fields: [person_id], references: [id])
+  role             Role             @relation(fields: [role_id], references: [id])
+  reportsTo        User?            @relation("ReportsTo", fields: [reports_to], references: [id])
+  subordinates     User[]           @relation("ReportsTo")
+  employees        Employee[]
+  tokens           Token[]
+  user_permissions UserPermission[]
+}
+
+model Role {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+
+  // Relations
+  users            User[]
+  role_permissions RolePermission[]
+}
+
+model Permission {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  module     String
+  created_at DateTime @default(now())
+
+  // Relations
+  role_permissions RolePermission[]
+  user_permissions UserPermission[]
+}
+
+model RolePermission {
+  role_id       Int
+  permission_id Int
+
+  // Relations
+  role       Role       @relation(fields: [role_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([role_id, permission_id])
+}
+
+model UserPermission {
+  user_id       Int
+  permission_id Int
+
+  user       User                    @relation(fields: [user_id], references: [id])
+  permission Permission              @relation(fields: [permission_id], references: [id])
+  companies  UserPermissionCompany[]
+
+  @@id([user_id, permission_id])
+}
+
+model UserPermissionCompany {
+  user_id       Int
+  permission_id Int
+  company_id    Int
+
+  userPermission UserPermission @relation(fields: [user_id, permission_id], references: [user_id, permission_id])
+  company        Company        @relation(fields: [company_id], references: [id])
+
+  @@id([user_id, permission_id, company_id])
+}
+
+model Company {
+  id                    Int                     @id @default(autoincrement())
+  name                  String                  @unique
+  abbreviation          String                  @unique @db.VarChar(10)
+  created_at            DateTime                @default(now())
+  UserPermissionCompany UserPermissionCompany[]
+}
+
+model Token {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  token       String   @unique
+  created_at  DateTime @default(now())
+  expires_at  DateTime
+  device_info Json?
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model PermissionTemplate {
+  id            Int      @id @default(autoincrement())
+  name          String
+  company_id    Int
+  department_id Int
+  permissions   Json
+  created_at    DateTime @default(now())
+}
+
+model EmailAddress {
+  id            Int     @id @default(autoincrement())
+  person_id     Int
+  email_address String
+  email_type    String
+  is_primary    Boolean
+
+  // Relations
+  person Person @relation(fields: [person_id], references: [id])
+}
+
+model Employee {
+  id                        Int       @id @default(autoincrement())
+  user_id                   Int
+  employee_id               String    @unique
+  department_id             Int
+  hire_date                 DateTime
+  position                  String
+  salary                    Decimal
+  pay_frequency             String
+  employment_status         String
+  monthly_equivalent_salary Decimal
+  created_at                DateTime  @default(now())
+  archive_date              DateTime?
+  other_employee_data       Json?
+  corporate_rank_id         Int
+
+  // Relations
+  user      User   @relation(fields: [user_id], references: [id])
+  person_id Int    @unique
+  person    Person @relation("PersonEmployee", fields: [person_id], references: [id])
+}
