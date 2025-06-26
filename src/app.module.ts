@@ -9,10 +9,20 @@ import { JwtCustomModule } from './middleware/jwt.module';
 import { JwtMiddleware } from './middleware/jwt.middleware';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from './mail/mail.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, UserModule, JwtCustomModule],
-  providers: [UsersService, JwtService, PrismaService, MailService],
+  imports: [
+    // Adding config here so dotenv will be global no more import per service with @nestjs/config
+    ConfigModule.forRoot({
+      isGlobal: true, // makes config available app-wide
+      envFilePath: '.env', // optional: default is .env
+    }),
+    AuthModule, 
+    UserModule, 
+    JwtCustomModule
+  ],
+  providers: [ UsersService, JwtService, PrismaService, MailService ],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
