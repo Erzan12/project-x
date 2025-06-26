@@ -8,10 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtCustomModule } from './middleware/jwt.module';
 import { JwtMiddleware } from './middleware/jwt.middleware';
 import { PrismaService } from 'prisma/prisma.service';
+import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [AuthModule, UserModule, JwtCustomModule],
-  providers: [UsersService, JwtService, PrismaService],
+  providers: [UsersService, JwtService, PrismaService, MailService],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
