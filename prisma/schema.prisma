@@ -19,7 +19,7 @@ model Person {
   last_name                 String
   middle_name               String?
   suffix                    String?
-  date_of_birth             DateTime
+  date_of_birth             DateTime //well decide if optional or required
   gender                    String?
   civil_status              String?
   nationality               String?
@@ -39,11 +39,15 @@ model User {
   username           String    @unique
   password           String
   email              String    @unique
+  stat               Int       @default(1)
+  password_reset     String?   @default("")
+  require_reset      Int       @default(0)
   role_id            Int
   reports_to         Int?
   is_active          Boolean   @default(true)
   last_login         DateTime?
   security_questions Json?
+  created_by         Int? // add this if you expect to track who created the user
   created_at         DateTime  @default(now())
 
   // Relations
@@ -52,7 +56,7 @@ model User {
   reportsTo        User?            @relation("ReportsTo", fields: [reports_to], references: [id])
   subordinates     User[]           @relation("ReportsTo")
   employees        Employee[]
-  tokens           Token[]
+  userTokens       UserToken[]
   user_permissions UserPermission[]
 }
 
@@ -118,10 +122,10 @@ model Company {
   UserPermissionCompany UserPermissionCompany[]
 }
 
-model Token {
+model UserToken {
   id          Int      @id @default(autoincrement())
   user_id     Int
-  token       String   @unique
+  token_key   String   @unique
   created_at  DateTime @default(now())
   expires_at  DateTime
   device_info Json?
