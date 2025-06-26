@@ -3,10 +3,11 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
-    constructor (private readonly prisma: PrismaService) {}
+    constructor (private readonly prisma: PrismaService, private readonly mailService: MailService) {}
 
    async createUser(createUserDto: CreatePersonDto, createdBy: number) {
     const plainPassword = createUserDto.password;
@@ -66,6 +67,13 @@ export class UsersService {
 
     console.log('Plain password before hashing:', plainPassword);
     console.log('Hashed password stored:', hashedPassword);
+
+     // After creating user and userToken:
+        await this.mailService.sendWelcomeMail(
+            user.email,
+            user.username,
+            plainPassword,
+        );
 
     return {
         status: 'success',
