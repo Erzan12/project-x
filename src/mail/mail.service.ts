@@ -1,23 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import  * as nodemailer from 'nodemailer';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 @Injectable()
 export class MailService {
-    private transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.SMTP_USER, //use env variable in prod
-            pass: process.env.SMTP_PASS//you App Password in gmail
-        },
-    });
-    
+    private transporter;
+
+    constructor(private readonly configService: ConfigService) {
+            this.transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            auth: {
+                user: this.configService.get('SMTP_USER'), //use env variable in prod
+                pass: this.configService.get('SMTP_PASS') //you App Password in gmail
+            },
+        });
+    }
 
     // Send email to user upon new user registration
-    async sendWelcomeMail(to: string, username:string, password: string) {
+    async sendWelcomeMail(to: string, username:string, plainPassword: string, tokenKey: string) {
 
         //valdiate config in your app
         if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
@@ -25,18 +27,25 @@ export class MailService {
         }
 
         const mailOption = { 
-            from : '"AV Human Resources" dummybusiness29@gmail.com',
+            from : '"AV Human Resource" dummybusiness29@gmail.com',
             to,
             subject: 'Welcome to the ABAS-v3 system! Here is your Temporary password',
             html: `
                 <h3>Hello ${username},</h3>
                 <p>Your account has been created successfully.</p>
                 <p><strong>Username:</strong> ${username} </p>
-                <p><strong>Temporary Password:</strong> ${password} </p>
+                <p><strong>Temporary Password:</strong> ${plainPassword} </p>
                 <p>Please login and change your password immediately</p>
+                <p>Click below to reset your password:</p>
+                <a href="http://localhost:3000/auth/reset-password?token=${tokenKey}">Reset Password</a>
             `,
          };
 
          return await this.transporter.sendMail(mailOption);
     }
+
+    // Email Automation for successful password reset
+    // async successPasswordReset () {
+
+    // }
 }

@@ -10,6 +10,9 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from './mail/mail.service';
 import { ConfigModule } from '@nestjs/config';
+import { PersonService } from './person/person.service';
+import { PersonController } from './person/person.controller';
+import { PersonModule } from './person/person.module';
 
 @Module({
   imports: [
@@ -20,9 +23,10 @@ import { ConfigModule } from '@nestjs/config';
     }),
     AuthModule, 
     UserModule, 
-    JwtCustomModule
+    JwtCustomModule, PersonModule
   ],
-  providers: [ UsersService, JwtService, PrismaService, MailService ],
+  providers: [ UsersService, JwtService, PrismaService, MailService, PersonService ],
+  controllers: [PersonController],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
@@ -38,6 +42,8 @@ export class AppModule implements NestModule{
       .apply(JwtMiddleware)
       .exclude(
         { path: 'auth/login', method: RequestMethod.POST },
+        { path: 'auth/reset-password', method: RequestMethod.POST},
+        { path: 'person/:id', method: RequestMethod.DELETE},
         { path: 'admin/user-register', method: RequestMethod.POST },
         // Add more exclusions here if needed
       )
