@@ -4,6 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { CreatePersonDto } from '../users/dto/create-person.dto';
+import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
 
 @Injectable()
 export class AuthService {
@@ -74,9 +75,9 @@ export class AuthService {
             where: { username },
         });
 
-        if (!user) {
-            throw new BadRequestException('Username was not registered.');
-        }
+        // if (!user) {
+        //     throw new BadRequestException('Username was not registered.');
+        // }
 
         // Compare hashed password
         // const ispasswordValid = await bcrypt.compare(password, user.password);
@@ -85,16 +86,46 @@ export class AuthService {
         //     throw new BadRequestException('Invalid password.');
         // }
 
+        // console.log('Entered password:', password);
+        // console.log('Stored hashed password:', user.password);
+        
+        // const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        // console.log('Password valid?', isPasswordValid);
+        
+        // if (!isPasswordValid) {
+        //     throw new BadRequestException('Invalid credentials');
+        // }
+
+        //User will force to update password first upon first login before can proceed
+        if (!user) {
+            throw new BadRequestException('Username was not registered.');
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
         console.log('Entered password:', password);
         console.log('Stored hashed password:', user.password);
-        
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        
         console.log('Password valid?', isPasswordValid);
         
         if (!isPasswordValid) {
             throw new BadRequestException('Invalid credentials');
         }
+
+        //Check if user is required to reset password, query from the require_reset not username
+        const { must_reset_password, require_reset } = user;
+
+        // Handle mandatory password reset on first login
+        const mustResetNow = must_reset_password;
+
+        if (mustResetNow) {
+            return {
+                status: 'password_require_reset',
+                message: 'It is require to reset your password for first time log in before you can proceed',
+                userId: user.id,
+            };
+        }
+
 
         if (user.stat !== 1) {
             throw new BadRequestException('Your account was deactivated.');
@@ -107,11 +138,6 @@ export class AuthService {
                 data: { password_reset: '' },
             });
         }
-
-        // const isPasswordValid = await bcrypt.compare(password, user.password);
-        // if (!isPasswordValid) {
-        //     throw new UnauthorizedException('Invalid credentials');
-        // }
 
         // Check user token
         const userToken = await this.prisma.userToken.findFirst({
@@ -131,7 +157,7 @@ export class AuthService {
             // exp: expirationTime,
             sub: user.id,
             name: user.username,
-            req: user.require_reset === 1 || password === 'avegabros',
+            req: require_reset === 1 || password === 'avegabros',
         };
 
         const token = this.jwtService.sign(payload, {
@@ -149,6 +175,70 @@ export class AuthService {
             ...(isNewAccount && { new_account: 1 }),
         };
 
+    }
+
+    //For first time log in password reset
+    // async passwordReset(userId: number, newPassword: string) {
+    //     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    //     const updatedUser = await this.prisma.user.update({
+    //         where : { id: userId },
+    //         data : {
+    //             password: hashedNewPassword,
+    //             must_reset_password: false,
+    //         },
+    //     });
+
+    //For first time log in password reset with token from user or person registration/creation
+    async resetPasswordWithToken(dto: ResetPasswordWithTokenDto, token: string) {
+        const { newPassword } = dto;
+
+        if (!token) {
+            throw new BadRequestException('Reset token is required.');
+        }
+
+        // Step 1: Find the user token
+        const userToken = await this.prisma.userToken.findFirst({
+            where: { token_key: token },
+            include: { user: true },
+        });
+
+        if (!userToken) {
+            throw new BadRequestException('Invalid or expired reset token.');
+        }
+
+        // Optional: check expiration
+        if (userToken.expires_at < new Date()) {
+            throw new BadRequestException('Reset token has expired.');
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Step 2: Update the user's password
+        const updatedUser = await this.prisma.user.update({
+            where: { id: userToken.user_id },
+            data: {
+                password: hashedPassword,       // your hashed new password
+                require_reset: 0,               // disable require_reset flag
+                must_reset_password: false,     // also disable must_reset_password
+                password_reset: '',             // clear any reset token/flag
+            },
+        });
+
+        // Step 3: (Optional) delete the token or mark it used
+
+        //<---- this section will delete the generated reset token in db upon changing for your new password -->
+        // await this.prisma.userToken.delete({ where: { id: userToken.id } });
+
+        return {
+            status: 'success',
+            message: `Password has been reset. You may now log in!`,
+            user: {
+                id: updatedUser.id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+            }
+        };
     }
 
     // TRANSFERRED TO USER DIRECTORY

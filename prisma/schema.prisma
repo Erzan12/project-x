@@ -40,14 +40,15 @@ model User {
   password           String
   email              String    @unique
   stat               Int       @default(1)
-  password_reset     String?   @default("")
-  require_reset      Int       @default(0)
+  must_reset_password Boolean   @default(true)  // <- intended for first time log in for new user
+  password_reset     String?   @default("")     // <- existing user wants to reset password due to update current password or user forgot password
+  require_reset      Int       @default(0)      // <- intended for first time log in for new user
   role_id            Int
   reports_to         Int?
   is_active          Boolean   @default(true)
   last_login         DateTime?
   security_questions Json?
-  created_by         Int? // add this if you expect to track who created the user
+  created_by         Int? // add this if you want to track who created the user
   created_at         DateTime  @default(now())
 
   // Relations
