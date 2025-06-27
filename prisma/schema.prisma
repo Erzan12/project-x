@@ -34,31 +34,32 @@ model Person {
 }
 
 model User {
-  id                 Int       @id @default(autoincrement())
-  person_id          Int
-  username           String    @unique
-  password           String
-  email              String    @unique
-  stat               Int       @default(1)
-  must_reset_password Boolean   @default(true)  // <- intended for first time log in for new user
-  password_reset     String?   @default("")     // <- existing user wants to reset password due to update current password or user forgot password
-  require_reset      Int       @default(0)      // <- intended for first time log in for new user
-  role_id            Int
-  reports_to         Int?
-  is_active          Boolean   @default(true)
-  last_login         DateTime?
-  security_questions Json?
-  created_by         Int? // add this if you want to track who created the user
-  created_at         DateTime  @default(now())
+  id                  Int       @id @default(autoincrement())
+  person_id           Int
+  username            String    @unique
+  password            String
+  email               String    @unique
+  stat                Int       @default(1)
+  must_reset_password Boolean   @default(true) // <- intended for first time log in for new user
+  password_reset      String?   @default("") // <- existing user wants to reset password due to update current password or user forgot password
+  require_reset       Int       @default(0) // <- intended for first time log in for new user
+  role_id             Int
+  reports_to          Int?
+  is_active           Boolean   @default(true)
+  last_login          DateTime?
+  security_questions  Json?
+  created_by          Int? // add this if you want to track who created the user
+  created_at          DateTime  @default(now())
 
   // Relations
-  person           Person           @relation(fields: [person_id], references: [id])
-  role             Role             @relation(fields: [role_id], references: [id])
-  reportsTo        User?            @relation("ReportsTo", fields: [reports_to], references: [id])
-  subordinates     User[]           @relation("ReportsTo")
-  employees        Employee[]
-  userTokens       UserToken[]
-  user_permissions UserPermission[]
+  person             Person               @relation(fields: [person_id], references: [id])
+  role               Role                 @relation(fields: [role_id], references: [id])
+  reportsTo          User?                @relation("ReportsTo", fields: [reports_to], references: [id])
+  subordinates       User[]               @relation("ReportsTo")
+  employees          Employee[]
+  refreshTokens      RefreshToken[]
+  user_permissions   UserPermission[]
+  PasswordResetToken PasswordResetToken[]
 }
 
 model Role {
@@ -123,15 +124,26 @@ model Company {
   UserPermissionCompany UserPermissionCompany[]
 }
 
-model UserToken {
-  id          Int      @id @default(autoincrement())
-  user_id     Int
-  token_key   String   @unique
-  created_at  DateTime @default(now())
-  expires_at  DateTime
-  device_info Json?
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int // linked user.
+  token     String   @unique //the refresh token string, usually a long random value.
+  expiresAt DateTime //when the token expires.
+  revoked   Boolean  @default(false) // flag to mark token as revoked (user logout, password reset).
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // Relations
+  user User @relation(fields: [userId], references: [id])
+}
+
+model PasswordResetToken {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  user_id    Int
+  expires_at DateTime
+  used       Boolean  @default(false)
+  created_at DateTime @default(now())
+
   user User @relation(fields: [user_id], references: [id])
 }
 

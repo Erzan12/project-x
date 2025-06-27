@@ -19,7 +19,7 @@ export class MailService {
     }
 
     // Send email to user upon new user registration
-    async sendWelcomeMail(to: string, username:string, plainPassword: string, tokenKey: string) {
+    async sendWelcomeMail(to: string, username:string, plainPassword: string, token: string) {
 
         //valdiate config in your app
         if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
@@ -37,7 +37,7 @@ export class MailService {
                 <p><strong>Temporary Password:</strong> ${plainPassword} </p>
                 <p>Please login and change your password immediately</p>
                 <p>Click below to reset your password:</p>
-                <a href="http://localhost:3000/auth/reset-password?token=${tokenKey}">Reset Password</a>
+                <a href="http://localhost:3000/auth/reset-password?token=${token}">Reset Password</a>
             `,
          };
 

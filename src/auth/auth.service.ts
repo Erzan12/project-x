@@ -140,15 +140,15 @@ export class AuthService {
         }
 
         // Check user token
-        const userToken = await this.prisma.userToken.findFirst({
+        const passwordresetToken = await this.prisma.passwordResetToken.findFirst({
             where: { user_id: user.id },
             });
 
-        if (!userToken) {
+        if (!passwordresetToken) {
             throw new BadRequestException('No token added for this user!');
         }
 
-        const key = userToken.token_key;
+        const key = passwordresetToken.token;
         const issuedAt = Math.floor(Date.now() / 1000);
         // const expirationTime = issuedAt + 60 * 60 * 24 * 30;
 
@@ -198,17 +198,17 @@ export class AuthService {
         }
 
         // Step 1: Find the user token
-        const userToken = await this.prisma.userToken.findFirst({
-            where: { token_key: token },
+        const passwordresetToken = await this.prisma.passwordResetToken.findFirst({
+            where: { token: token },
             include: { user: true },
         });
 
-        if (!userToken) {
+        if (!passwordresetToken) {
             throw new BadRequestException('Invalid or expired reset token.');
         }
 
         // Optional: check expiration
-        if (userToken.expires_at < new Date()) {
+        if (passwordresetToken.expires_at < new Date()) {
             throw new BadRequestException('Reset token has expired.');
         }
 
@@ -216,7 +216,7 @@ export class AuthService {
 
         // Step 2: Update the user's password
         const updatedUser = await this.prisma.user.update({
-            where: { id: userToken.user_id },
+            where: { id: passwordresetToken.user_id },
             data: {
                 password: hashedPassword,       // your hashed new password
                 require_reset: 0,               // disable require_reset flag

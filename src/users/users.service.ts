@@ -58,10 +58,10 @@ export class UsersService {
         // Step 3: Create a user token
         const tokenKey = crypto.randomBytes(64).toString('hex');
 
-        const createdToken = await this.prisma.userToken.create({
+        const createdToken = await this.prisma.passwordResetToken.create({
             data: {
             user_id: user.id,
-            token_key: tokenKey,
+            token: tokenKey,
             expires_at: new Date(Date.now() + 60 * 60 * 24 * 30), // 1 hour
             },
         });
@@ -85,7 +85,7 @@ export class UsersService {
             created_by: createdBy,
             userId: user.id,
             password: plainPassword,
-            resetToken: createdToken.token_key, // send this in email or secure output only
+            resetToken: createdToken.token, // send this in email or secure output only
         };
     }
 }
