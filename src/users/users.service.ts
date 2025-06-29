@@ -1,15 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
+import { CreateEmployeeDto } from 'src/employee/dto/create-employee.dto';
 import { CreatePersonDto } from './dto/create-person.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
-    constructor (private readonly prisma: PrismaService, private readonly mailService: MailService) {}
+    constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
 
-   async createUser(createUserDto: CreatePersonDto, createdBy: number) {
+   async createUser(createUserDto: CreateUserDto, createEmployeeDto: CreateEmployeeDto, createPersonDto: CreatePersonDto, createdBy: number) {
     const plainPassword = createUserDto.password;
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
@@ -26,33 +28,38 @@ export class UsersService {
                 throw new BadRequestException('Username or email address already exist!');
             }
 
-        // Step 1: Create the Person
-        const person = await this.prisma.person.create({
-            data: {
-            first_name: createUserDto.first_name,
-            last_name: createUserDto.last_name,
-            middle_name: createUserDto.middle_name,
-            date_of_birth: new Date(createUserDto.date_of_birth),
-            // optionally add gender, nationality, etc. if available in DTO
-            },
-        });
+        // transferred to employee service
+        // const person = await this.prisma.person.create({
+        //     data: {
+        //     first_name: createPersonDto.first_name,
+        //     last_name: createPersonDto.last_name,
+        //     middle_name: createPersonDto.middle_name,
+        //     date_of_birth: new Date(createPersonDto.date_of_birth),
+        //     // optionally add gender, nationality, etc. if available in DTO
+        //     },
+        // });
 
         // Step 2: Create the User using the person_id
         const user = await this.prisma.user.create({
             data: {
-            username: createUserDto.username,
-            email: createUserDto.email,
-            role_id: createUserDto.role_id,
-            password: hashedPassword,
-            person_id: person.id,            // required relation
-            stat: 1,
-            require_reset: 1,
-            created_by: createdBy,
-            created_at: new Date(),
+                employee_id: createEmployeeDto.employee_id,
+                username: createUserDto.username,
+                email: createUserDto.email,
+                role_id: createUserDto.role_id,
+                password: hashedPassword,
+                // person_id: createPersonDto.person.id,        // 👈 required relation from person model and employee service
+                stat: 1,
+                require_reset: 1,
+                created_by: createdBy,
+                created_at: new Date(),
+            }, 
+            include: {
+                employee_id: true        // 👈 this tells prisma to include related field employee_id in user model or table
             },
-              include: {
-                userTokens: true, // 👈 This tells Prisma to include related tokens
-            },
+            // },
+            //   include: {
+            //     userTokens: true, // 👈 This tells Prisma to include related tokens
+            // },
         });
 
         // Step 3: Create a user token

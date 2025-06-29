@@ -13,6 +13,9 @@ import { ConfigModule } from '@nestjs/config';
 import { PersonService } from './person/person.service';
 import { PersonController } from './person/person.controller';
 import { PersonModule } from './person/person.module';
+import { EmployeeService } from './employee/employee.service';
+import { EmployeeController } from './employee/employee.controller';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
@@ -23,10 +26,10 @@ import { PersonModule } from './person/person.module';
     }),
     AuthModule, 
     UserModule, 
-    JwtCustomModule, PersonModule
+    JwtCustomModule, PersonModule, EmployeeModule
   ],
-  providers: [ UsersService, JwtService, PrismaService, MailService, PersonService ],
-  controllers: [PersonController],
+  providers: [ UsersService, JwtService, PrismaService, MailService, PersonService, EmployeeService ],
+  controllers: [PersonController, EmployeeController],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
