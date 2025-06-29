@@ -23,16 +23,9 @@ export class CreatePersonDto {
     @IsString()
     date_of_birth: string;
 
-    @IsEmail()
-    email:string;
+    @IsString()
+    gender: string;
 
     @IsString()
-    @MinLength(6)
-    password: string;
-
-    @IsString()
-    username: string;
-
-    @IsNotEmpty()
-    role_id: number;
+    civil_status: string;
 }

@@ -35,7 +35,8 @@ model Person {
 
 model User {
   id                  Int       @id @default(autoincrement())
-  person_id           Int
+  // person_id           Int     -> replace by employee_id because user will be link by their manager to the employee created by hr
+  employee_id         Int
   username            String    @unique
   password            String
   email               String    @unique
@@ -44,7 +45,7 @@ model User {
   password_reset      String?   @default("") // <- existing user wants to reset password due to update current password or user forgot password
   require_reset       Int       @default(0) // <- intended for first time log in for new user
   role_id             Int
-  reports_to          Int?
+  reports_to          Int? //scalar if expand later change to reports_to_id so you can use it in relations
   is_active           Boolean   @default(true)
   last_login          DateTime?
   security_questions  Json?
@@ -52,14 +53,18 @@ model User {
   created_at          DateTime  @default(now())
 
   // Relations
-  person             Person               @relation(fields: [person_id], references: [id])
-  role               Role                 @relation(fields: [role_id], references: [id])
-  reportsTo          User?                @relation("ReportsTo", fields: [reports_to], references: [id])
-  subordinates       User[]               @relation("ReportsTo")
-  employees          Employee[]
-  refreshTokens      RefreshToken[]
-  user_permissions   UserPermission[]
-  PasswordResetToken PasswordResetToken[]
+  // person               Person               @relation(fields: [person_id], references: [id]) -> replace by employee_id because user will be link by their manager to the employee created by hr
+  // reports_to           User?                @relation("ReportsTo", fields: [reports_to], references: [id])
+  // subordinates         User[]               @relation("ReportsTo")
+  role                 Role                 @relation(fields: [role_id], references: [id])
+  employees            Employee[]
+  refresh_tokens       RefreshToken[]
+  user_permissions     UserPermission[]
+  password_reset_token PasswordResetToken[]
+  //Person               Person?              @relation(fields: [personId], references: [id])
+  //personId             Int?
+  Person               Person?              @relation(fields: [personId], references: [id])
+  personId             Int?
 }
 
 model Role {
@@ -110,30 +115,51 @@ model UserPermissionCompany {
   permission_id Int
   company_id    Int
 
-  userPermission UserPermission @relation(fields: [user_id, permission_id], references: [user_id, permission_id])
-  company        Company        @relation(fields: [company_id], references: [id])
+  user_permission UserPermission @relation(fields: [user_id, permission_id], references: [user_id, permission_id])
+  company         Company        @relation(fields: [company_id], references: [id])
 
   @@id([user_id, permission_id, company_id])
 }
 
 model Company {
-  id                    Int                     @id @default(autoincrement())
-  name                  String                  @unique
-  abbreviation          String                  @unique @db.VarChar(10)
-  created_at            DateTime                @default(now())
-  UserPermissionCompany UserPermissionCompany[]
+  id                      Int                     @id @default(autoincrement())
+  name                    String                  @unique
+  abbreviation            String                  @unique @db.VarChar(10)
+  created_at              DateTime                @default(now())
+  user_permission_company UserPermissionCompany[]
+  Employee                Employee[]
+}
+
+model Division {
+  id               Int      @id @default(autoincrement())
+  name             String   @db.VarChar(255)
+  division_head_id Int
+  created_at       DateTime @default(now())
+
+  departments Department[] // 1:N relation with Department
+}
+
+model Department {
+  id                 Int      @id @default(autoincrement())
+  name               String   @db.VarChar(255)
+  department_head_id Int
+  division_id        Int
+  created_at         DateTime @default(now())
+
+  division Division   @relation(fields: [division_id], references: [id])
+  Employee Employee[]
 }
 
 model RefreshToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int // linked user.
-  token     String   @unique //the refresh token string, usually a long random value.
-  expiresAt DateTime //when the token expires.
-  revoked   Boolean  @default(false) // flag to mark token as revoked (user logout, password reset).
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  user_id    Int // linked user.
+  token      String   @unique //the refresh token string, usually a long random value.
+  expires_at DateTime //when the token expires.
+  revoked    Boolean  @default(false) // flag to mark token as revoked (user logout, password reset).
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [user_id], references: [id])
 }
 
 model PasswordResetToken {
@@ -169,9 +195,10 @@ model EmailAddress {
 
 model Employee {
   id                        Int       @id @default(autoincrement())
-  user_id                   Int
+  company_id                Int // will assign company
+  person_id                 Int       @unique // change to person_id because the info will be used when creating an employee by hr
   employee_id               String    @unique
-  department_id             Int
+  department_id             Int // will assign dept
   hire_date                 DateTime
   position                  String
   salary                    Decimal
@@ -184,7 +211,10 @@ model Employee {
   corporate_rank_id         Int
 
   // Relations
-  user      User   @relation(fields: [user_id], references: [id])
-  person_id Int    @unique
-  person    Person @relation("PersonEmployee", fields: [person_id], references: [id])
+  // user           User        @relation(fields: [user_id], references: [id]) -> replaced by person_id
+  company    Company    @relation(fields: [company_id], references: [id])
+  department Department @relation(fields: [department_id], references: [id])
+  person     Person     @relation("PersonEmployee", fields: [person_id], references: [id])
+  User       User?      @relation(fields: [userId], references: [id])
+  userId     Int?
 }

@@ -34,7 +34,7 @@ export class PersonService {
                 });
 
                 for (const user of users) {
-                    await tx.userToken.deleteMany({ where: { user_id: user.id } });
+                    // await tx.userToken.deleteMany({ where: { user_id: user.id } });
                     await tx.passwordResetToken.deleteMany({ where: { user_id: user.id } });
                     await tx.userPermissionCompany.deleteMany({ where: { user_id: user.id } });
                     await tx.userPermission.deleteMany({ where: { user_id: user.id } });
