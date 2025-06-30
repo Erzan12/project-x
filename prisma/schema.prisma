@@ -61,10 +61,8 @@ model User {
   refresh_tokens       RefreshToken[]
   user_permissions     UserPermission[]
   password_reset_token PasswordResetToken[]
-  //Person               Person?              @relation(fields: [personId], references: [id])
-  //personId             Int?
-  Person               Person?              @relation(fields: [personId], references: [id])
-  personId             Int?
+  Person               Person?              @relation(fields: [person_id], references: [id])
+  person_id            Int?
 }
 
 model Role {

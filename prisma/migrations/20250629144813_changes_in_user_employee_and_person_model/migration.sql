@@ -20,7 +20,7 @@ ADD COLUMN     "userId" INTEGER;
 
 -- AlterTable
 ALTER TABLE "User" DROP COLUMN "person_id",
-ADD COLUMN     "employee_id" INTEGER NOT NULL,
+ADD COLUMN     "employee_id" VARCHAR(255) NOT NULL,
 ADD COLUMN     "personId" INTEGER;
 
 -- AddForeignKey

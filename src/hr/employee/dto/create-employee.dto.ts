@@ -6,6 +6,9 @@ import {
 
 export class CreateEmployeeDto {
     @IsNotEmpty()
+    company_id: number;
+
+    @IsNotEmpty()
     employee_id: string;
     
     @IsNotEmpty()

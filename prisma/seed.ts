@@ -186,7 +186,7 @@ async function main() {
       email: 'hr@abas.com',
       password: hrPassword,
       role_id: hrRole.id,
-      personId: hrPerson.id,
+      person_id: hrPerson.id,
     },
   });
 
@@ -197,7 +197,7 @@ async function main() {
       email: 'it@abas.com',
       password: itPassword,
       role_id: itRole.id,
-      personId: itPerson.id,
+      person_id: itPerson.id,
     },
   });
 
