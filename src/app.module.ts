@@ -14,8 +14,9 @@ import { PersonModule } from './hr/person/person.module';
 import { EmployeeService } from './hr/employee/employee.service';
 import { EmployeeController } from './hr/employee/employee.controller';
 import { EmployeeModule } from './hr/employee/employee.module';
-import { RolesGuard } from './auth/common/guards/roles-permission.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { JwtStrategy } from './auth/middleware/jwt.strategy';
+// import { RolesGuard } from './auth/common/guards/roles-permission.guard';
+// import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -30,15 +31,16 @@ import { APP_GUARD } from '@nestjs/core';
   ],
   providers: [ 
     UsersService,
+    JwtStrategy,
     JwtService, 
     PrismaService, 
     MailService, 
     PersonService, 
     EmployeeService,  
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
   ],
   controllers: [PersonController, EmployeeController],
 })
