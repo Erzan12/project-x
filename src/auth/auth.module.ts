@@ -3,10 +3,10 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaService } from 'prisma/prisma.service';
-import { UsersService } from 'src/users/users.service';
-import { JwtCustomModule } from '../middleware/jwt.module';
+import { UsersService } from '../manager/users/users.service';
+import { JwtCustomModule } from '../auth/middleware/jwt.module';
 import { JwtModule } from '@nestjs/jwt';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../mail/mail.service';
 
 @Module({
   imports: [

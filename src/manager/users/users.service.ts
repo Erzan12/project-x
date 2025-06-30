@@ -1,17 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
-import { CreateEmployeeDto } from 'src/employee/dto/create-employee.dto';
-import { CreatePersonDto } from './dto/create-person.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'prisma/prisma.service';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class UsersService {
     constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
 
-   async createUser(createUserDto: CreateUserDto, createEmployeeDto: CreateEmployeeDto, createPersonDto: CreatePersonDto, createdBy: number) {
+   async createUser(createUserDto: CreateUserDto, createdBy: number) {
     const plainPassword = createUserDto.password;
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
@@ -42,20 +40,19 @@ export class UsersService {
         // Step 2: Create the User using the person_id
         const user = await this.prisma.user.create({
             data: {
-                employee_id: createEmployeeDto.employee_id,
+                employee_id: createUserDto.employee_id,
                 username: createUserDto.username,
                 email: createUserDto.email,
                 role_id: createUserDto.role_id,
                 password: hashedPassword,
-                // person_id: createPersonDto.person.id,        // 👈 required relation from person model and employee service
                 stat: 1,
                 require_reset: 1,
                 created_by: createdBy,
                 created_at: new Date(),
             }, 
-            include: {
-                employee_id: true        // 👈 this tells prisma to include related field employee_id in user model or table
-            },
+            // include: {
+            //     employee: true        // 👈 this tells prisma to include related field employee_id in user model or table
+            // },
             // },
             //   include: {
             //     userTokens: true, // 👈 This tells Prisma to include related tokens

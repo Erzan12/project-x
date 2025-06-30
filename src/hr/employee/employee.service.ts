@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { CreatePersonDto } from 'src/users/dto/create-person.dto';
+import { CreatePersonDto } from '../person/dto/create-person.dto';
+import { CreateCompanyDto } from 'src/administrator/Company/dto/create-company.dto';
 
 @Injectable()
 export class EmployeeService {
     constructor (private prisma: PrismaService) {}
 
-    async createEmployee(createEmployeeDto: CreateEmployeeDto, createPersonDto: CreatePersonDto) {
+    async createEmployee( createPersonDto: CreatePersonDto, createEmployeeDto: CreateEmployeeDto) {
 
         // Step 1: Create the Person
         const person = await this.prisma.person.create({
@@ -22,14 +23,28 @@ export class EmployeeService {
             },
         });
 
-        // Step 2: Create the Employee
+        const company = await this.prisma.company.findUnique({
+            where: { id: createEmployeeDto.company_id },
+        });
+        if (!company) {
+            throw new BadRequestException('Invalid company_id');
+        }
 
+        const department = await this.prisma.department.findUnique({
+            where: { id: createEmployeeDto.department_id },
+        });
+        if (!department) {
+            throw new BadRequestException('Invalid department_id');
+        }
+
+
+        // Step 2: Create the Employee
         const employee = await this.prisma.employee.create({
             data : {
-                company_id: co,     // to create company dto
+                company_id: createEmployeeDto.company_id,     // to be adjusted dto can be added if experiencing an error
                 person_id: person.id,
                 employee_id: createEmployeeDto.employee_id,
-                department_id: createEmployeeDto.employee_id,
+                department_id: createEmployeeDto.department_id,
                 hire_date: new Date(createEmployeeDto.hire_date),
                 position: createEmployeeDto.position,
                 salary: createEmployeeDto.salary,
@@ -39,7 +54,7 @@ export class EmployeeService {
                 corporate_rank_id: createEmployeeDto.corporate_rank_id,
             },
             // include: {
-            //     person: true;    no need to include person because its in the same method
+            //     company: true,
             // }
         });
         return { message: 'Employee created', employee };

@@ -1,21 +1,21 @@
 import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersService } from './users/users.service';
-import { UserModule } from './users/users.module';
+import { UsersService } from '../src/manager/users/users.service';
+import { UserModule } from '../src/manager/users/users.module';
 import { JwtService } from '@nestjs/jwt';
-import { JwtCustomModule } from './middleware/jwt.module';
-import { JwtMiddleware } from './middleware/jwt.middleware';
+import { JwtCustomModule } from '../src/auth/middleware/jwt.module';
+import { JwtMiddleware } from '../src/auth/middleware/jwt.middleware';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from './mail/mail.service';
 import { ConfigModule } from '@nestjs/config';
-import { PersonService } from './person/person.service';
-import { PersonController } from './person/person.controller';
-import { PersonModule } from './person/person.module';
-import { EmployeeService } from './employee/employee.service';
-import { EmployeeController } from './employee/employee.controller';
-import { EmployeeModule } from './employee/employee.module';
+import { PersonService } from './hr/person/person.service';
+import { PersonController } from './hr/person/person.controller';
+import { PersonModule } from './hr/person/person.module';
+import { EmployeeService } from './hr/employee/employee.service';
+import { EmployeeController } from './hr/employee/employee.controller';
+import { EmployeeModule } from './hr/employee/employee.module';
+import { RolesGuard } from './auth/common/guards/roles-permission.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -28,7 +28,18 @@ import { EmployeeModule } from './employee/employee.module';
     UserModule, 
     JwtCustomModule, PersonModule, EmployeeModule
   ],
-  providers: [ UsersService, JwtService, PrismaService, MailService, PersonService, EmployeeService ],
+  providers: [ 
+    UsersService,
+    JwtService, 
+    PrismaService, 
+    MailService, 
+    PersonService, 
+    EmployeeService,  
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
   controllers: [PersonController, EmployeeController],
 })
 export class AppModule implements NestModule{
@@ -48,6 +59,7 @@ export class AppModule implements NestModule{
         { path: 'auth/reset-password', method: RequestMethod.POST},
         { path: 'person/:id', method: RequestMethod.DELETE},
         { path: 'admin/user-register', method: RequestMethod.POST },
+        { path: 'hr/employee-create', method: RequestMethod.POST},
         // Add more exclusions here if needed
       )
       .forRoutes('*');

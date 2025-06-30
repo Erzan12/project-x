@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
-import { CreatePersonDto } from '../users/dto/create-person.dto';
+import { CreatePersonDto } from '../hr/person/dto/create-person.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
 
 @Injectable()
@@ -73,6 +73,7 @@ export class AuthService {
 
         const user = await this.prisma.user.findUnique({
             where: { username },
+            include: { role: true }
         });
 
         // if (!user) {
@@ -157,6 +158,7 @@ export class AuthService {
             // exp: expirationTime,
             sub: user.id,
             name: user.username,
+            role: user.role.name,
             req: require_reset === 1 || password === 'avegabros',
         };
 

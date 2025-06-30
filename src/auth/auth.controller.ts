@@ -1,10 +1,10 @@
 import { Body, Controller, Post, Query, Req, Request, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../manager/users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { CreatePersonDto } from '../users/dto/create-person.dto';
+import { CreatePersonDto } from '../hr/person/dto/create-person.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
-import { User } from '../common/decorators/user.decorator';
+import { User } from './common/decorators/user.decorator';
 // import { RegisterDto } from './dto/register.dto'; // to be added later
 
 @Controller('auth')
