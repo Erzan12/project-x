@@ -10,7 +10,7 @@ export class CreateUserDto {
     // @IsNotEmpty()
     // employee_id: string;
     @IsNotEmpty()
-    employee_id: number;
+    employee_id: string;
     
     @IsEmail()
     email:string;

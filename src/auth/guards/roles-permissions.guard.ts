@@ -27,11 +27,14 @@ export class RolesPermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
+    console.log('Request user:', user);
+
     if (!user) {
       throw new ForbiddenException('No user found in request');
-    }
+    }  
 
     if (requiredRoles?.length > 0) {
+      //user.role?.name -> payload on jwtStrategy -> user.role
       const userRole = user.role?.name;
       if (!requiredRoles.includes(userRole)) {
         throw new ForbiddenException('Access denied: invalid role');
@@ -40,6 +43,7 @@ export class RolesPermissionsGuard implements CanActivate {
 
     if (requiredPermissions?.length > 0) {
       const rolePermissions =
+        //user.role?.role_permissions -> payload on jwtStrategy -> user.role
         user.role?.role_permissions?.map((rp) => rp.permission.name) || [];
       const userPermissions =
         user.user_permissions?.map((up) => up.permission.name) || [];
