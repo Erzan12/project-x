@@ -9,7 +9,7 @@ import { MailService } from '../../mail/mail.service';
 export class UsersService {
     constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
 
-   async createUser(createUserDto: CreateUserDto, createdBy: number) {
+   async createUserEmployee(createUserDto: CreateUserDto, createdBy: number) {
     const plainPassword = createUserDto.password;
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
@@ -22,25 +22,32 @@ export class UsersService {
                 ],
             },
         });
-            if (existingUser) {
-                throw new BadRequestException('Username or email address already exist!');
-            }
 
-        // transferred to employee service
-        // const person = await this.prisma.person.create({
-        //     data: {
-        //     first_name: createPersonDto.first_name,
-        //     last_name: createPersonDto.last_name,
-        //     middle_name: createPersonDto.middle_name,
-        //     date_of_birth: new Date(createPersonDto.date_of_birth),
-        //     // optionally add gender, nationality, etc. if available in DTO
-        //     },
-        // });
+        if (existingUser) {
+            throw new BadRequestException('Username or email address already exist!');
+        }
+
+        //this will ensure the employee_id with INT will be called not the string
+        const employee = await this.prisma.employee.findUnique({
+            where: { employee_id : createUserDto.employee_id }, // string like "ABISC-IT-123"
+        });
+
+        if (!employee) {
+            throw new BadRequestException('Employee not found');
+        }
+
+        // const userExist = await this.prisma.employee.findFirst({
+        //     where: { employee_id : createUserDto.employee_id }
+        // })
+
+        // if (userExist) {
+        //     throw new BadRequestException('User already exists for this employee');
+        // }
 
         // Step 2: Create the User using the person_id
         const user = await this.prisma.user.create({
             data: {
-                employee_id: createUserDto.employee_id,
+                employee_id: employee.id, // This must be the Employee's `id`, not employee_id string, id (numeric PK) is internal and never exposed to frontend or users.
                 username: createUserDto.username,
                 email: createUserDto.email,
                 role_id: createUserDto.role_id,
@@ -49,14 +56,7 @@ export class UsersService {
                 require_reset: 1,
                 created_by: createdBy,
                 created_at: new Date(),
-            }, 
-            // include: {
-            //     employee: true        // 👈 this tells prisma to include related field employee_id in user model or table
-            // },
-            // },
-            //   include: {
-            //     userTokens: true, // 👈 This tells Prisma to include related tokens
-            // },
+            },
         });
 
         // Step 3: Create a user token

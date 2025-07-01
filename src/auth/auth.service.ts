@@ -1,16 +1,20 @@
 import { ConflictException, Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { CreatePersonDto } from '../hr/person/dto/create-person.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
+import { JwtStrategy } from './middleware/jwt.strategy';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService,
+        // private readonly jwtStrategy: JwtStrategy,
+        
     ) {}
 
     
@@ -235,64 +239,6 @@ export class AuthService {
         };
     }
 
-    // TRANSFERRED TO USER DIRECTORY
-    // async register(dto: CreatDto) {
-    //     const existing = await this.prisma.user.findFirst({
-    //         where: {
-    //             OR: [
-    //                 { username: dto.username },
-    //                 { email: dto.email },
-    //             ],
-    //         },
-    //     });
-
-    //     if (existing) {
-    //         throw new ConflictException('Username or email already taken');
-    //     }
-
-    //     // create person
-    //     const person = await this.prisma.person.create({
-    //         data: {
-    //             first_name: dto.first_name,
-    //             middle_name: dto.middle_name,
-    //             last_name: dto.last_name,
-    //             date_of_birth: new Date(dto.date_of_birth), //added required can be optional later
-    //         },
-    //     });
-
-    //       // 2. Create user
-    //     const role = await this.prisma.role.findUnique({
-    //         where: { id: dto.role_id },
-    //         });
-
-    //         if (!role) {
-    //         throw new Error('Invalid role_id');
-    //         }
-
-    //     console.log('DTO Role ID:', dto.role_id);
-
-    //     const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    //     const user = await this.prisma.user.create({
-    //         data: {
-    //         username: dto.username,
-    //         email: dto.email,
-    //         password: hashedPassword,
-    //         person_id: person.id,
-    //         role_id: dto.role_id,
-    //         },
-    //     });
-
-    //     return {
-    //         message: 'User registered successfully',
-    //         user: {
-    //         id: user.id,
-    //         username: user.username,
-    //         email: user.email,
-    //         },
-    //     };
-    // }
-
     //v3 log in with validateUser
     async validateUser(username: string, password: string) {
         const user = await this.prisma.user.findUnique({
@@ -337,7 +283,7 @@ export class AuthService {
         }
 
         if (user.stat !== 1) {
-        throw new BadRequestException('Your account was deactivated.');
+            throw new BadRequestException('Your account was deactivated.');
         }
 
         // Reset any pending password reset token
@@ -349,29 +295,29 @@ export class AuthService {
         }
 
         const resetToken = await this.prisma.passwordResetToken.findFirst({
-        where: { user_id: user.id },
+            where: { user_id: user.id },
         });
 
         if (!resetToken) {
-        throw new BadRequestException('No token assigned to this user.');
+            throw new BadRequestException('No token assigned to this user.');
         }
 
         const allPermissions = [
-        ...user.role.role_permissions.map(rp => rp.permission.name),
-        ...user.user_permissions.map(up => up.permission.name),
+            ...user.role.role_permissions.map(rp => rp.permission.name),
+            ...user.user_permissions.map(up => up.permission.name),
         ];
 
         const issuedAt = Math.floor(Date.now() / 1000);
         const payload = {
-        sub: user.id,
-        name: user.username,
-        role: user.role.name,
-        permissions: allPermissions,
-        iat: issuedAt,
+            sub: user.id,
+            name: user.username,
+            role: user.role.name,
+            permissions: allPermissions,
+            iat: issuedAt,
         };
 
         const token = this.jwtService.sign(payload, {
-        secret: resetToken.token,
+        secret: process.env.JWT_SECRET,
         expiresIn: '1h',
         });
 

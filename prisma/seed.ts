@@ -119,7 +119,6 @@ async function main() {
     ],
     skipDuplicates: true,
   });
-
   // Hash passwords
   const hrPassword = await bcrypt.hash('hr1234', 10);
   const itPassword = await bcrypt.hash('it1234', 10);
@@ -202,15 +201,16 @@ async function main() {
   });
 
   // Update employee records with userId
-  await prisma.employee.update({
-    where: { id: hrEmployee.id },
-    data: { userId: hrUser.id },
-  });
+  // user is not since the only time User and Employee are linked is during user creation by the manager.
+  // await prisma.employee.update({
+  //   where: { id: hrEmployee.id },
+  //   data: { user_id: hrUser.id },
+  // });
 
-  await prisma.employee.update({
-    where: { id: itEmployee.id },
-    data: { userId: itUser.id },
-  });
+  // await prisma.employee.update({
+  //   where: { id: itEmployee.id },
+  //   data: { user_id: itUser.id },
+  // });
 
   // Create Password Reset Tokens
   const now = new Date();
