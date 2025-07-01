@@ -52,10 +52,7 @@ export class EmployeeService {
                 employment_status: createEmployeeDto.employment_status,
                 monthly_equivalent_salary: createEmployeeDto.monthly_equivalent_salary,
                 corporate_rank_id: createEmployeeDto.corporate_rank_id,
-            },
-            // include: {
-            //     company: true,
-            // }
+            }
         });
         return { message: 'Employee created', employee };
     }
