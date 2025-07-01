@@ -36,14 +36,6 @@ export class UsersService {
             throw new BadRequestException('Employee not found');
         }
 
-        // const userExist = await this.prisma.employee.findFirst({
-        //     where: { employee_id : createUserDto.employee_id }
-        // })
-
-        // if (userExist) {
-        //     throw new BadRequestException('User already exists for this employee');
-        // }
-
         // Step 2: Create the User using the person_id
         const user = await this.prisma.user.create({
             data: {
@@ -58,6 +50,14 @@ export class UsersService {
                 created_at: new Date(),
             },
         });
+
+        const userExist = await this.prisma.employee.findFirst({
+            where: { employee_id : createUserDto.employee_id }
+        })
+
+        if (userExist) {
+            throw new BadRequestException('User already exists for this employee');
+        }
 
         // Step 3: Create a user token
         const tokenKey = crypto.randomBytes(64).toString('hex');

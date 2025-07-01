@@ -1,20 +1,21 @@
 import { Body, Controller, Post, UsePipes, ValidationPipe, Request, UseGuards } from '@nestjs/common';
 import { UsersService } from '../../manager/users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { CreateEmployeeDto } from '../../hr/employee/dto/create-employee.dto';
-// import { JwtCustomModule } from 'src/auth/middleware/jwt.module';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Permissions } from 'src/auth/decorators/permissions.decorator';
 
 @Controller('registration')
+@UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
 export class AuthController {
     constructor(private readonly usersService: UsersService) {}
 
     @Post('user-register')
+    @Roles('Information Technology','Human Resources')
+    @Permissions('Create User')
     @UsePipes(new ValidationPipe ({whitelist:true}))
-    // @UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
     async createUser(@Body() dto: CreateUserDto) {
-        // TODO: Replace 0 with the actual user ID of the creator, e.g., from the request context
     return this.usersService.createUserEmployee(dto, 0);
     }         
 }
