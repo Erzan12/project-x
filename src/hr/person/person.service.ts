@@ -31,22 +31,34 @@ export class PersonService {
     const employee_id = existingPerson.employee?.id;
     const user_id = existingPerson.employee?.user?.id;
 
-    await this.prisma.$transaction(async (tx) => {
-        await tx.emailAddress.deleteMany({ where: { id: person_id } });
+    try {
+            await this.prisma.$transaction(async (tx) => {
+            await tx.emailAddress.deleteMany({ where: { person_id } });
 
-        if (user_id) {
-        await tx.passwordResetToken.deleteMany({ where: { user_id } });
-        await tx.userPermissionCompany.deleteMany({ where: { user_id } });
-        await tx.userPermission.deleteMany({ where: { user_id } });
-        await tx.user.delete({ where: { id: user_id } });
+            if (!user_id) throw new Error('User ID is missing!');
+
+            if (user_id) {
+                await tx.passwordResetToken.deleteMany({ where: { user_id } });
+                await tx.userPermissionCompany.deleteMany({ where: { user_id } });
+                await tx.userPermission.deleteMany({ where: { user_id } });
+                await tx.user.delete({ where: { id: user_id } });
+            }
+
+            if (!employee_id) throw new Error('Employee ID is missing!');
+
+            if (employee_id) {
+                await tx.employee.delete({ where: { id: employee_id } });
+            }
+                await tx.person.delete({ where: { id: person_id } });
+
+                return { message: `Person with ID ${person_id} deleted successfully.` };
+            });
+            
+        } catch (err) {
+            console.error('Transaction failed:', err);
+                throw err;
         }
-
-        if (employee_id) {
-        await tx.employee.delete({ where: { id: employee_id } });
-        }
-
-        await tx.person.delete({ where: { id: person_id } });
-    });
     }
 
+    
 }

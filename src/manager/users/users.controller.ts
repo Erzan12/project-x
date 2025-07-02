@@ -13,7 +13,8 @@ export class AuthController {
 
     @Post('user-register')
     @Roles('Information Technology','Human Resources')
-    @Permissions('Create User')
+    // applied some instead of all permissions so that as long as there is 1 permission intended for a role user-register will not be denied
+    @Permissions('Approve Ticket', 'Add Employee')
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async createUser(@Body() dto: CreateUserDto) {
     return this.usersService.createUserEmployee(dto, 0);

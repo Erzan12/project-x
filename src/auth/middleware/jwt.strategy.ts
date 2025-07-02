@@ -13,9 +13,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       passReqToCallback: true,
     });
   }
-
   //merge jwt strategy and jwt middleware -> JWT STRATEGY USE JWT PASSPORT FOR CLEANER CODES AND EASIER TO MAIN
   async validate(req: Request, payload: any) {
+    
     console.log('Correct payload:', payload);         // Should now show { sub: 3, ... }
     console.log('payload.sub:', payload.sub);         // Should now show 3
 
@@ -34,7 +34,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user || !user.is_active) {
       throw new UnauthorizedException('Invalid or inactive user');
     }
-
     return {
       id: user.id,
       username: user.username,
@@ -42,6 +41,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       user_permissions: user.user_permissions,
     };
   }
-
-
 }
