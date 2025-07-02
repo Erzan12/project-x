@@ -1,12 +1,9 @@
 import { ConflictException, Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
-import { CreatePersonDto } from '../hr/person/dto/create-person.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
-import { JwtStrategy } from './middleware/jwt.strategy';
 
 @Injectable()
 export class AuthService {
@@ -38,11 +35,19 @@ export class AuthService {
             throw new BadRequestException('Reset token has expired.');
         }
 
+        //validate if the password is the same as the old password
+        const user = passwordresetToken.user;
+        const isSamePassword = await bcrypt.compare(newPassword, user.password);
+        if (isSamePassword) {
+            throw new BadRequestException('New password cannot be the same as the old password, Please add a new one!')
+        }
+        
+        //hashed the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         // Step 2: Update the user's password
         const updatedUser = await this.prisma.user.update({
-            where: { id: passwordresetToken.user_id },
+            where: { id: user.id },
             data: {
                 password: hashedPassword,       // your hashed new password
                 require_reset: 0,               // disable require_reset flag
@@ -75,12 +80,12 @@ export class AuthService {
             role: {
             include: {
                 role_permissions: {
-                include: { permission: true },
+                    include: { permission: true },
                 },
             },
             },
             user_permissions: {
-            include: { permission: true },
+                include: { permission: true },
             },
         },
         });
@@ -92,6 +97,7 @@ export class AuthService {
         console.log('Entered password:', password);
         console.log('Stored hashed password:', user.password);
         console.log('Password valid?', isPasswordValid);
+
         if (!isPasswordValid) throw new UnauthorizedException('Invalid password');
 
         return user;
@@ -136,6 +142,7 @@ export class AuthService {
         ];
 
         const issuedAt = Math.floor(Date.now() / 1000);
+
         const payload = {
             sub: user.id,
             name: user.username,
@@ -144,9 +151,10 @@ export class AuthService {
             iat: issuedAt,
         };
 
+        //JWT service token is JWT Secret Key in .env with Payload from user name role id and permissions, the logic handling is in jwt.strategy.ts
         const token = this.jwtService.sign(payload, {
-        secret: process.env.JWT_SECRET,
-        expiresIn: '1h',
+            secret: process.env.JWT_SECRET,
+            expiresIn: '1h',
         });
 
         const isNewAccount = password === 'avegabros' || user.password_reset || user.require_reset === 1;

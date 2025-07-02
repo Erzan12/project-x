@@ -7,11 +7,13 @@ import { AuthModule } from '../../auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../../mail/mail.service';
 import { ProtectedController } from './sample.controller';
+import { HomeController, ProfileController } from 'src/global/global.controller';
+
 
 
 @Module({
   imports: [ AuthModule],
-  controllers: [AuthController, ProtectedController],
+  controllers: [AuthController, ProtectedController, HomeController, ProfileController],
   providers: [UsersService, PrismaService, AuthService, JwtService, MailService],
   exports: [AuthService, UsersService],
 })

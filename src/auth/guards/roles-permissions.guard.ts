@@ -15,9 +15,7 @@ export class RolesPermissionsGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+      context.getHandler(), context.getClass()]);
 
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
       PERMISSIONS_KEY,
@@ -27,11 +25,11 @@ export class RolesPermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    console.log('Request user:', user);
-
     if (!user) {
       throw new ForbiddenException('No user found in request');
     }  
+
+    console.log('Request user:', user);
 
     if (requiredRoles?.length > 0) {
       //user.role?.name -> payload on jwtStrategy -> user.role
@@ -48,12 +46,24 @@ export class RolesPermissionsGuard implements CanActivate {
       const userPermissions =
         user.user_permissions?.map((up) => up.permission.name) || [];
 
+      
       const allPermissions = new Set([...rolePermissions, ...userPermissions]);
-      const hasAllPermissions = requiredPermissions.every((perm) =>
+
+      // <---- The user must have one of the roles, and all of the required permissions (not just one). ---->
+      // const hasAllPermissions = requiredPermissions.every((perm) =>
+      //   allPermissions.has(perm),
+      // );
+
+      // if (!hasAllPermissions) {
+      //   throw new ForbiddenException('Access denied: missing permissions');
+      // }
+
+      // <---- The user must have one of the roles, and some or just one of the required permissions (not just one). ---->
+      const hasSomePermissions = requiredPermissions.some((perm) =>
         allPermissions.has(perm),
       );
 
-      if (!hasAllPermissions) {
+      if (!hasSomePermissions) {
         throw new ForbiddenException('Access denied: missing permissions');
       }
     }

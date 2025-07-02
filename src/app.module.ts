@@ -17,6 +17,7 @@ import { EmployeeModule } from './hr/employee/employee.module';
 import { JwtStrategy } from './auth/middleware/jwt.strategy';
 import { AuthGuard } from '@nestjs/passport';;
 
+
 @Module({
   imports: [
     // Adding config here so dotenv will be global no more import per service with @nestjs/config

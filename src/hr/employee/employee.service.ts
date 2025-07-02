@@ -2,7 +2,6 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { CreatePersonDto } from '../person/dto/create-person.dto';
-import { CreateCompanyDto } from 'src/administrator/Company/dto/create-company.dto';
 
 @Injectable()
 export class EmployeeService {
@@ -37,15 +36,24 @@ export class EmployeeService {
             throw new BadRequestException('Invalid department_id');
         }
 
+        const newEmployee = await this.prisma.employee.findFirst({
+            where: { },
+            select: {  },
+        });
+
+        const hireDate = createEmployeeDto.hire_date;
+        const companyId = createEmployeeDto.company_id;
+
+        const generatedEmpID = await this.createUniqueEmpID(companyId, hireDate);
 
         // Step 2: Create the Employee
         const employee = await this.prisma.employee.create({
             data : {
-                company_id: createEmployeeDto.company_id,     // to be adjusted dto can be added if experiencing an error
+                company_id: companyId,    // to be adjusted dto can be added if experiencing an error
                 person_id: person.id,
-                employee_id: createEmployeeDto.employee_id,
+                employee_id: generatedEmpID,
                 department_id: createEmployeeDto.department_id,
-                hire_date: new Date(createEmployeeDto.hire_date),
+                hire_date: hireDate,
                 position: createEmployeeDto.position,
                 salary: createEmployeeDto.salary,
                 pay_frequency:  createEmployeeDto.pay_frequency,
@@ -55,5 +63,33 @@ export class EmployeeService {
             }
         });
         return { message: 'Employee created', employee };
+    }
+
+    async createUniqueEmpID ( company_id: number, hire_date: Date ): Promise<string> {
+        //1. Fetch company abbreviation
+        const company = await this.prisma.company.findUnique({
+            where: { id: company_id },
+            select: { abbreviation: true },
+        });
+        
+        if (!company || !company.abbreviation) {
+            throw new BadRequestException('Company not found or missing abbreviation');
+        }
+        
+        //2. format hire data to YYYYMMDD
+        const hireDateStr = hire_date.toISOString().split('T')[0].replace(/-/g, ''); // e.g 20250702
+        
+        const existingCount = await this.prisma.employee.count({
+            where: {
+                company_id: company_id,
+                hire_date: hire_date,
+            },
+        });
+
+        //4. Generate the employee_id
+        const suffix = String(existingCount + 1).padStart(3, '0'); // e.g. 001, 002
+        const employeeID = `${company.abbreviation}-${hireDateStr}-${suffix}`;
+
+        return employeeID;
     }
 }

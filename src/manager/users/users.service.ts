@@ -28,18 +28,30 @@ export class UsersService {
         }
 
         //this will ensure the employee_id with INT will be called not the string
+        //validate if employee exist or registered
         const employee = await this.prisma.employee.findUnique({
             where: { employee_id : createUserDto.employee_id }, // string like "ABISC-IT-123"
+            include: { person: true } // include person relation so that person will reflect or link to the user created
         });
 
         if (!employee) {
             throw new BadRequestException('Employee not found');
         }
 
+        //validate if user already exist
+        const userExist = await this.prisma.user.findUnique({
+            where : { employee_id : employee.id }
+        })
+
+        if (userExist) {
+            throw new BadRequestException('User already exist');
+        }
+
         // Step 2: Create the User using the person_id
         const user = await this.prisma.user.create({
             data: {
                 employee_id: employee.id, // This must be the Employee's `id`, not employee_id string, id (numeric PK) is internal and never exposed to frontend or users.
+                person_id: employee.person.id, // this will link the created user to the person and employee connected to this user
                 username: createUserDto.username,
                 email: createUserDto.email,
                 role_id: createUserDto.role_id,
@@ -51,14 +63,6 @@ export class UsersService {
             },
         });
 
-        const userExist = await this.prisma.employee.findFirst({
-            where: { employee_id : createUserDto.employee_id }
-        })
-
-        if (userExist) {
-            throw new BadRequestException('User already exists for this employee');
-        }
-
         // Step 3: Create a user token
         const tokenKey = crypto.randomBytes(64).toString('hex');
 
@@ -66,7 +70,7 @@ export class UsersService {
             data: {
             user_id: user.id,
             token: tokenKey,
-            expires_at: new Date(Date.now() + 60 * 60 * 24 * 30), // 1 hour
+            expires_at: new Date(Date.now() + 60 * 60 * 24 * 3), // 3 day expirey -> 60 * 60 = 1hour * 24 = 1 day *3 = 3days
             },
         });
 
