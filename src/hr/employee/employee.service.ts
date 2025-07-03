@@ -82,7 +82,6 @@ export class EmployeeService {
             },
         });
         
-
         //4. Generate the employee_id
         const suffix = String(existingCount + 1).padStart(3, '0'); // e.g. 001, 002
         const employeeID = `${company.abbreviation}-${hireDateStr}-${suffix}`;
@@ -91,7 +90,5 @@ export class EmployeeService {
         console.log('Generated Employee ID:', employeeID); // debug only
 
         return employeeID;
-
-  
     }
 }

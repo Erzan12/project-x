@@ -15,7 +15,8 @@ import { EmployeeService } from './hr/employee/employee.service';
 import { EmployeeController } from './hr/employee/employee.controller';
 import { EmployeeModule } from './hr/employee/employee.module';
 import { JwtStrategy } from './auth/middleware/jwt.strategy';
-import { AuthGuard } from '@nestjs/passport';;
+import { AuthGuard } from '@nestjs/passport';
+// import { RefreshTokenMiddleware } from './auth/middleware/refresh-token.middleware';
 
 
 @Module({
@@ -44,12 +45,25 @@ export class AppModule {}
 
 // implements NestModule{
 //   configure(consumer: MiddlewareConsumer) {
+//       consumer
+//         .apply(RefreshTokenMiddleware)
+//         .exclude('') //skip routes will not be included in refreshtoken session logout - 
+//         .forRoutes(
+//           {path: 'user-home', method: RequestMethod.GET}, // what routes are covered with refreshtokens to avoid performance hits
+//           {path: 'hr/employee-create', method: RequestMethod.POST}
+//         )
+//         //apply for all routes -> forRoutes('*')
+//   }
+// }
+
+// implements NestModule{
+//   configure(consumer: MiddlewareConsumer) {
 //       // consumer.apply(JwtMiddleware).forRoutes('*') // Apply to all routes for now
 
 //       // consumer
 //       //   .apply(JwtMiddleware)
 //       //   .exclude('auth/login') // skip routes
-//       //   .forRoutes('*');
+//       //   .forRoutes('*'); 
 
 //       //alternative approach for excluding a public route
 //       consumer

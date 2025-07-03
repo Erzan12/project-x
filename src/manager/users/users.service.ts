@@ -27,6 +27,23 @@ export class UsersService {
             throw new BadRequestException('Username or email address already exist!');
         }
 
+        const creator = await this.prisma.user.findUnique({
+            where: { id: createdBy },
+            include: {
+                employee: {
+                    include: {
+                        person: true, //to map user creator name
+                    },
+                },
+            },
+        });
+        if (!creator || !creator.employee || !creator.employee.person) {
+            throw new BadRequestException(`Creator (manager) information not found.`);
+        }
+
+        const managerName = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
+        const managerPosition = creator.employee.position;
+
         //this will ensure the employee_id with INT will be called not the string
         //validate if employee exist or registered
         const employee = await this.prisma.employee.findUnique({
@@ -70,7 +87,7 @@ export class UsersService {
             data: {
             user_id: user.id,
             token: tokenKey,
-            expires_at: new Date(Date.now() + 60 * 60 * 24 * 3), // 3 day expirey -> 60 * 60 = 1hour * 24 = 1 day *3 = 3days
+            expires_at: new Date(Date.now() + 60 * 60 * 24 * 3), // 3 day expire -> 60 * 60 = 1hour * 24 = 1 day *3 = 3days
             },
         });
 
@@ -90,11 +107,56 @@ export class UsersService {
         return {
             status: 'success',
             message: `User ${user.username} created with temporary password.`,
-            created_by: createdBy,
+            created_by: {
+                id: creator.id,
+                name: managerName,
+                position: managerPosition,
+            },
             userId: user.id,
             password: plainPassword,
             resetToken: createdToken.token, // send this in email or secure output only
         };
+    }
+
+    async userNewResetToken(email: string) {
+        //find user via email
+        const user = await this.prisma.user.findUnique({
+            where: { email }
+        });
+
+        if(!user) {
+            throw new BadRequestException('User with this email not found')
+        }
+        
+        //optionally deletes the expired token in db
+        await this.prisma.passwordResetToken.deleteMany({
+            where: { user_id: user.id }
+        })
+
+        //generate new token
+        const tokenKey = crypto.randomBytes(64).toString('hex');
+
+        const createdToken = await this.prisma.passwordResetToken.create({
+            data: {
+                user_id: user.id,
+                token: tokenKey,
+                expires_at: new Date(Date.now() + 60 * 60 * 24 * 3), //3days
+            }
+        });
+
+        //send new reset email
+        await this.mailService.sendResetTokenEmail(
+            user.email,
+            user.username,
+            tokenKey,
+        );
+
+        return ({
+            status: 'success',
+            message: `Reset token created and sent to ${user.email}`,
+            userId: user.id,
+            resetToken: createdToken.token,
+        });
     }
 }
 
