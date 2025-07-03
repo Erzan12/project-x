@@ -1,15 +1,16 @@
-import { 
-    IsString,
-    IsNotEmpty
- } from "class-validator";
+// import { 
+//     IsInt,
+//     IsNotEmpty,
+//     IsDateString,
+//  } from "class-validator";
 
-export class CreateUniqueEmp {
-    @IsString()
-    @IsNotEmpty()
-    company_id: number;
+// export class CreateUniqueEmp {
+//     @IsInt()
+//     @IsNotEmpty()
+//     company_id: number;
 
-    @IsString()
-    @IsNotEmpty()
-    hire_date: string;
+//     @IsDateString()
+//     @IsNotEmpty()
+//     hire_date: string;
 
-}
+// }
