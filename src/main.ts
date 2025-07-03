@@ -10,6 +10,13 @@ async function bootstrap() {
   // app.use(new JwtMiddleware(jwtService, prisma).use);
 
   await app.listen(3000);
-  app.useGlobalPipes(new ValidationPipe);
+
+  //enable validation pipe globally -> This ensures the DTOs and decorators (@ValidateNested, @IsDateString, etc.) work properly and transform inputs like date strings into Date objects where necessary.
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    forbidNonWhitelisted: true,
+  }));
+  
 }
 bootstrap();

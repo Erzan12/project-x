@@ -16,10 +16,17 @@ export class EmployeeController {
   @Roles('Human Resources')
   @Permissions('Add Employee')
   @UsePipes(new ValidationPipe ({whitelist:true}))
-  
+
   async createEmployee(@Body() createDto: CreateEmployeeWithDetailsDto) {
-    return this.employeeService.createEmployee( createDto.person, createDto.employee );
+    const { person, employee, hire_date } = createDto;
+    return this.employeeService.createEmployee( person, employee, new Date(hire_date) );
   }
+
+  // async createEmployee(@Body() body: any) {
+  //   const { createPersonDto, createEmployeeDto, hire_date } = body;
+  //   return this.employeeService.createEmployee( createPersonDto, createEmployeeDto, new Date(hire_date) );
+  // }
+  
 }
 
 

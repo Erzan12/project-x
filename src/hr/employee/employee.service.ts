@@ -7,7 +7,7 @@ import { CreatePersonDto } from '../person/dto/create-person.dto';
 export class EmployeeService {
     constructor (private prisma: PrismaService) {}
 
-    async createEmployee( createPersonDto: CreatePersonDto, createEmployeeDto: CreateEmployeeDto) {
+    async createEmployee( createPersonDto: CreatePersonDto, createEmployeeDto: CreateEmployeeDto, hire_date: Date) {
 
         // Step 1: Create the Person
         const person = await this.prisma.person.create({
@@ -36,24 +36,18 @@ export class EmployeeService {
             throw new BadRequestException('Invalid department_id');
         }
 
-        const newEmployee = await this.prisma.employee.findFirst({
-            where: { },
-            select: {  },
-        });
-
-        const hireDate = createEmployeeDto.hire_date;
+        // const hireDate = createEmployeeDto.hire_date; BASIS FOR EMPLOYEE GENERATOR linking to createdUniqueEmpID async method
         const companyId = createEmployeeDto.company_id;
-
-        const generatedEmpID = await this.createUniqueEmpID(companyId, hireDate);
+        const generatedEmpID = await this.createUniqueEmpID(companyId, hire_date);
 
         // Step 2: Create the Employee
         const employee = await this.prisma.employee.create({
             data : {
                 company_id: companyId,    // to be adjusted dto can be added if experiencing an error
                 person_id: person.id,
-                employee_id: generatedEmpID,
+                employee_id: generatedEmpID,    //format "LMVC-20250702-001" LMVC based on company_id.abbreviation - 20250702 date hired - 001 increment as how many employees got hired that day
                 department_id: createEmployeeDto.department_id,
-                hire_date: hireDate,
+                hire_date: hire_date,
                 position: createEmployeeDto.position,
                 salary: createEmployeeDto.salary,
                 pay_frequency:  createEmployeeDto.pay_frequency,
@@ -78,18 +72,26 @@ export class EmployeeService {
         
         //2. format hire data to YYYYMMDD
         const hireDateStr = hire_date.toISOString().split('T')[0].replace(/-/g, ''); // e.g 20250702
-        
+        //fixed midnight utc timezones issue
+        // const hireDateStr = hire_date.toISOString().slice(0, 10).replace(/-/g, '');
+
         const existingCount = await this.prisma.employee.count({
             where: {
                 company_id: company_id,
                 hire_date: hire_date,
             },
         });
+        
 
         //4. Generate the employee_id
         const suffix = String(existingCount + 1).padStart(3, '0'); // e.g. 001, 002
         const employeeID = `${company.abbreviation}-${hireDateStr}-${suffix}`;
 
+        //log emp id generator
+        console.log('Generated Employee ID:', employeeID); // debug only
+
         return employeeID;
+
+  
     }
 }

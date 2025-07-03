@@ -1,11 +1,11 @@
 import { CreatePersonDto } from "src/hr/person/dto/create-person.dto";
 import { CreateEmployeeDto } from "./create-employee.dto";
 import { Type } from "class-transformer";
-import { ValidateNested } from "class-validator";
+import { IsDateString, IsNotEmpty, ValidateNested,  } from "class-validator";
 
 export class CreateEmployeeWithDetailsDto {
     
-    // wrapper dto for nested dto
+    //wrapper dto for nested dto
 
     @ValidateNested()
     @Type(() => CreatePersonDto)
@@ -14,5 +14,8 @@ export class CreateEmployeeWithDetailsDto {
     @ValidateNested()
     @Type(() => CreateEmployeeDto)
     employee: CreateEmployeeDto;
+
+    @IsDateString()
+    hire_date: string;
 
 }

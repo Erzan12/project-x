@@ -1,6 +1,7 @@
 import {
     IsNotEmpty,
     IsOptional,
+    IsDateString,
     IsString,
 } from 'class-validator';
 
@@ -8,12 +9,12 @@ export class CreateEmployeeDto {
     @IsNotEmpty()
     company_id: number;
 
-    @IsNotEmpty()
-    employee_id: string;
+    // @IsNotEmpty()
+    // employee_id: string;
     
-    @IsNotEmpty()
-    @IsString()
-    hire_date: string;
+    // @IsNotEmpty()
+    // @IsDateString()
+    // hire_date: string;
 
     @IsNotEmpty()
     department_id: number;
