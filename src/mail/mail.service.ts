@@ -44,6 +44,30 @@ export class MailService {
          return await this.transporter.sendMail(mailOption);
     }
 
+        async sendResetTokenEmail(to: string, username:string, token: string) {
+
+        //valdiate config in your app
+        if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+            throw new Error('SMTP credentials are missing');
+        }
+
+        const mailOption = { 
+            from : '"AV Human Resource" dummybusiness29@gmail.com',
+            to,
+            subject: 'Welcome to the ABAS-v3 system! Here is your Temporary password',
+            html: `
+                <h3>Hello ${username},</h3>
+                <p>Your account has been created successfully.</p>
+                <p><strong>Username:</strong> ${username} </p>
+                <p>Please login and change your password immediately</p>
+                <p>Click below to reset your password:</p>
+                <a href="http://localhost:3000/auth/reset-password?token=${token}">Reset Password</a>
+            `,
+         };
+
+         return await this.transporter.sendMail(mailOption);
+    }
+
     // Email Automation for successful password reset
     // async successPasswordReset () {
 

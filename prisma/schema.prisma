@@ -156,6 +156,7 @@ model RefreshToken {
   revoked    Boolean  @default(false) // flag to mark token as revoked (user logout, password reset).
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  last_active_at DateTime?  // new field: updated on each request
 
   user       User @relation(fields: [user_id], references: [id])
 }
