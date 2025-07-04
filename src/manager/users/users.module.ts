@@ -6,7 +6,7 @@ import { AuthService } from '../../auth/auth.service';
 import { AuthModule } from '../../auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../../mail/mail.service';
-import { ProtectedController } from './sample.controller';
+import { ProtectedController } from './protected.controller';
 import { HomeController, ProfileController } from 'src/global/global.controller';
 
 

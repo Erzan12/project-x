@@ -3,8 +3,8 @@ import { PersonService } from './person.service';
 import { DeletePersonDto } from './dto/delete-person.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Permissions } from 'src/auth/decorators/permissions.decorator';
+import { Roles } from 'src/auth/components/decorators/roles.decorator';
+import { Permissions } from 'src/auth/components/decorators/permissions.decorator';
 
 @Controller('person')
 @UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)

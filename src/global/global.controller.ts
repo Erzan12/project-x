@@ -2,7 +2,6 @@ import { Controller, UseGuards, Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CustomJwtAuthGuard } from 'src/auth/middleware/jwt.auth.guard';
 
-
 // <-- APPLIED NESTED CONTROLLERS INSIDE GLOBAL.CONTROLLER.TS -->
 @Controller('user-home')
 @UseGuards(CustomJwtAuthGuard)
