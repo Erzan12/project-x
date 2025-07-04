@@ -3,8 +3,8 @@ import { UsersService } from '../../manager/users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Permissions } from 'src/auth/decorators/permissions.decorator';
+import { Roles } from 'src/auth/components/decorators/roles.decorator';
+import { Permissions } from 'src/auth/components/decorators/permissions.decorator';
 import { RequestWithUser } from 'src/auth/components/interfaces/request-with-user.interface';
 
 @Controller('registration')
@@ -12,7 +12,7 @@ import { RequestWithUser } from 'src/auth/components/interfaces/request-with-use
 export class AuthController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post('user-register')
+    @Post('user-create')
     @Roles('Information Technology','Human Resources')
     // applied some instead of all permissions so that as long as there is 1 permission intended for a role user-register will not be denied
     @Permissions('Approve Ticket', 'Add Employee')

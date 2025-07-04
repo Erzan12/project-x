@@ -3,8 +3,8 @@ import { EmployeeService } from './employee.service';
 import { CreateEmployeeWithDetailsDto } from '../employee/dto/create-employe-with-details.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Permissions } from 'src/auth/decorators/permissions.decorator';
+import { Roles } from 'src/auth/components/decorators/roles.decorator';
+import { Permissions } from 'src/auth/components/decorators/permissions.decorator';
 
 @Controller('hr')
 @UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
