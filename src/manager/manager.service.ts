@@ -1,15 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
-import { CreateUserDto } from './dto/create-user.dto';
+// import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'prisma/prisma.service';
-import { MailService } from '../../mail/mail.service';
+import { MailService } from 'src/Mail/mail.service';
+import { CreateUserAccountDto } from './dto/create-user.dto';
 
 @Injectable()
-export class UsersService {
+export class ManagerService {
     constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
 
-   async createUserEmployee(createUserDto: CreateUserDto, createdBy: number) {
+   async createUserEmployee(createUserDto: CreateUserAccountDto, createdBy: number) {
     const plainPassword = createUserDto.password;
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
@@ -87,7 +88,8 @@ export class UsersService {
             data: {
             user_id: user.id,
             token: tokenKey,
-            expires_at: new Date(Date.now() + 60 * 60 * 24 * 3), // 3 day expire -> 60 * 60 = 1hour * 24 = 1 day *3 = 3days
+            // ⛔ TEMP: For testing - token expires in 3 days
+            expires_at: new Date(Date.now() + 60 * 60 * 24 * 3 * 1000), // 3 day expire -> 60 * 60 = 1hour * 24 = 1 day *3 = 3days
             },
         });
 
@@ -140,7 +142,8 @@ export class UsersService {
             data: {
                 user_id: user.id,
                 token: tokenKey,
-                expires_at: new Date(Date.now() + 60 * 60 * 24 * 3), //3days
+                // ⛔ TEMP: For testing - token expires in 3 days
+                expires_at: new Date(Date.now() + 60 * 60 * 24 * 3 * 1000), //3days
             }
         });
 

@@ -1,8 +1,8 @@
 // sample/protected.controller.ts
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { Roles } from 'src/auth/components/decorators/roles.decorator';
-import { Permissions } from 'src/auth/components/decorators/permissions.decorator';
-import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
+import { Roles } from 'src/Auth/components/decorators/roles.decorator';
+import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
+import { RolesPermissionsGuard } from 'src/Auth/guards/roles-permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('protected')

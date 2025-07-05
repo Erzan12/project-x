@@ -1,13 +1,12 @@
-import { Controller, Post, Body, ValidationPipe, UsePipes, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UsePipes } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
-import { CreateEmployeeWithDetailsDto } from '../employee/dto/create-employe-with-details.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
-import { Roles } from 'src/auth/components/decorators/roles.decorator';
-import { Permissions } from 'src/auth/components/decorators/permissions.decorator';
+import { CreateEmployeeWithDetailsDto } from './dto/create-employe-with-details.dto';
+import { Roles } from 'src/Auth/components/decorators/roles.decorator';
+import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
+import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 
 @Controller('hr')
-@UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+@Authenticated()
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 

@@ -137,6 +137,7 @@ export class AuthService {
             throw new BadRequestException('No token assigned to this user.');
         }
 
+        // to include role and permission of the user in the payload
         const allPermissions = [
             ...user.role.role_permissions.map(rp => rp.permission.name),
             ...user.user_permissions.map(up => up.permission.name),
