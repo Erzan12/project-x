@@ -1,22 +1,25 @@
 import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { UsersService } from '../src/manager/users/users.service';
-import { UserModule } from '../src/manager/users/users.module';
+import { AuthModule } from './Auth/auth.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 // import { JwtCustomModule } from '../src/auth/middleware/jwt.module';
 // import { JwtMiddleware } from '../src/auth/middleware/jwt.middleware';
 import { PrismaService } from 'prisma/prisma.service';
-import { MailService } from './mail/mail.service';
+import { MailService } from './Mail/mail.service';
 import { ConfigModule } from '@nestjs/config';
-import { PersonService } from './hr/person/person.service';
-import { PersonController } from './hr/person/person.controller';
-import { PersonModule } from './hr/person/person.module';
-import { EmployeeService } from './hr/employee/employee.service';
-import { EmployeeController } from './hr/employee/employee.controller';
-import { EmployeeModule } from './hr/employee/employee.module';
-import { JwtStrategy } from './auth/middleware/jwt.strategy';
+import { PersonService } from './HR/Person/person.service';
+import { PersonController } from './HR/Person/person.controller';
+import { PersonModule } from './HR/Person/person.module';
+import { EmployeeService } from './HR/Employee/employee.service';
+import { EmployeeController } from './HR/Employee/employee.controller';
+import { EmployeeModule } from './HR/Employee/employee.module';
+import { JwtStrategy } from './Auth/middleware/jwt.strategy';
 import { AuthGuard } from '@nestjs/passport';
 // import { RefreshTokenMiddleware } from './auth/middleware/refresh-token.middleware';
+import { ManagerService } from './Manager/manager.service';
+import { ManagerModule } from './Manager/manager.module';
+import { UserService } from './User/user.service';
+import { ManagerController } from './Manager/manager.controller'
+
 
 
 @Module({
@@ -28,18 +31,18 @@ import { AuthGuard } from '@nestjs/passport';
     }),
     AuthModule,
     JwtModule, 
-    UserModule, 
+    ManagerModule, 
     PersonModule,
     EmployeeModule
   ],
   providers: [ 
-    UsersService,
+    ManagerService,
     PrismaService, 
     MailService, 
     PersonService, 
-    EmployeeService,  
+    EmployeeService, UserService,  
   ],
-  controllers: [PersonController, EmployeeController],
+  controllers: [PersonController, EmployeeController, ManagerController],
 })
 export class AppModule {}
 

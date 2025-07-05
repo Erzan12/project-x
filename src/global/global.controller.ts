@@ -1,6 +1,6 @@
 import { Controller, UseGuards, Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CustomJwtAuthGuard } from 'src/auth/middleware/jwt.auth.guard';
+import { CustomJwtAuthGuard } from '../Auth/middleware/jwt.auth.guard';
 
 // <-- APPLIED NESTED CONTROLLERS INSIDE GLOBAL.CONTROLLER.TS -->
 @Controller('user-home')
@@ -22,3 +22,24 @@ export class ProfileController {
         return { message: 'User Access Granted. Here is your Profile'}
     }
 } 
+
+// ROLES
+// Administrator
+// Human Resources
+// Accounting
+// Operations
+// Payroll
+// Inventory
+// Purchasing
+// Finance
+// Asset Management
+// Compliance
+// Information Technology
+// Eportal User
+
+// Administrator
+// Db Query
+// Db Encoding
+// Db Migrate
+// Maintenance
+// Toolbox

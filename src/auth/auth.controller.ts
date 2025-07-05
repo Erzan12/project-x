@@ -1,29 +1,29 @@
-import { Body, Controller, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Post, Query, ValidationPipe, Res, UsePipes } from '@nestjs/common';
+import { LoginDto } from '../Auth/dto/login.dto';
+import { ResetPasswordWithTokenDto } from '../Auth/dto/reset-password-with-token-dto';
 import { AuthService } from './auth.service';
-import { UsersService } from '../manager/users/users.service';
-import { LoginDto } from './dto/login.dto';
-import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
+import { ManagerService } from 'src/Manager/manager.service';
 // import { Roles } from './common/decorators/roles.decorator';
 // import { RolesPermissionsGuard } from './common/guards/roles-permission.guard';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService, private readonly usersService: UsersService) {}
+    constructor(private readonly authService: AuthService, private readonly managerService: ManagerService) {}
 
-    // @UseGuards(RolesPermissionsGuard)
     @Post('login')
+    @UsePipes(new ValidationPipe ({whitelist:true}))
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
     }
 
     @Post('reset-password')
+    @UsePipes(new ValidationPipe ({whitelist:true}))
     async passwordResetWithToken(
         @Query('token') token: string,
         @Body() dto: ResetPasswordWithTokenDto,
         ) {
         return this.authService.resetPasswordWithToken(dto, token);
     }
-
 
     // <<<----- REFRESH TOKENS TESTING CONTROLLER ----->>>
     // @Post('login')

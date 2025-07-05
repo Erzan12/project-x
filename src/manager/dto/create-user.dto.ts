@@ -6,7 +6,7 @@ import {
     IsNumber,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateUserAccountDto {
     // @IsNotEmpty()
     // employee_id: string;
     @IsNotEmpty()

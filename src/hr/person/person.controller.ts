@@ -1,17 +1,16 @@
-import { Controller, Delete, Body, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Body, HttpStatus, HttpCode } from '@nestjs/common';
 import { PersonService } from './person.service';
 import { DeletePersonDto } from './dto/delete-person.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesPermissionsGuard } from 'src/auth/guards/roles-permissions.guard';
-import { Roles } from 'src/auth/components/decorators/roles.decorator';
-import { Permissions } from 'src/auth/components/decorators/permissions.decorator';
+import { Roles } from 'src/Auth/components/decorators/roles.decorator';
+import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
+import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 
 @Controller('person')
-@UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+@Authenticated()
 export class PersonController {
     constructor(private readonly personService: PersonService) {}
 
-    //to be replaced with actual person name later
+    //to be replaced with actual person name later for mapping
     @Delete()
     @Roles('Human Resources')
     @Permissions('Edit Employee')
