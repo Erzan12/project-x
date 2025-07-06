@@ -11,7 +11,7 @@ async function cleanup() {
   await prisma.person.deleteMany();
   await prisma.department.deleteMany();
   await prisma.division.deleteMany();
-  await prisma.permission.deleteMany();
+  // await prisma.permission.deleteMany();
 
   console.log('Database cleaned');
 }

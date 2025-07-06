@@ -10,11 +10,11 @@ import { CreateUserAccountDto } from './dto/create-user.dto';
 export class ManagerService {
     constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
 
-   async createUserEmployee(createUserDto: CreateUserAccountDto, createdBy: number) {
+   async createUserEmployee(createUserDto: CreateUserAccountDto, created_by: number) {
     const plainPassword = createUserDto.password;
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-        // Step 0: Validate and check user if it exist via username and email
+        // validate and check user if it exist via username and email
         const existingUser = await this.prisma.user.findFirst({
             where : {
                 OR: [
@@ -29,7 +29,7 @@ export class ManagerService {
         }
 
         const creator = await this.prisma.user.findUnique({
-            where: { id: createdBy },
+            where: { id: created_by },
             include: {
                 employee: {
                     include: {
@@ -76,7 +76,7 @@ export class ManagerService {
                 password: hashedPassword,
                 stat: 1,
                 require_reset: 1,
-                created_by: createdBy,
+                created_by: created_by,
                 created_at: new Date(),
             },
         });
@@ -114,9 +114,9 @@ export class ManagerService {
                 name: managerName,
                 position: managerPosition,
             },
-            userId: user.id,
+            user_id: user.id,
             password: plainPassword,
-            resetToken: createdToken.token, // send this in email or secure output only
+            reset_token: createdToken.token, // send this in email or secure output only
         };
     }
 

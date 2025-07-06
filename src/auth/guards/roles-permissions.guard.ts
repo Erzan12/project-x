@@ -1,4 +1,5 @@
 // auth/guards/roles-permissions.guard.ts
+//custom guard to fetch role and permission from db not in login jwt payload
 import {
   CanActivate,
   ExecutionContext,
@@ -8,15 +9,20 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../components/decorators/roles.decorator';
 import { PERMISSIONS_KEY } from '../components/decorators/permissions.decorator';
+import { PrismaService } from '../../../prisma/prisma.service'// adjust to your actual import
 
 @Injectable()
 export class RolesPermissionsGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    private prisma: PrismaService,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(), context.getClass()]);
-
+      context.getHandler(),
+      context.getClass(),
+    ]);
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
       PERMISSIONS_KEY,
       [context.getHandler(), context.getClass()],
@@ -27,38 +33,50 @@ export class RolesPermissionsGuard implements CanActivate {
 
     if (!user) {
       throw new ForbiddenException('No user found in request');
-    }  
+    }
 
-    console.log('Request user:', user);
+    //map for role and user permissions
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        role: {
+          include: {
+            role_permissions: {
+              include: { permission: true },
+            },
+          },
+        },
+        user_permissions: {
+          include: { permission: true },
+        },
+      },
+    });
+
+    console.log('Decoded JWT user object:', request.user);
+
+    if (!dbUser) {
+      throw new ForbiddenException('User not found in database');
+    }
+
+    console.log('Required Roles:', requiredRoles);
+    console.log('User Role:', dbUser.role?.name);
 
     if (requiredRoles?.length > 0) {
-      //user.role?.name -> payload on jwtStrategy -> user.role
-      const userRole = user.role?.name;
-      if (!requiredRoles.includes(userRole)) {
+      const userRole = dbUser.role?.name;
+      if (!userRole || !requiredRoles.includes(userRole)) {
         throw new ForbiddenException('Access denied: invalid role');
       }
     }
 
     if (requiredPermissions?.length > 0) {
       const rolePermissions =
-        //user.role?.role_permissions -> payload on jwtStrategy -> user.role
-        user.role?.role_permissions?.map((rp) => rp.permission.name) || [];
+      //remove permission in rp.permission.action because action is in the role_permissions field
+        dbUser.role?.role_permissions.map((rp) => rp.action) || [];
       const userPermissions =
-        user.user_permissions?.map((up) => up.permission.name) || [];
+        dbUser.user_permissions.map((up) => up.permission.action) || [];
 
-      
       const allPermissions = new Set([...rolePermissions, ...userPermissions]);
 
-      // <---- The user must have one of the roles, and all of the required permissions (not just one). ---->
-      // const hasAllPermissions = requiredPermissions.every((perm) =>
-      //   allPermissions.has(perm),
-      // );
-
-      // if (!hasAllPermissions) {
-      //   throw new ForbiddenException('Access denied: missing permissions');
-      // }
-
-      // <---- The user must have one of the roles, and some or just one of the required permissions (not just one). ---->
       const hasSomePermissions = requiredPermissions.some((perm) =>
         allPermissions.has(perm),
       );
@@ -71,3 +89,78 @@ export class RolesPermissionsGuard implements CanActivate {
     return true;
   }
 }
+
+
+//old ways include role and permission in jwt log in payload
+// import {
+//   CanActivate,
+//   ExecutionContext,
+//   ForbiddenException,
+//   Injectable,
+// } from '@nestjs/common';
+// import { Reflector } from '@nestjs/core';
+// import { ROLES_KEY } from '../components/decorators/roles.decorator';
+// import { PERMISSIONS_KEY } from '../components/decorators/permissions.decorator';
+
+// @Injectable()
+// export class RolesPermissionsGuard implements CanActivate {
+//   constructor(private reflector: Reflector) {}
+
+//   canActivate(context: ExecutionContext): boolean {
+//     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+//       context.getHandler(), context.getClass()]);
+
+//     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
+//       PERMISSIONS_KEY,
+//       [context.getHandler(), context.getClass()],
+//     );
+
+//     const request = context.switchToHttp().getRequest();
+//     const user = request.user;
+
+//     if (!user) {
+//       throw new ForbiddenException('No user found in request');
+//     }  
+
+//     console.log('Request user:', user);
+
+//     if (requiredRoles?.length > 0) {
+//       //user.role?.name -> payload on jwtStrategy -> user.role
+//       const userRole = user.role?.name;
+//       if (!requiredRoles.includes(userRole)) {
+//         throw new ForbiddenException('Access denied: invalid role');
+//       }
+//     }
+
+//     if (requiredPermissions?.length > 0) {
+//       const rolePermissions =
+//         //user.role?.role_permissions -> payload on jwtStrategy -> user.role
+//         user.role?.role_permissions?.map((rp) => rp.permission.name) || [];
+//       const userPermissions =
+//         user.user_permissions?.map((up) => up.permission.name) || [];
+
+      
+//       const allPermissions = new Set([...rolePermissions, ...userPermissions]);
+
+//       // <---- The user must have one of the roles, and all of the required permissions (not just one). ---->
+//       // const hasAllPermissions = requiredPermissions.every((perm) =>
+//       //   allPermissions.has(perm),
+//       // );
+
+//       // if (!hasAllPermissions) {
+//       //   throw new ForbiddenException('Access denied: missing permissions');
+//       // }
+
+//       // <---- The user must have one of the roles, and some or just one of the required permissions (not just one). ---->
+//       const hasSomePermissions = requiredPermissions.some((perm) =>
+//         allPermissions.has(perm),
+//       );
+
+//       if (!hasSomePermissions) {
+//         throw new ForbiddenException('Access denied: missing permissions');
+//       }
+//     }
+
+//     return true;
+//   }
+// }

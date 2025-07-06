@@ -34,11 +34,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user || !user.is_active) {
       throw new UnauthorizedException('Invalid or inactive user');
     }
+    // return {
+    //   id: user.id,
+    //   username: user.username,
+    //   role: user.role,
+    //   user_permissions: user.user_permissions,
+    // };
     return {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-      user_permissions: user.user_permissions,
+      id: payload.sub,
+      username: payload.name,
     };
   }
 }
