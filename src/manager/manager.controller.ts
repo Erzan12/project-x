@@ -20,8 +20,8 @@ export class ManagerController {
         @Body() createUserDto: CreateUserAccountDto,
         @Req() req: RequestWithUser,    
     ) {
-        const createdBy = req.user.id;
-        return this.managerService.createUserEmployee(createUserDto, createdBy);
+        const created_by = req.user.id;
+        return this.managerService.createUserEmployee(createUserDto, created_by);
     }
     
     @Post('new-token')

@@ -17,10 +17,11 @@ import { AuthGuard } from '@nestjs/passport';
 // import { RefreshTokenMiddleware } from './auth/middleware/refresh-token.middleware';
 import { ManagerService } from './Manager/manager.service';
 import { ManagerModule } from './Manager/manager.module';
-import { UserService } from './User/user.service';
 import { ManagerController } from './Manager/manager.controller'
-
-
+import { UserService } from './HR/User/user.service';
+import { AdministratorController } from 'src/Administrator/administrator.controller';
+import { AdministratorService } from 'src/Administrator/administrator.service';
+import { AdministratorModule } from 'src/Administrator/administrator.module';
 
 @Module({
   imports: [
@@ -33,16 +34,17 @@ import { ManagerController } from './Manager/manager.controller'
     JwtModule, 
     ManagerModule, 
     PersonModule,
-    EmployeeModule
+    EmployeeModule,
+    AdministratorModule
   ],
   providers: [ 
     ManagerService,
     PrismaService, 
     MailService, 
     PersonService, 
-    EmployeeService, UserService,  
+    EmployeeService, UserService, AdministratorService,  
   ],
-  controllers: [PersonController, EmployeeController, ManagerController],
+  controllers: [PersonController, EmployeeController, ManagerController, AdministratorController],
 })
 export class AppModule {}
 

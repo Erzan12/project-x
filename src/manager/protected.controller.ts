@@ -10,7 +10,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class ProtectedController {
   @Get('hr-only')
   @Roles('Human Resources')
-  @Permissions('View Employee', 'Add Employee')
+  @Permissions('edit')
   getHrData() {
     return { message: 'HR Access Granted' };
   }

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Query, ValidationPipe, Res, UsePipes } from '@nestjs/common';
-import { LoginDto } from '../Auth/dto/login.dto';
-import { ResetPasswordWithTokenDto } from '../Auth/dto/reset-password-with-token-dto';
+import { LoginDto } from './dto/login.dto';
+import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
 import { AuthService } from './auth.service';
 import { ManagerService } from 'src/Manager/manager.service';
 // import { Roles } from './common/decorators/roles.decorator';

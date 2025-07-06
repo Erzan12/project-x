@@ -80,11 +80,13 @@ export class AuthService {
         include: {
             role: {
             include: {
+                //map for role permission prisma
                 role_permissions: {
                     include: { permission: true },
                 },
             },
             },
+            //map for user_permission prisma
             user_permissions: {
                 include: { permission: true },
             },
@@ -137,19 +139,20 @@ export class AuthService {
             throw new BadRequestException('No token assigned to this user.');
         }
 
+        //removed roles and permissions in jwt log in payload for more minimal and simplier jwt token
         // to include role and permission of the user in the payload
-        const allPermissions = [
-            ...user.role.role_permissions.map(rp => rp.permission.name),
-            ...user.user_permissions.map(up => up.permission.name),
-        ];
+        // const allPermissions = [
+        //     ...user.role.role_permissions.map(rp => rp.permission.action),
+        //     ...user.user_permissions.map(up => up.permission.action),
+        // ];
+        //             role: user.role.name,
+        //     permissions: allPermissions,
 
         const issuedAt = Math.floor(Date.now() / 1000);
 
         const payload = {
             sub: user.id,
             name: user.username,
-            role: user.role.name,
-            permissions: allPermissions,
             iat: issuedAt,
         };
 

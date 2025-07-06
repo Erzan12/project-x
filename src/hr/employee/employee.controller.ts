@@ -13,7 +13,7 @@ export class EmployeeController {
   // @UseGuards(RolesGuard)
   @Post('employee-create')
   @Roles('Human Resources')
-  @Permissions('Add Employee')
+  @Permissions('edit')
   @UsePipes(new ValidationPipe ({whitelist:true}))
 
   async createEmployee(@Body() createDto: CreateEmployeeWithDetailsDto) {
