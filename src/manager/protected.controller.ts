@@ -10,14 +10,14 @@ import { AuthGuard } from '@nestjs/passport';
 export class ProtectedController {
   @Get('hr-only')
   @Roles('Human Resources')
-  @Permissions('edit')
+  @Permissions('view')
   getHrData() {
     return { message: 'HR Access Granted' };
   }
 
   @Get('it-only')
   @Roles('Information Technology')
-  @Permissions('Approve Ticket')
+  @Permissions('add')
   getItData() {
     return { message: 'IT Access Granted' };
   }

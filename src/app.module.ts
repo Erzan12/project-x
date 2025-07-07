@@ -17,7 +17,6 @@ import { AuthGuard } from '@nestjs/passport';
 // import { RefreshTokenMiddleware } from './auth/middleware/refresh-token.middleware';
 import { ManagerService } from './Manager/manager.service';
 import { ManagerModule } from './Manager/manager.module';
-import { ManagerController } from './Manager/manager.controller'
 import { UserService } from './HR/User/user.service';
 import { AdministratorController } from 'src/Administrator/administrator.controller';
 import { AdministratorService } from 'src/Administrator/administrator.service';
@@ -44,7 +43,7 @@ import { AdministratorModule } from 'src/Administrator/administrator.module';
     PersonService, 
     EmployeeService, UserService, AdministratorService,  
   ],
-  controllers: [PersonController, EmployeeController, ManagerController, AdministratorController],
+  controllers: [PersonController, EmployeeController, AdministratorController],
 })
 export class AppModule {}
 

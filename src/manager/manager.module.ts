@@ -6,12 +6,12 @@ import { PrismaService } from 'prisma/prisma.service';
 import { AuthService } from 'src/Auth/auth.service';
 import { AuthModule } from 'src/Auth/auth.module';
 import { MailService } from 'src/Mail/mail.service';
-import { ManagerController } from './manager.controller';
+import { HRManController, ITManController } from './manager.controller';
 import { ProtectedController } from './protected.controller';
 
 @Module({
   imports: [ AuthModule ],
-  controllers: [ ProtectedController, HomeController, ProfileController, ManagerController ],
+  controllers: [ ProtectedController, HomeController, ProfileController,  ITManController, HRManController ],
   providers: [ManagerService, PrismaService, AuthService, JwtService, MailService],
   exports: [AuthService, ManagerService],
 })

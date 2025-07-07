@@ -1,5 +1,7 @@
 // auth/guards/roles-permissions.guard.ts
 //custom guard to fetch role and permission from db not in login jwt payload
+// auth/guards/roles-permissions.guard.ts
+//STABLE 
 import {
   CanActivate,
   ExecutionContext,
@@ -10,6 +12,7 @@ import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../components/decorators/roles.decorator';
 import { PERMISSIONS_KEY } from '../components/decorators/permissions.decorator';
 import { PrismaService } from '../../../prisma/prisma.service'// adjust to your actual import
+
 
 @Injectable()
 export class RolesPermissionsGuard implements CanActivate {
@@ -42,8 +45,15 @@ export class RolesPermissionsGuard implements CanActivate {
         role: {
           include: {
             role_permissions: {
-              include: { permission: true },
-            },
+              include: {
+                permission: {
+                  include: {
+                    permissions: true,
+                    module: true,
+                  }
+                }
+              }
+            }
           },
         },
         user_permissions: {
@@ -51,6 +61,23 @@ export class RolesPermissionsGuard implements CanActivate {
         },
       },
     });
+
+        //map for role and user permissions
+    // const dbUser = await this.prisma.user.findUnique({
+    //   where: { id: user.id },
+    //   include: {
+    //     role: {
+    //       include: {
+    //         role_permissions: {
+    //           include: { permission: true },
+    //         },
+    //       },
+    //     },
+    //     user_permissions: {
+    //       include: { permission: true },
+    //     },
+    //   },
+    // });
 
     console.log('Decoded JWT user object:', request.user);
 
@@ -61,6 +88,9 @@ export class RolesPermissionsGuard implements CanActivate {
     console.log('Required Roles:', requiredRoles);
     console.log('User Role:', dbUser.role?.name);
 
+    console.log('🔐 Current rolePermissions:', dbUser.role?.role_permissions);
+    console.log('🔐 Current userPermissions:', dbUser.user_permissions);
+
     if (requiredRoles?.length > 0) {
       const userRole = dbUser.role?.name;
       if (!userRole || !requiredRoles.includes(userRole)) {
@@ -69,11 +99,12 @@ export class RolesPermissionsGuard implements CanActivate {
     }
 
     if (requiredPermissions?.length > 0) {
+
       const rolePermissions =
-      //remove permission in rp.permission.action because action is in the role_permissions field
-        dbUser.role?.role_permissions.map((rp) => rp.action) || [];
+      //remove permission in rp.permission.action because action is in the role_permissions field and we need to call or map the action field for the permission
+      dbUser.role?.role_permissions.map((rp) => rp.action) || [];
       const userPermissions =
-        dbUser.user_permissions.map((up) => up.permission.action) || [];
+      dbUser.user_permissions.map((up) => up.permission.action) || [];
 
       const allPermissions = new Set([...rolePermissions, ...userPermissions]);
 
