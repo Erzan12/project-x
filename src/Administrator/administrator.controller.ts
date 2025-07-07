@@ -7,6 +7,8 @@ import { Roles } from 'src/Auth/components/decorators/roles.decorator';
 import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
 import { CreateSubModuleDto } from './dto/create-sub-module.dto';
 import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 
 @Controller('administrator')
 export class AdministratorController {
@@ -46,5 +48,29 @@ export class AdministratorController {
      ) {
         const created_by = req.user.id;
         return this.administratorService.createSubModulePermissions(createSubModulePermissionDto, created_by)
+    }
+
+    @Post('create-role')
+    @Authenticated()
+    @Roles('Administrator')
+    // @Permissions('access')
+    async createRole(
+        @Body() createRoleDto: CreateRoleDto,
+        @Req() req: RequestWithUser,
+    ) {
+        const created_by = req.user.id;
+        return this.administratorService.createRole(createRoleDto, req, created_by)
+    }
+
+    @Post('create-role-permission')
+    @Authenticated()
+    @Roles('Administrator')
+    // @Permissions('access')
+    async createRolePermission(
+        @Body() createRolePermissionDto: CreateRolePermissionDto,
+        @Req() req: RequestWithUser,
+    ) {
+        const created_by = req.user.id;
+        return this.administratorService.createRolePermissions(createRolePermissionDto, req, created_by)
     }
 }
