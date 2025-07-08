@@ -14,7 +14,7 @@ async function main() {
       prisma.company.upsert({
         where: { abbreviation: abbr },
         update: {},
-        create: { name: abbr, abbreviation: abbr },
+        create: { name: abbr, abbreviation: abbr, company_code: abbr },
       }),
     )
   );
@@ -74,14 +74,12 @@ async function main() {
   const hrModule = await prisma.module.create({
     data: {
       name: 'Human Resources',
-      created_by: new Date(),
     },
   });
 
   const managerModule = await prisma.module.create({
     data: {
       name: 'Managers Access',
-      created_by: new Date(),
     },
   });
 
@@ -155,31 +153,31 @@ async function main() {
     data: [
       {
         role_id: hrRole.id,
-        permission_id: permissionRecords[0].sub_module_id,
+        sub_module_id: permissionRecords[0].sub_module_id,
         module_id: hrModule.id,
         action: permissionRecords[0].action,
-        subModulePermissionId: permissionRecords[0].id,
+        sub_module_permission_id: permissionRecords[0].id,
       },
       {
         role_id: hrRole.id,
-        permission_id: permissionRecords[1].sub_module_id,
+        sub_module_id: permissionRecords[1].sub_module_id,
         module_id: hrModule.id,
         action: permissionRecords[1].action,
-        subModulePermissionId: permissionRecords[1].id,
+        sub_module_permission_id: permissionRecords[1].id,
       },
       {
         role_id: itRole.id,
-        permission_id: permissionRecords[6].sub_module_id,
+        sub_module_id: permissionRecords[6].sub_module_id,
         module_id: managerModule.id,
         action: permissionRecords[6].action,
-        subModulePermissionId: permissionRecords[6].id,
+        sub_module_permission_id: permissionRecords[6].id,
       },
       {
         role_id: itRole.id,
-        permission_id: permissionRecords[7].sub_module_id,
+        sub_module_id: permissionRecords[7].sub_module_id,
         module_id: managerModule.id,
         action: permissionRecords[7].action,
-        subModulePermissionId: permissionRecords[7].id,
+        sub_module_permission_id: permissionRecords[7].id,
       },
     ],
     skipDuplicates: true,
@@ -277,9 +275,9 @@ async function main() {
   // 13. Create UserRoles
   const userRoles = await prisma.userRole.createMany({
     data: [
-      { user_id: hrUser.id, role_id: hrRole.id, department_id: hrDept.id, created_at: now },
-      { user_id: itUser.id, role_id: itRole.id, department_id: itDept.id, created_at: now },
-      { user_id: adminUser.id, role_id: adminRole.id, department_id: itDept.id, created_at: now },
+      { user_id: hrUser.id, role_id: hrRole.id, module_id: hrDept.id, created_at: now },
+      { user_id: itUser.id, role_id: itRole.id, module_id: itDept.id, created_at: now },
+      { user_id: adminUser.id, role_id: adminRole.id, module_id: itDept.id, created_at: now },
     ],
   });
 
@@ -290,12 +288,12 @@ async function main() {
     data: [
       {
         user_id: hrUser.id,
-        permission_id: permissionRecords[0].id,
+        action: permissionRecords[0].action,
         user_role_id: allUserRoles.find((r) => r.user_id === hrUser.id)!.id,
       },
       {
         user_id: itUser.id,
-        permission_id: permissionRecords[6].id,
+        action: permissionRecords[6].action,
         user_role_id: allUserRoles.find((r) => r.user_id === itUser.id)!.id,
       },
     ],

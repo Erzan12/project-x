@@ -13,7 +13,7 @@ export class PersonController {
     //to be replaced with actual person name later for mapping
     @Delete()
     @Roles('Human Resources')
-    @Permissions('Edit Employee')
+    // @Permissions('Edit Employee')
     @HttpCode(HttpStatus.NO_CONTENT)
         async deletePerson(@Body() dto: DeletePersonDto): Promise<void> {
         await this.personService.deletePersonWithRelations(dto.person_id);

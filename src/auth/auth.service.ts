@@ -87,9 +87,7 @@ export class AuthService {
             },
             },
             //map for user_permission prisma
-            user_permissions: {
-                include: { permission: true },
-            },
+            user_permissions: true,
         },
         });
 

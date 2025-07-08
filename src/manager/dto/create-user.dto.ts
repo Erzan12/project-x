@@ -29,7 +29,7 @@ export class CreateUserAccountDto {
 
     @IsInt()
     @IsNotEmpty()
-    department_id: number;
+    module_id: number;
 
     @IsInt()
     @IsNotEmpty()

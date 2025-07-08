@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { CreateSubModuleDto } from './dto/create-sub-module.dto';
@@ -8,6 +8,7 @@ import { CreatePermissionTemplateDto } from './dto/create-permission-template.dt
 import { PermissionTemplateService } from './permission-template/permission-template.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
+import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
 
 @Injectable()
 export class AdministratorService {
@@ -184,9 +185,9 @@ export class AdministratorService {
                 status: 'success',
                 message: `Role successfully created!}`,
                 created_by: {
-                    id: roleUser.id,
-                    name: roleUser.user.name,
-                    posistion: roleUser.name,
+                    id: roleCreate.id,
+                    name: roleUser.name,
+                    posistion: roleCreate.name,
                 },
                 data: {
                     roleCreate
@@ -195,7 +196,7 @@ export class AdministratorService {
         }
 
         async createRolePermissions(createRolePermissionDto: CreateRolePermissionDto, req, created_by) {
-            const { action, permission_id, module_id, role_id } = createRolePermissionDto;
+            const { action, sub_module_id, module_id, role_id } = createRolePermissionDto;
 
             const roleUser = req.user
 
@@ -220,7 +221,7 @@ export class AdministratorService {
             }
 
             const subID = await this.prisma.subModule.findUnique({
-                where: { id: permission_id}
+                where: { id: sub_module_id}
             })
 
             if(!subID) {
@@ -229,7 +230,7 @@ export class AdministratorService {
 
             const createRolePermission = action.map(act =>({
                 action: act,
-                permission_id,
+                sub_module_id,
                 module_id,
                 role_id,
             }))
@@ -239,6 +240,78 @@ export class AdministratorService {
                 skipDuplicates: true,
             });
         }
+
+        // async createRolePermissions(createDto: CreateRolePermissionDto) {
+        //     const { role_id, action = [], module_id, sub_module_id } = createDto;
+
+        //     // Step 1: Validate role exists
+        //     const role = await this.prisma.role.findUnique({
+        //         where: { id: role_id },
+        //     });
+
+        //     if (!role) {
+        //         throw new BadRequestException('Role does not exist!');
+        //     }
+
+        //     if (action.length === 0) {
+        //         throw new BadRequestException('No permissions provided to assign.');
+        //     }
+
+        //     // Step 2: Create entries
+        //     const newPermissions = action.map(act => ({
+        //         role_id,
+        //         action: act,
+        //         module_id,        // replace with actual module_id
+        //         sub_module_id     // replace with actual sub_module_id
+        //     }));
+
+        //     const result = await this.prisma.rolePermission.createMany({
+        //         data: newPermissions,
+        //         skipDuplicates: true, // prevents inserting duplicates if some already exist
+        //     });
+
+        //     return {
+        //         message: 'Permissions successfully assigned to role.',
+        //         count: result.count
+        //     };
+        // }
+
+        async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto) {
+            const { role_id, action = [] } = updateRolePermissionsDto;
+
+            const existingRole = await this.prisma.role.findUnique({
+                where: { id: role_id },
+                include: {
+                role_permissions: true,
+                },
+            });
+
+            if (!existingRole) {
+                throw new BadRequestException('Role does not exist!');
+            }
+
+            const toUpdate = existingRole.role_permissions.filter((perm) =>
+                action.includes(perm.action)
+            );
+
+            const results = await Promise.all(
+                toUpdate.map((perm) =>
+                this.prisma.rolePermission.update({
+                    where: { id: perm.id },
+                    data: {
+                    // Add fields you want to update here, e.g.:
+                    action: perm.action, // or any new action value
+                    },
+                })
+                )
+            );
+
+            if (existingRole.role_permissions.length === 0) {
+                throw new BadRequestException('This role has no existing permissions to update.');
+            }
+
+            return results;
+            }
 
 
         // async createPermissionTemplate(createPermissionTemplateDto: CreatePermissionTemplateDto, req) {

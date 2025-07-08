@@ -15,7 +15,7 @@ export class CreateRolePermissionDto {
 
     @IsInt()
     @IsNotEmpty()
-    permission_id: number;
+    sub_module_id: number;
 
     @IsInt()
     @IsNotEmpty()

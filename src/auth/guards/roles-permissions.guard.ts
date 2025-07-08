@@ -57,7 +57,11 @@ export class RolesPermissionsGuard implements CanActivate {
           },
         },
         user_permissions: {
-          include: { permission: true },
+          include: {
+            user_role: true,
+            SubModulePermission: true,
+            companies: true,
+          },
         },
       },
     });
@@ -104,7 +108,7 @@ export class RolesPermissionsGuard implements CanActivate {
       //remove permission in rp.permission.action because action is in the role_permissions field and we need to call or map the action field for the permission
       dbUser.role?.role_permissions.map((rp) => rp.action) || [];
       const userPermissions =
-      dbUser.user_permissions.map((up) => up.permission.action) || [];
+      dbUser.user_permissions.map((up) => up.action) || [];
 
       const allPermissions = new Set([...rolePermissions, ...userPermissions]);
 
