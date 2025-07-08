@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             role_permissions: { include: { permission: true } },
           },
         },
-        user_permissions: { include: { permission: true } },
+        user_permissions: true,
       },
     });
 

@@ -11,7 +11,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService, private readonly managerService: ManagerService) {}
 
     @Post('login')
-    @UsePipes(new ValidationPipe ({whitelist:true}))
+    // @UsePipes(new ValidationPipe ({whitelist:true}))
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
     }

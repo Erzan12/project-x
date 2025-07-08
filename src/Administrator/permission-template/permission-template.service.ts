@@ -7,23 +7,37 @@ import { CreatePermissionTemplateDto } from '../dto/create-permission-template.d
 export class PermissionTemplateService {
     constructor(private prisma: PrismaService) {}
 
-  async createTemplate(dto: CreatePermissionTemplateDto, req) {
-    console.log('DTO Received:', dto);
+  async createTemplate(createPermissionTemplateDto: CreatePermissionTemplateDto, req) {
+    console.log('DTO Received:', createPermissionTemplateDto);
     
-    const { name, departmentId, companyIds, rolePermissionIds } = dto;
+    const { name, departmentId, companyIds, rolePermissionIds } = createPermissionTemplateDto;
     
     //check for role administrator
-    const roleUser = req.user
+    const roleUser = await this.prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: { role: true },
+    });
 
-    if(!roleUser) {
-        throw new ForbiddenException('User not authenticated');
+    if (!roleUser) {
+      throw new ForbiddenException('User not authenticated');
     }
 
-    if(roleUser.role !== 'Administrator') {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    if (roleUser.role?.name !== 'Administrator') {
+      throw new ForbiddenException('Only Administrators are allowed to create permission templates');
     }
     
     console.log('company_ids:', companyIds);
+
+    // Flatten the actions so each action is its own object
+    const flattenedRolePermissionIds = rolePermissionIds.flatMap(({ role_id, sub_module_id, module_id, action }) =>
+      action.map((act) => ({
+        role_id,
+        sub_module_id,
+        module_id,
+        action: act,
+      }))
+    );
+
 
     return await this.prisma.permissionTemplate.create({
       data: {
@@ -35,19 +49,20 @@ export class PermissionTemplateService {
           })),
         },
         
-        role_permissions: {
-          create: rolePermissionIds.map(({ role_id, permission_id, module_id }) => ({
-            role_permission: {
-              connect: {
-                role_id_permission_id_module_id: {
-                  role_id,
-                  permission_id,
-                  module_id,
-                },
+      role_permissions: {
+        create: flattenedRolePermissionIds.map(({ role_id, sub_module_id, module_id, action }) => ({
+          role_permission: {
+            connect: {
+              role_id_sub_module_id_module_id_action: {
+                role_id,
+                sub_module_id,
+                module_id,
+                action,
               },
             },
-          })),
-        },
+          },
+        })),
+      },
         // created_by,
       },
       include: {

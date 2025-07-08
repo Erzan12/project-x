@@ -43,14 +43,14 @@ export class ITManController {
     @Post('user-create')
     @Roles('Information Technology')
     //can enable allPermissions because its now centralized for Information Technology
-    @Permissions('approve')
-    @UsePipes(new ValidationPipe ({whitelist:true}))
+    // @Permissions('approve')
+    // @UsePipes(new ValidationPipe ({whitelist:true}))
     async createUser(
         @Body() createUserDto: CreateUserAccountDto,
         @Req() req: RequestWithUser,
     ) {
         const createdBy = req.user.id;
-        return this.managerService.createUserEmployeeWithTemplate(createUserDto, createdBy);
+        return this.managerService.createUserEmployee(createUserDto, createdBy);
     }
 
     @Post('new-token')
@@ -77,7 +77,7 @@ export class HRManController {
         @Req() req: RequestWithUser,
     ) {
         const createdBy = req.user.id;
-        return this.managerService.createUserEmployeeWithTemplate(createUserDto, createdBy);
+        return this.managerService.createUserEmployee(createUserDto, createdBy);
     }
 
     // @Post('new-token')

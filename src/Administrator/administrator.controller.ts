@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, Patch, Get } from '@nestjs/common';
 import { AdministratorService } from '../Administrator/administrator.service';
 import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 import { CreateModuleDto } from '../Administrator/dto/create-module.dto';
@@ -9,10 +9,19 @@ import { CreateSubModuleDto } from './dto/create-sub-module.dto';
 import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
+import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
 
 @Controller('administrator')
 export class AdministratorController {
     constructor (private administratorService: AdministratorService) {}
+
+    @Get('dashboard')
+    @Authenticated()
+    @Roles('Administrator')
+    // @Permissions('access')
+    getAdminData() {
+        return { message: 'Admin Access Granted' };
+    }
 
     @Post('create-module')
     @Authenticated()
@@ -68,9 +77,19 @@ export class AdministratorController {
     // @Permissions('access')
     async createRolePermission(
         @Body() createRolePermissionDto: CreateRolePermissionDto,
-        @Req() req: RequestWithUser,
+        @Req() req : RequestWithUser,
     ) {
-        const created_by = req.user.id;
+        const created_by = req.user;
         return this.administratorService.createRolePermissions(createRolePermissionDto, req, created_by)
+    }
+
+    @Patch('roles/permissions')
+    // @Authenticated()
+    @Roles('Administrator')
+    // @Permissions('access')
+    async updateRolePermission(
+        @Body() updateRolePermissionsDto: UpdateRolePermissionsDto,
+    ) {
+        return this.administratorService.updateRolePermissions(updateRolePermissionsDto);
     }
 }
