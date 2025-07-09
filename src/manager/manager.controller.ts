@@ -35,7 +35,7 @@ import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorat
 // }
 
 @Controller('api/it-manager')
-@Authenticated()
+@Authenticated()    //to make global
 export class ITManController {
     constructor( private managerService: ManagerService) {}
 
@@ -54,8 +54,8 @@ export class ITManController {
     }
 
     @Post('new-token')
-    @Roles('Information Technology')
-    @Permissions('Approve ticket')
+    @Roles('Information Technology')    //to make enums
+    @Permissions('Approve ticket')      
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async newResetToken(@Body() body: { email: string }) {
         return this.managerService.userNewResetToken(body.email);

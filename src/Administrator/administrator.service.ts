@@ -15,7 +15,20 @@ export class AdministratorService {
     constructor (private prisma: PrismaService, private permissionTemplateService:PermissionTemplateService) {}
 
         // validate if module already exist
-        async createModule(createModuleDto: CreateModuleDto, created_by: number) { 
+        async createModule(createModuleDto: CreateModuleDto, req, created_by: number) { 
+
+            //check for role administrator
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.user.id},
+                include: {
+                    role: true,
+                }
+            })
+
+            if(!user || user.role?.name !== 'Administrator' ) {
+                throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+            }
+
             const module = await this.prisma.module.findFirst({
                 where : { name: createModuleDto.name }
             })
@@ -50,16 +63,29 @@ export class AdministratorService {
                 status: 'success',
                 message: `New module has been added to the system!`,
                 created_by: {
-                    id: creator.id,
-                    name: admin,
-                    position: adminPosition,
-                },
+                        id: creator.id,
+                        name: admin,
+                        position: adminPosition,
+                    },
                 module_id: moduleCreate.id,
                 module_name: moduleCreate.name
             }
         }
     
-        async createSubModule(createSubModuleDto: CreateSubModuleDto, created_by: number) {
+        async createSubModule(createSubModuleDto: CreateSubModuleDto, req, created_by: number) {
+
+            //check for role administrator
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.user.id},
+                include: {
+                    role: true,
+                }
+            })
+
+            if(!user || user.role?.name !== 'Administrator' ) {
+                throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+            }
+
             const findModule = await this.prisma.module.findUnique({
                 where: { id: createSubModuleDto.module_id }
             })
@@ -105,15 +131,27 @@ export class AdministratorService {
                         id: creator.id,
                         name: admin,
                         position: adminPosition,
+                    },
                 subModule_id: subModule.id,
                 subModule_name: subModule.name
-                }
             }
         }
 
-        async createSubModulePermissions(createSubModulePermissionsDto: CreateSubModulePermissionDto, created_by: number) {
+        async createSubModulePermissions(createSubModulePermissionsDto: CreateSubModulePermissionDto, req, created_by: number) {
             //shortcut the createSubModulePermissionsDto will not be called again upon create
             const { action, sub_module_id } = createSubModulePermissionsDto;
+
+            //check for role administrator
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.user.id},
+                include: {
+                    role: true,
+                }
+            })
+
+            if(!user || user.role?.name !== 'Administrator' ) {
+                throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+            }
             
             const subModulePermissions = await this.prisma.subModule.findFirst({
                 where: { id: createSubModulePermissionsDto.sub_module_id },
@@ -146,35 +184,60 @@ export class AdministratorService {
                 sub_module_id,
             }));
 
-            return this.prisma.subModulePermission.createMany({
+            const result = await this.prisma.subModulePermission.createMany({
                 data: subModule,
                 skipDuplicates: true, // optional, avoids duplicate entries
             });
+
+            const moduleName = this.prisma.subModulePermission.findFirst({
+                where: { id: subModulePermissions.module_id },
+                include: {
+                    sub_module: {
+                        include: {
+                            module: true,
+                        }
+                    }
+                }
+            })
+
+            return {
+                status: 'success',
+                message: `Added permissions to Sub Module ${moduleName.sub_module.name}`,
+                created_by: {
+                        id: creator.id,
+                        name: admin,
+                        position: adminPosition,
+                    },
+                data: {
+                    result
+                }
+            }   
         }
 
         async createRole(createRoleDto: CreateRoleDto, req, created_by: number) {
             const { name, description } = createRoleDto;
 
             //check for role administrator
-            const roleUser = req.user
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.user.id},
+                include: {
+                    role: true,
+                }
+            })
 
-            if(!roleUser) {
-                throw new ForbiddenException('User not authenticated');
+            if(!user || user.role?.name !== 'Administrator' ) {
+                throw new ForbiddenException('Only Administrators are allowed to create permission templates')
             }
 
-            // if(roleUser.id !== 'Administrator') {
-            //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-            // }
-
-            const roleX = await this.prisma.role.findUnique({
+            const role = await this.prisma.role.findUnique({
                 where: { name: createRoleDto.name }
             })
 
-            // if(roleX){
-            //     throw new BadRequestException('Role already exist! Try again')
-            // }
+            if(role){
+                throw new BadRequestException('Role already exist! Try again')
+            }
 
-            const roleCreate = await this.prisma.role.create({
+            const createdRole = await this.prisma.role.create({
                 data: {
                     name,
                     description,
@@ -183,25 +246,28 @@ export class AdministratorService {
 
             return {
                 status: 'success',
-                message: `Role successfully created!}`,
+                message: `Role have been successfully created!}`,
                 created_by: {
-                    id: roleCreate.id,
-                    name: roleUser.name,
-                    posistion: roleCreate.name,
+                    id: createdRole.id,
+                    role: user.role.name
                 },
-                data: {
-                    roleCreate
-                }
+                createdRole
             }
         }
 
         async createRolePermissions(createRolePermissionDto: CreateRolePermissionDto, req, created_by) {
             const { action, sub_module_id, module_id, role_id } = createRolePermissionDto;
 
-            const roleUser = req.user
+            //check for role administrator
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.user.id},
+                include: {
+                    role: true,
+                }
+            })
 
-            if(!roleUser) {
-                throw new ForbiddenException('User not authenticated');
+            if(!user || user.role?.name !== 'Administrator' ) {
+                throw new ForbiddenException('Only Administrators are allowed to create permission templates')
             }
 
             const rolePermissions = await this.prisma.role.findFirst({
@@ -209,7 +275,7 @@ export class AdministratorService {
             })
 
             if(!rolePermissions) {
-                throw new BadRequestException('Role not found!')
+                throw new BadRequestException('Role not found or does not exist!')
             }
 
             const moduleID = await this.prisma.module.findUnique({
@@ -217,7 +283,7 @@ export class AdministratorService {
             });
 
             if(!moduleID) {
-                throw new BadRequestException('Module not found!')
+                throw new BadRequestException('Module not found or does not exist!')
             }
 
             const subID = await this.prisma.subModule.findUnique({
@@ -225,7 +291,7 @@ export class AdministratorService {
             })
 
             if(!subID) {
-                throw new BadRequestException('Sub Module not found!')
+                throw new BadRequestException('Sub Module not found or does not exist!')
             }
 
             const createRolePermission = action.map(act =>({
@@ -235,10 +301,28 @@ export class AdministratorService {
                 role_id,
             }))
 
-            return this.prisma.rolePermission.createMany({
+            const result = await this.prisma.rolePermission.createMany({
                 data: createRolePermission,
                 skipDuplicates: true,
             });
+
+            const rolePermission = await this.prisma.role.findFirst({
+                where: { id: role_id },
+            })
+
+            const creatorUser = await this.prisma.user.findFirst({
+                where: { id: req.user.name },
+            })
+
+            return {
+                status: 'success',
+                message: `Added permissions to Role ${rolePermission?.name}`,
+                created_by: {
+                    id: creatorUser?.id,
+                    name: creatorUser?.username
+                },
+                result
+            }
         }
 
         // async createRolePermissions(createDto: CreateRolePermissionDto) {
@@ -276,8 +360,20 @@ export class AdministratorService {
         //     };
         // }
 
-        async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto) {
+        async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, req) {
             const { role_id, action = [] } = updateRolePermissionsDto;
+
+            //check for role administrator
+            const user = await this.prisma.user.findUnique({
+                where: { id: req.user.id},
+                include: {
+                    role: true,
+                }
+            })
+
+            if(!user || user.role?.name !== 'Administrator' ) {
+                throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+            }
 
             const existingRole = await this.prisma.role.findUnique({
                 where: { id: role_id },

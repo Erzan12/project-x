@@ -89,18 +89,19 @@ model SubModulePermission {
 }
 
 model RolePermission {
-  id                   Int       @id @default(autoincrement())
-  role_id              Int
-  sub_module_id        Int
-  module_id            Int
-  action               String    // e.g. create, allow, view, edit, update, cancel, verify, approve, note
+  id                         Int       @id @default(autoincrement())
+  role_id                    Int
+  sub_module_id              Int
+  module_id                  Int
+  action                     String    // e.g. create, allow, view, edit, update, cancel, verify, approve, note
+  status                     Boolean   @default(true) // <-- true = active, false = inactive
 
-  role                 Role      @relation(fields: [role_id], references: [id])
-  permission           SubModule @relation(fields: [sub_module_id], references: [id])
-  permission_template_links PermissionTemplateRolePermission[]
+  role                       Role      @relation(fields: [role_id], references: [id])
+  permission                 SubModule @relation(fields: [sub_module_id], references: [id])
+  permission_template_links  PermissionTemplateRolePermission[]
 
-  sub_module_permission     SubModulePermission? @relation(fields: [sub_module_permission_id], references: [id])
-  sub_module_permission_id  Int?
+  sub_module_permission      SubModulePermission? @relation(fields: [sub_module_permission_id], references: [id])
+  sub_module_permission_id   Int?
 
   @@unique([role_id, sub_module_id, module_id, action], map: "role_sub_module_module_action_unique")
 }

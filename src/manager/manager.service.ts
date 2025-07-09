@@ -93,7 +93,7 @@ export class ManagerService {
             },
         });
 
-        // Step 4: (optional) send email, insert history, etc.
+        // Step 4: send email, insert history, etc.
 
         console.log('Plain password before hashing:', plainPassword);
         console.log('Hashed password stored:', hashedPassword);
@@ -199,6 +199,23 @@ export class ManagerService {
     //     },
     // });
 
+    // //validate if role and module exist before create
+    // const existingRole = await this.prisma.userRole.findUnique({
+    //     where: { id: role_id },
+    // })
+
+    // if (!existingRole) {
+    //     throw new BadRequestException('Role does not exist!');
+    // }
+
+    // const existingModule = await this.prisma.userRole.findUnique({
+    //     where: { id: module_id },
+    // })
+
+    // if (!existingModule) {
+    //     throw new BadRequestException('Module does not exist!')
+    // }
+
     // const userRole = await this.prisma.userRole.create({
     //     data: {
     //     user_id: user.id,
@@ -206,6 +223,8 @@ export class ManagerService {
     //     module_id,
     //     },
     // });
+
+    // // const userPermission
 
     // const template = await this.prisma.permissionTemplate.findUnique({
     //     where: { id: template_ids },
@@ -232,7 +251,7 @@ export class ManagerService {
     //     const userPermission = await this.prisma.userPermission.create({
     //     data: {
     //         user_id: user.id,
-    //         permission_id: rolePermission.SubModulePermission.id,
+    //         sub_module_id: rolePermission.SubModulePermission.id,
     //         user_role_id: userRole.id,
     //     },
     //     });
