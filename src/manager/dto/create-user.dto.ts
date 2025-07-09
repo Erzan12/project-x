@@ -35,6 +35,7 @@ export class CreateUserAccountDto {
     @IsNotEmpty()
     role_id: number;
 
+    @IsArray({ each: true })
     @IsNotEmpty()
     @IsArray()
     @ArrayNotEmpty()
