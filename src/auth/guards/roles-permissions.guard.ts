@@ -1,6 +1,3 @@
-// auth/guards/roles-permissions.guard.ts
-//custom guard to fetch role and permission from db not in login jwt payload
-// auth/guards/roles-permissions.guard.ts
 //STABLE 
 import {
   CanActivate,
@@ -12,7 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../components/decorators/roles.decorator';
 import { PERMISSIONS_KEY } from '../components/decorators/permissions.decorator';
 import { PrismaService } from '../../../prisma/prisma.service'// adjust to your actual import
-
+import { IS_PUBLIC_KEY } from '../components/decorators/public.decorator';
 
 @Injectable()
 export class RolesPermissionsGuard implements CanActivate {
@@ -22,6 +19,17 @@ export class RolesPermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+
+    //added public decorator in authcustom guard for @Public Routes ->decorators->public.decorator.ts
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -59,7 +67,11 @@ export class RolesPermissionsGuard implements CanActivate {
         user_permissions: {
           include: {
             user_role: true,
-            SubModulePermission: true,
+            user: {
+              include: {
+                role: true,
+              }
+            },
             companies: true,
           },
         },
@@ -108,7 +120,8 @@ export class RolesPermissionsGuard implements CanActivate {
       //remove permission in rp.permission.action because action is in the role_permissions field and we need to call or map the action field for the permission
       dbUser.role?.role_permissions.map((rp) => rp.action) || [];
       const userPermissions =
-      dbUser.user_permissions.map((up) => up.action) || [];
+      //mapping of user permission in userpermissions model from assigned permission in role permissions
+      dbUser.user_permissions.map((up) => up.user_role_permission) || [];
 
       const allPermissions = new Set([...rolePermissions, ...userPermissions]);
 

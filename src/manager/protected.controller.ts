@@ -6,19 +6,11 @@ import { RolesPermissionsGuard } from 'src/Auth/guards/roles-permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('protected')
-@UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
 export class ProtectedController {
-  @Get('hr-only')
-  @Roles('Human Resources')
+  @Get('authorized-only')
+  @Roles('Human Resources', 'Accounting', 'Information Technology')
   @Permissions('view')
   getHrData() {
-    return { message: 'HR Access Granted' };
-  }
-
-  @Get('it-only')
-  @Roles('Information Technology')
-  @Permissions('add')
-  getItData() {
-    return { message: 'IT Access Granted' };
+    return { message: 'Authorize Access Granted' };
   }
 }

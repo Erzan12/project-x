@@ -5,14 +5,14 @@ import { CreateSubModuleDto } from './dto/create-sub-module.dto';
 import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
 import { permission } from 'process';
 import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
-import { PermissionTemplateService } from './permission-template/permission-template.service';
+// import { PermissionTemplateService } from './permission-template/permission-template.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
 
 @Injectable()
 export class AdministratorService {
-    constructor (private prisma: PrismaService, private permissionTemplateService:PermissionTemplateService) {}
+    constructor (private prisma: PrismaService) {}
 
         // validate if module already exist
         async createModule(createModuleDto: CreateModuleDto, req, created_by: number) { 
@@ -323,6 +323,74 @@ export class AdministratorService {
                 },
                 result
             }
+        }
+
+         async createPermissionTemplate(createPermissionTemplateDto: CreatePermissionTemplateDto, req) {
+            console.log('DTO Received:', createPermissionTemplateDto);
+            
+            const { name, departmentId, companyIds, rolePermissionIds } = createPermissionTemplateDto;
+            
+            //check for role administrator
+            const roleUser = await this.prisma.user.findUnique({
+            where: { id: req.user.id },
+            include: { role: true },
+            });
+
+            if (!roleUser) {
+            throw new ForbiddenException('User not authenticated');
+            }
+
+            if (roleUser.role?.name !== 'Administrator') {
+            throw new ForbiddenException('Only Administrators are allowed to create permission templates');
+            }
+            
+            console.log('company_ids:', companyIds);
+
+            // Flatten the actions so each action is its own object
+            const flattenedRolePermissionIds = rolePermissionIds.flatMap(({ role_id, sub_module_id, module_id, action }) =>
+            action.map((act) => ({
+                role_id,
+                sub_module_id,
+                module_id,
+                action: act,
+            }))
+            );
+
+
+            return await this.prisma.permissionTemplate.create({
+            data: {
+                name,
+                department_id: departmentId,
+                companies: {
+                //array to add multiple companies
+                create: companyIds.map((company_id) => ({
+                    company: { connect: { id: company_id } },
+                })),
+                },
+                
+            role_permissions: {
+                create: flattenedRolePermissionIds.map(({ role_id, sub_module_id, module_id, action }) => ({
+                role_permission: {
+                    connect: {
+                    role_id_sub_module_id_module_id_action: {
+                        role_id,
+                        sub_module_id,
+                        module_id,
+                        action,
+                    },
+                    },
+                },
+                })),
+            },
+                // created_by,
+            },
+            include: {
+                companies: true,
+                role_permissions: true,
+            },
+            
+            });
+            
         }
 
         // async createRolePermissions(createDto: CreateRolePermissionDto) {

@@ -41,6 +41,7 @@ export class PersonService {
                 await tx.passwordResetToken.deleteMany({ where: { user_id } });
                 // await tx.userPermissionCompany.deleteMany({ where: { user_id } });
                 await tx.userPermission.deleteMany({ where: { user_id } });
+                await tx.userRole.deleteMany({ where: { user_id } });
                 await tx.user.delete({ where: { id: user_id } });
             }
 

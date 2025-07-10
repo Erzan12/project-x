@@ -1,8 +1,6 @@
-import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
+import { Module} from '@nestjs/common';
 import { AuthModule } from './Auth/auth.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-// import { JwtCustomModule } from '../src/auth/middleware/jwt.module';
-// import { JwtMiddleware } from '../src/auth/middleware/jwt.middleware';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from './Mail/mail.service';
 import { ConfigModule } from '@nestjs/config';
@@ -12,15 +10,15 @@ import { PersonModule } from './HR/Person/person.module';
 import { EmployeeService } from './HR/Employee/employee.service';
 import { EmployeeController } from './HR/Employee/employee.controller';
 import { EmployeeModule } from './HR/Employee/employee.module';
-import { JwtStrategy } from './Auth/middleware/jwt.strategy';
-import { AuthGuard } from '@nestjs/passport';
-// import { RefreshTokenMiddleware } from './auth/middleware/refresh-token.middleware';
 import { ManagerService } from './Manager/manager.service';
 import { ManagerModule } from './Manager/manager.module';
 import { UserService } from './HR/User/user.service';
 import { AdministratorController } from 'src/Administrator/administrator.controller';
 import { AdministratorService } from 'src/Administrator/administrator.service';
 import { AdministratorModule } from 'src/Administrator/administrator.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesPermissionsGuard } from './Auth/guards/roles-permissions.guard';
+import { CustomJwtAuthGuard } from './Auth/middleware/jwt.auth.guard';
 
 @Module({
   imports: [
@@ -38,10 +36,20 @@ import { AdministratorModule } from 'src/Administrator/administrator.module';
   ],
   providers: [ 
     ManagerService,
-    PrismaService, 
+    PrismaService,
+    {
+      //global custom auth guard
+      provide: APP_GUARD,
+      useClass: CustomJwtAuthGuard,
+    },
+    {
+      //global roles permission guard
+      provide: APP_GUARD,
+      useClass: RolesPermissionsGuard,
+    },
     MailService, 
     PersonService, 
-    EmployeeService, UserService, AdministratorService,  
+    EmployeeService, UserService, AdministratorService
   ],
   controllers: [PersonController, EmployeeController, AdministratorController],
 })
@@ -50,12 +58,9 @@ export class AppModule {}
 // implements NestModule{
 //   configure(consumer: MiddlewareConsumer) {
 //       consumer
-//         .apply(RefreshTokenMiddleware)
-//         .exclude('') //skip routes will not be included in refreshtoken session logout - 
-//         .forRoutes(
-//           {path: 'user-home', method: RequestMethod.GET}, // what routes are covered with refreshtokens to avoid performance hits
-//           {path: 'hr/employee-create', method: RequestMethod.POST}
-//         )
+//         .apply(Authenticated)
+//         .exclude({path: 'auth/login', method: RequestMethod.POST}) //skip routes will not be included in refreshtoken session logout - 
+//         .forRoutes('*')
 //         //apply for all routes -> forRoutes('*')
 //   }
 // }

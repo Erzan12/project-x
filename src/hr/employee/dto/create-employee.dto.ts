@@ -1,27 +1,23 @@
 import {
+    IsInt,
     IsNotEmpty,
-    IsOptional,
-    IsDateString,
-    IsString,
+    IsOptional
 } from 'class-validator';
 
 export class CreateEmployeeDto {
+    
+    @IsInt()
     @IsNotEmpty()
     company_id: number;
 
-    // @IsNotEmpty()
-    // employee_id: string;
-    
-    // @IsNotEmpty()
-    // @IsDateString()
-    // hire_date: string;
-
+    @IsInt()
     @IsNotEmpty()
     department_id: number;
 
     @IsNotEmpty()
     position: string;
 
+    @IsInt()
     @IsNotEmpty()
     salary: number;
 
@@ -31,6 +27,7 @@ export class CreateEmployeeDto {
     @IsNotEmpty()
     employment_status: string;
     
+    @IsInt()
     @IsNotEmpty()
     monthly_equivalent_salary: number;
 
@@ -40,6 +37,7 @@ export class CreateEmployeeDto {
     @IsOptional()
     other_employee_data: string;
 
+    @IsInt()
     @IsNotEmpty()
     corporate_rank_id: number;
 }
