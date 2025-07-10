@@ -1,21 +1,23 @@
 import { Body, Controller, Post, UsePipes, ValidationPipe, Req } from '@nestjs/common';
 import { ManagerService } from './manager.service';
-// import { CreateUserAccountDto } from './dto/create-user.dto';
 import { RequestWithUser } from 'src/Auth/components/interfaces/request-with-user.interface';
 import { Roles } from 'src/Auth/components/decorators/roles.decorator';
 import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
-import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-details.dto';
+import { Actions } from 'src/Auth/components/decorators/global.enums';
+import { Role } from 'src/Auth/components/decorators/global.enums';
+import { CreateUserRole } from 'src/Auth/components/decorators/global.enums';
 
 @Controller('api/manager')
 export class ITManController {
     constructor( private managerService: ManagerService) {}
 
     //<<<<------- THE CONTROL ROUTES INTENDED FOR IT MANAGER -------> 
+
     @Post('user-create')
-    @Roles('Information Technology','Human Resources', 'Administrator', )
+    @Roles(CreateUserRole.ADMINISTRATOR)
     //can enable allPermissions because its now centralized for Information Technology
-    @Permissions('approve')
+    @Permissions(Actions.CREATE)
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async createUser(
         @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
@@ -26,7 +28,7 @@ export class ITManController {
     }
 
     @Post('new-token')
-    @Roles('Information Technology')    //to make enums
+    @Roles()    //to make enums
     @Permissions('Approve ticket')      
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async newResetToken(@Body() body: { email: string }) {
