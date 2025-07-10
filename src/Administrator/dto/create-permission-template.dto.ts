@@ -37,7 +37,7 @@ export class CreatePermissionTemplateDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsInt({ each: true }) // validate each item is an integer
-  companyIds: number[];
+  companyIds: number[]; //permission template can be applied to multiple companies
 
   @IsArray()
   @ValidateNested({ each: true })

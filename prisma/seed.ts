@@ -288,12 +288,12 @@ async function main() {
     data: [
       {
         user_id: hrUser.id,
-        action: permissionRecords[0].action,
+        user_role_permission: permissionRecords[0].action,
         user_role_id: allUserRoles.find((r) => r.user_id === hrUser.id)!.id,
       },
       {
         user_id: itUser.id,
-        action: permissionRecords[6].action,
+        user_role_permission: permissionRecords[6].action,
         user_role_id: allUserRoles.find((r) => r.user_id === itUser.id)!.id,
       },
     ],

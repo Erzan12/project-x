@@ -10,13 +10,13 @@ import { CreateSubModulePermissionDto } from './dto/create-sub-module-permission
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
+import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
 
 @Controller('administrator')
 export class AdministratorController {
     constructor (private administratorService: AdministratorService) {}
 
-    @Get('dashboard')
-    @Authenticated()                                                                            //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+    @Get('dashboard')                                                                           
     @Roles('Administrator')
     @Permissions('access')
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true}))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
@@ -24,21 +24,19 @@ export class AdministratorController {
         return { message: 'Admin Access Granted' };
     }
 
-    @Post('create-module')  
-    @Authenticated()                                                                            //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
-    @Roles('Administrator')
-    @Permissions('add')
+    @Post('create-module')                                                                       
+    @Roles('Administrator')                                                                     // to make enum decorator
+    @Permissions('add')                                                                         // to make enum decorator
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true}))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
     async createModule( 
         @Body() createModuleDto: CreateModuleDto,
-        @Req() req: RequestWithUser,
+        @Req() req: RequestWithUser,                                                            // to make enum decorator
      ) {
         const created_by = req.user.id;
         return this.administratorService.createModule(createModuleDto, req, created_by)
     }
 
-    @Post('create-submodule')
-    @Authenticated()                                                                            //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+    @Post('create-submodule')                                                                         
     @Roles('Administrator')
     @Permissions('add')
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
@@ -50,8 +48,7 @@ export class AdministratorController {
         return this.administratorService.createSubModule(createSubModuleDto, req, created_by)
     }
 
-    @Post('create-submodule-permissions')
-    @Authenticated()                                                                            //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+    @Post('create-submodule-permissions')                                                                        
     @Roles('Administrator')
     @Permissions('add')
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true}))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
@@ -63,8 +60,7 @@ export class AdministratorController {
         return this.administratorService.createSubModulePermissions(createSubModulePermissionDto,req, created_by)
     }
 
-    @Post('create-role')
-    @Authenticated()                                                                            //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+    @Post('create-role')                                                                          
     @Roles('Administrator')
     @Permissions('add')
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
@@ -76,8 +72,7 @@ export class AdministratorController {
         return this.administratorService.createRole(createRoleDto, req, created_by)
     }
 
-    @Post('create-role-permission')
-    @Authenticated()                                                                             //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+    @Post('create-role-permission')                                                            
     @Roles('Administrator')
     @Permissions('add')
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
@@ -89,8 +84,7 @@ export class AdministratorController {
         return this.administratorService.createRolePermissions(createRolePermissionDto, req, created_by)
     }
 
-    @Patch('roles/permissions')
-    @Authenticated()                                                                            //from the auth-guard decorator, UseGuards(AuthGuard('jwt'), RolesPermissionsGuard)
+    @Patch('roles/permissions')                                                                           
     @Roles('Administrator')
     @Permissions('add')                                                                         
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
@@ -99,5 +93,14 @@ export class AdministratorController {
         @Req() req: RequestWithUser,
     ) {
         return this.administratorService.updateRolePermissions(updateRolePermissionsDto, req);
+    }
+
+    @Post('permission-templates')
+    @Roles('Administrator')
+    @Permissions('add')
+    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))   
+    async create(@Body() dto: CreatePermissionTemplateDto, @Req() req: RequestWithUser) {
+    // const created_by = req.user.id;
+    return this.administratorService.createPermissionTemplate(dto,req);
     }
 }

@@ -3,20 +3,21 @@ import { LoginDto } from './dto/login.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
 import { AuthService } from './auth.service';
 import { ManagerService } from 'src/Manager/manager.service';
-// import { Roles } from './common/decorators/roles.decorator';
-// import { RolesPermissionsGuard } from './common/guards/roles-permission.guard';
+import { Public } from './components/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService, private readonly managerService: ManagerService) {}
 
     @Post('login')
+    @Public()
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
     }
 
     @Post('reset-password')
+    @Public()
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async passwordResetWithToken(
         @Query('token') token: string,

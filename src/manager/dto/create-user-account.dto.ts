@@ -3,14 +3,10 @@ import {
     IsString,
     MinLength,
     IsEmail,
-    IsInt,
-    IsArray,
-    ArrayNotEmpty,
+    IsInt
 } from 'class-validator';
 
 export class CreateUserAccountDto {
-    // @IsNotEmpty()
-    // employee_id: string;
     @IsNotEmpty()
     employee_id: string;
     
@@ -29,18 +25,5 @@ export class CreateUserAccountDto {
 
     @IsInt()
     @IsNotEmpty()
-    module_id: number;
-
-    @IsInt()
-    @IsNotEmpty()
     role_id: number;
-
-    @IsArray({ each: true })
-    @IsNotEmpty()
-    @IsArray()
-    @ArrayNotEmpty()
-    company_ids: number[];
-
-    @IsNotEmpty()
-    template_ids: number;
 }

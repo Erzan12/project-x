@@ -6,7 +6,6 @@ import { Permissions } from 'src/Auth/components/decorators/permissions.decorato
 import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 
 @Controller('person')
-@Authenticated()
 export class PersonController {
     constructor(private readonly personService: PersonService) {}
 

@@ -9,7 +9,7 @@ export class EmployeeService {
 
     async createEmployee( createPersonDto: CreatePersonDto, createEmployeeDto: CreateEmployeeDto, hire_date: Date) {
 
-        // Step 1: Create the Person
+        // create the Person
         const person = await this.prisma.person.create({
             data : {
                 first_name: createPersonDto.first_name,
@@ -40,7 +40,7 @@ export class EmployeeService {
         const companyId = createEmployeeDto.company_id;
         const generatedEmpID = await this.createUniqueEmpID(companyId, hire_date);
 
-        // Step 2: Create the Employee
+        // create the Employee
         const employee = await this.prisma.employee.create({
             data : {
                 company_id: companyId,    // to be adjusted dto can be added if experiencing an error
@@ -60,7 +60,7 @@ export class EmployeeService {
     }
 
     async createUniqueEmpID ( company_id: number, hire_date: Date ): Promise<string> {
-        //1. Fetch company abbreviation
+        //fetch company abbreviation
         const company = await this.prisma.company.findUnique({
             where: { id: company_id },
             select: { abbreviation: true },
@@ -70,7 +70,7 @@ export class EmployeeService {
             throw new BadRequestException('Company not found or missing abbreviation');
         }
         
-        //2. format hire data to YYYYMMDD
+        //format hire data to YYYYMMDD
         const hireDateStr = hire_date.toISOString().split('T')[0].replace(/-/g, ''); // e.g 20250702
         //fixed midnight utc timezones issue
         // const hireDateStr = hire_date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -82,7 +82,7 @@ export class EmployeeService {
             },
         });
         
-        //4. Generate the employee_id
+        //generate the employee_id
         const suffix = String(existingCount + 1).padStart(3, '0'); // e.g. 001, 002
         const employeeID = `${company.abbreviation}-${hireDateStr}-${suffix}`;
 
