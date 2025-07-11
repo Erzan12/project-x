@@ -46,10 +46,10 @@ export class AdministratorService {
     });
 
     if (!creator || !creator.employee || !creator.employee.person) {
-        throw new BadRequestException(`Creator ${creator?.employee.position} information not found.`);
+        throw new BadRequestException(`Creator ${creator?.employee.position_id} information not found.`);
     }
     const admin = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
-    const adminPosition = creator.employee.position;
+    const adminPosition = creator.employee.position_id;
 
     const moduleCreate = await this.prisma.module.create({
         data: {
@@ -102,10 +102,10 @@ export class AdministratorService {
     });
 
     if (!creator || !creator.employee || !creator.employee.person) {
-        throw new BadRequestException(`Creator ${creator?.employee.position} information not found.`);
+        throw new BadRequestException(`Creator ${creator?.employee.position_id} information not found.`);
     }
     const admin = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
-    const adminPosition = creator.employee.position;
+    const adminPosition = creator.employee.position_id;
 
     // const moduleName = await this.prisma.module.findFirst({
     //     where: { name: module.name}
@@ -171,10 +171,10 @@ export class AdministratorService {
 
     //to call the user who created the submodule
     if (!creator || !creator.employee || !creator.employee.person) {
-        throw new BadRequestException(`Creator ${creator?.employee.position} information not found.`);
+        throw new BadRequestException(`Creator ${creator?.employee.position_id} information not found.`);
     }
     const admin = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
-    const adminPosition = creator.employee.position;
+    const adminPosition = creator.employee.position_id;
 
     const subModule = action.map(act =>({
         action: act,

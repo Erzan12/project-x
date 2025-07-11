@@ -48,7 +48,7 @@ export class EmployeeService {
                 employee_id: generatedEmpID,    //format "LMVC-20250702-001" LMVC based on company_id.abbreviation - 20250702 date hired - 001 increment as how many employees got hired that day
                 department_id: createEmployeeDto.department_id,
                 hire_date: hire_date,
-                position: createEmployeeDto.position,
+                position_id: createEmployeeDto.position_id,
                 salary: createEmployeeDto.salary,
                 pay_frequency:  createEmployeeDto.pay_frequency,
                 employment_status: createEmployeeDto.employment_status,
