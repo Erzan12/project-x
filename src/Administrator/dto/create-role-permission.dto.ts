@@ -4,6 +4,7 @@ import {
          IsArray,
          ArrayNotEmpty,
          IsInt,
+         IsBoolean,
 } from 'class-validator';
 
 export class CreateRolePermissionDto {
@@ -25,4 +26,7 @@ export class CreateRolePermissionDto {
     @IsNotEmpty()
     role_id: number;
 
+    @IsBoolean()
+    @IsNotEmpty()
+    status: boolean;
 }

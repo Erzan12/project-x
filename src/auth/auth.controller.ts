@@ -2,12 +2,11 @@ import { Body, Controller, Post, Query, ValidationPipe, Res, UsePipes } from '@n
 import { LoginDto } from './dto/login.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
 import { AuthService } from './auth.service';
-import { ManagerService } from 'src/Manager/manager.service';
 import { Public } from './components/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService, private readonly managerService: ManagerService) {}
+    constructor(private readonly authService: AuthService) {}
 
     @Post('login')
     @Public()

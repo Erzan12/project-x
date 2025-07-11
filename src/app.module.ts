@@ -10,15 +10,22 @@ import { PersonModule } from './HR/Person/person.module';
 import { EmployeeService } from './HR/Employee/employee.service';
 import { EmployeeController } from './HR/Employee/employee.controller';
 import { EmployeeModule } from './HR/Employee/employee.module';
-import { ManagerService } from './Manager/manager.service';
-import { ManagerModule } from './Manager/manager.module';
-import { UserService } from './HR/User/user.service';
+// import { ManagerService } from './Manager/manager.service';
+// import { ManagerModule } from './Manager/manager.module';
+import { UserService } from './User/user.service';
 import { AdministratorController } from 'src/Administrator/administrator.controller';
 import { AdministratorService } from 'src/Administrator/administrator.service';
 import { AdministratorModule } from 'src/Administrator/administrator.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesPermissionsGuard } from './Auth/guards/roles-permissions.guard';
 import { CustomJwtAuthGuard } from './Auth/middleware/jwt.auth.guard';
+import { UserModule } from './User/user.module';
+import { MasterController } from './Master/master.controller';
+import { PositionService } from './Master/position/position.service';
+import { MasterModule } from './Master/master.module';
+import { DepartmentService } from './Master/department/department.service';
+import { CreatePositionDto } from './Master/position/dto/create-position.dto';
+import { CreateDepartmentDto } from './Master/department/dto/create-dept.dto';
 
 @Module({
   imports: [
@@ -29,13 +36,16 @@ import { CustomJwtAuthGuard } from './Auth/middleware/jwt.auth.guard';
     }),
     AuthModule,
     JwtModule, 
-    ManagerModule, 
+    UserModule,
+    // ManagerModule, 
     PersonModule,
     EmployeeModule,
-    AdministratorModule
+    AdministratorModule,
+    MasterModule
   ],
   providers: [ 
-    ManagerService,
+    // ManagerService,
+    UserService,
     PrismaService,
     {
       //global custom auth guard
@@ -49,9 +59,9 @@ import { CustomJwtAuthGuard } from './Auth/middleware/jwt.auth.guard';
     },
     MailService, 
     PersonService, 
-    EmployeeService, UserService, AdministratorService
+    EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto
   ],
-  controllers: [PersonController, EmployeeController, AdministratorController],
+  controllers: [PersonController, EmployeeController, AdministratorController, MasterController],
 })
 export class AppModule {}
 
