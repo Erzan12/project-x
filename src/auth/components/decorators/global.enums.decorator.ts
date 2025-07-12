@@ -58,7 +58,6 @@ export enum Role {
     EPORTAL_USER             = 'Eportal User',
 }
 
-
 // map in employees positions based for validation in createUserAccount
 export enum CreateUserAccount {
     ADMINISTRATOR            = 'Administrator',

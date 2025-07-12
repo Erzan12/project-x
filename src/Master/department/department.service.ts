@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDepartmentDto } from './dto/create-dept.dto';
-import { DepartmentStatus, Role } from 'src/Auth/components/decorators/global.enums';
+import { DepartmentStatus, Role } from 'src/Auth/components/decorators/global.enums.decorator';
 
 
 @Injectable()

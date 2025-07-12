@@ -9,17 +9,7 @@ export class CustomJwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
     super();
   }
-  handleRequest(err, user, info) {
-    if (info instanceof TokenExpiredError) {
-      throw new UnauthorizedException('Token already has expired');
-    }
-    if (err || !user) {
-      throw new UnauthorizedException('Invalid or missing token');
-    }
-    return user;
-  }
-  
-  //added public decorator in authcustom guard for @Public Routes ->decorators->public.decorator.ts
+    //added public decorator in authcustom guard for @Public Routes ->decorators->public.decorator.ts
   canActivate(context: ExecutionContext) {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -31,5 +21,15 @@ export class CustomJwtAuthGuard extends AuthGuard('jwt') {
     }
 
     return super.canActivate(context);
+  }
+
+  handleRequest(err, user, info) {
+    if (info instanceof TokenExpiredError) {
+      throw new UnauthorizedException('Token already has expired');
+    }
+    if (err || !user) {
+      throw new UnauthorizedException('Invalid or missing token');
+    }
+    return user;
   }
 }
