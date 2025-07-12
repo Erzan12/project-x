@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesPermissionsGuard } from './Auth/guards/roles-permissions.guard';
 import { PrismaService } from 'prisma/prisma.service';
+import { CanCreateUserGuard } from './Auth/guards/can-create-user-guard';
 
 class JwtAuthGuard extends AuthGuard('jwt') {}
 

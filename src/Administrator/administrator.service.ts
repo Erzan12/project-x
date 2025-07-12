@@ -7,7 +7,7 @@ import { CreatePermissionTemplateDto } from './dto/create-permission-template.dt
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
-import { Role } from 'src/Auth/components/decorators/global.enums';
+import { Role } from 'src/Auth/components/decorators/global.enums.decorator';
 
 @Injectable()
 export class AdministratorService {

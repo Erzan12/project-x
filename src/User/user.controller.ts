@@ -1,13 +1,13 @@
 import { Body, Controller, Post, UsePipes, ValidationPipe, Req, ForbiddenException, UseGuards } from '@nestjs/common';
 import { RequestWithUser } from 'src/Auth/components/interfaces/request-with-user.interface';
-import { Roles } from 'src/Auth/components/decorators/roles.decorator';
 import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
-import { Actions } from 'src/Auth/components/decorators/global.enums';
-import { Role } from 'src/Auth/components/decorators/global.enums';
+import { Actions, Role } from 'src/Auth/components/decorators/global.enums.decorator';
 import { UserService } from './user.service';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
-import { canUserCreateAccounts } from 'src/Auth/components/commons/permissions/create-user-permission.helper';
-import { CanCreateUserGuard } from 'src/Auth/guards/can-user-guard';
+import { Roles } from 'src/Auth/components/decorators/roles.decorator';
+import { CanCreateUserGuard } from 'src/Auth/guards/can-create-user-guard';
+// import { canUserCreateAccounts } from 'src/Auth/components/commons/permissions/create-user-permission.helper';
+// import { CanCreateUserGuard } from 'src/Auth/guards/can-user-guard';
 
 @Controller('api/manager')
 export class UserController {
@@ -15,21 +15,8 @@ export class UserController {
 
     //<<<<------- THE CONTROL ROUTES INTENDED FOR IT MANAGER -------> 
 
-    // @Post('user-create')
-    // @Roles()
-    // //can enable allPermissions because its now centralized for Information Technology
-    // @Permissions(Actions.CREATE)
-    // @UsePipes(new ValidationPipe ({whitelist:true}))
-    // async createUser(
-    //     @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
-    //     @Req() req: RequestWithUser,
-    // ) {
-    //     // const { user_details, user_permission_template_id, module_id } = createUserWithTemplateDto
-    //     return this.userService.createUserEmployee( createUserWithTemplateDto, req);
-    // }
-
     // using can-guard
-    @UseGuards(CanCreateUserGuard)
+    @UseGuards(CanCreateUserGuard) //-> simple working can guard
     @Post('user-create')
     @Permissions(Actions.CREATE)
     @UsePipes(new ValidationPipe({ whitelist: true }))

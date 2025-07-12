@@ -20,6 +20,7 @@ export class RolesPermissionsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
 
+    //must be applied to all guard and it should be at top so that the @Public will mapped first and will not return unauthorized
     //added public decorator in authcustom guard for @Public Routes ->decorators->public.decorator.ts
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -133,7 +134,8 @@ export class RolesPermissionsGuard implements CanActivate {
         throw new ForbiddenException('Access denied: missing permissions');
       }
     }
-
+    console.log('Decoded user in guard:', user);
+    
     return true;
   }
 }
