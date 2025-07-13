@@ -7,7 +7,8 @@ import { CreatePermissionTemplateDto } from './dto/create-permission-template.dt
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
-import { Role } from 'src/Auth/components/decorators/global.enums.decorator';
+import { UserRole } from 'src/Auth/components/decorators/ability.enum';
+import { AddPermissionToExistingUserDto } from './dto/add-permission-template-existing-user-dto';
 
 @Injectable()
 export class AdministratorService {
@@ -23,7 +24,7 @@ export class AdministratorService {
         }
     })
 
-    if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
         throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     }
 
@@ -79,7 +80,7 @@ export class AdministratorService {
         }
     })
 
-    if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
         throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     }
 
@@ -146,7 +147,7 @@ export class AdministratorService {
         }
     })
 
-    if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
         throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     }
 
@@ -222,7 +223,7 @@ export class AdministratorService {
         }
     })
 
-    if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
         throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     }
 
@@ -246,7 +247,7 @@ export class AdministratorService {
         message: `Role have been successfully created!}`,
         created_by: {
             id: createdRole.id,
-            role: user.role.name
+            role: user.role?.name
         },
         createdRole
     }
@@ -263,7 +264,7 @@ export class AdministratorService {
         }
     })
 
-    if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
         throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     }
 
@@ -335,7 +336,7 @@ export class AdministratorService {
         }
     })
 
-    if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
         throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     }
 
@@ -435,5 +436,40 @@ export class AdministratorService {
     }
 
     return results;
+    }
+
+    //assigning permission template to user who doesnt have a permission yet
+    async assignPermissionTemplate(addPermissionTemplate:AddPermissionToExistingUserDto) {
+        const existingUser = await this.prisma.user.findUnique({
+            where: { id: addPermissionTemplate.user_id},
+            include: {
+                person: true,
+                permission_template: true,
+            },
+        })
+
+        if(!existingUser) {
+            throw new BadRequestException('User not found')
+        }
+
+        const existingPermissionTemplate = await this.prisma.permissionTemplate.findUnique({
+            where: {id: addPermissionTemplate.permission_template_id},
+        })
+
+        if(!existingPermissionTemplate) {
+            throw new BadRequestException('Permission Template not found')
+        }
+        //if data is existing in db but want to assign a role or permission just update not create
+        await this.prisma.user.update({
+            where: { id: addPermissionTemplate.user_id },
+            data: {
+                permission_template_id: addPermissionTemplate.permission_template_id,
+            },
+        });
+
+        return {
+            status: 'success',
+            message: `Added Permission Template to user ${existingUser.person?.first_name ?? existingUser.id} ${existingUser.person?.last_name ?? existingUser.id}`
+        }
     }
 }

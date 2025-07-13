@@ -83,6 +83,28 @@ async function main() {
     },
   });
 
+    // 5. Create Positions
+  const [itManager, hrManager, administrator] = await Promise.all([
+    prisma.position.create({
+      data: {
+        name: 'IT MANAGER',
+        department_id: itDept.id,
+      },
+    }),
+    prisma.position.create({
+      data: {
+        name: 'HR MANAGER',
+        department_id: hrDept.id,
+      },
+    }),
+    prisma.position.create({
+      data: {
+        name: 'ADMINISTRATOR',
+        department_id: itDept.id,
+      },
+    }),
+  ]);
+
   // 6. Create SubModules
   await prisma.subModule.createMany({
     data: [
@@ -191,7 +213,7 @@ async function main() {
       company_id: abisc.id,
       department_id: hrDept.id,
       hire_date: new Date('2023-01-01'),
-      position_id: 2,
+      position_id: hrManager.id,
       salary: 30000,
       pay_frequency: 'Monthly',
       employment_status: 'Active',
@@ -207,7 +229,7 @@ async function main() {
       company_id: abmci.id,
       department_id: itDept.id,
       hire_date: new Date('2022-01-01'),
-      position_id: 1,
+      position_id: itManager.id,
       salary: 60000,
       pay_frequency: 'Monthly',
       employment_status: 'Active',
@@ -223,7 +245,7 @@ async function main() {
       company_id: lmvc.id,
       department_id: itDept.id,
       hire_date: new Date('2025-05-12'),
-      position_id: 1,
+      position_id: administrator.id,
       salary: 20000,
       pay_frequency: 'Monthly',
       employment_status: 'Active',

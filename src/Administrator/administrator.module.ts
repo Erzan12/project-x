@@ -5,9 +5,6 @@ import { AdministratorService } from 'src/Administrator/administrator.service';
 import { JwtStrategy } from 'src/Auth/middleware/jwt.strategy';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/prisma.service';
-// import { PermissionTemplateController } from './permission-template/permission-template.controller';
-// import { PermissionTemplateService } from './permission-template/permission-template.service';
-
 
 @Module({
     imports:[AuthModule],

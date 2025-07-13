@@ -1,7 +1,8 @@
 import { Injectable, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreatePositionDto } from './dto/create-position.dto';
-import { PositionStatus, Role } from 'src/Auth/components/decorators/global.enums.decorator';
+// import { PositionStatus } from 'src/Auth/components/decorators/global.enums.decorator';
+import { UserRole } from 'src/Auth/components/decorators/ability.enum';
 
 @Injectable()
 export class PositionService {
@@ -18,7 +19,7 @@ export class PositionService {
             }
         })
     
-        if(!user || user.role?.name !== Role.ADMINISTRATOR ) {
+        if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
             throw new ForbiddenException('Only Administrators are allowed to create permission templates')
         }
 

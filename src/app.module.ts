@@ -17,7 +17,7 @@ import { AdministratorController } from 'src/Administrator/administrator.control
 import { AdministratorService } from 'src/Administrator/administrator.service';
 import { AdministratorModule } from 'src/Administrator/administrator.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesPermissionsGuard } from './Auth/guards/roles-permissions.guard';
+import { PermissionsGuard } from './Auth/guards/permissions.guard';
 import { CustomJwtAuthGuard } from './Auth/middleware/jwt.auth.guard';
 import { UserModule } from './User/user.module';
 import { MasterController } from './Master/master.controller';
@@ -26,6 +26,8 @@ import { MasterModule } from './Master/master.module';
 import { DepartmentService } from './Master/department/department.service';
 import { CreatePositionDto } from './Master/position/dto/create-position.dto';
 import { CreateDepartmentDto } from './Master/department/dto/create-dept.dto';
+import { CaslModule } from './casl/casl.module';
+import { CaslAbilityService } from './casl/casl.service';
 
 @Module({
   imports: [
@@ -41,7 +43,8 @@ import { CreateDepartmentDto } from './Master/department/dto/create-dept.dto';
     PersonModule,
     EmployeeModule,
     AdministratorModule,
-    MasterModule
+    MasterModule,
+    CaslModule
   ],
   providers: [ 
     // ManagerService,
@@ -55,11 +58,11 @@ import { CreateDepartmentDto } from './Master/department/dto/create-dept.dto';
     {
       //global roles permission guard
       provide: APP_GUARD,
-      useClass: RolesPermissionsGuard,
+      useClass: PermissionsGuard,
     },
     MailService, 
     PersonService, 
-    EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto
+    EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto, CaslAbilityService
   ],
   controllers: [PersonController, EmployeeController, AdministratorController, MasterController],
 })

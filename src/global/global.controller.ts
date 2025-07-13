@@ -22,24 +22,3 @@ export class ProfileController {
         return { message: 'User Access Granted. Here is your Profile'}
     }
 } 
-
-// ROLES
-// Administrator
-// Human Resources
-// Accounting
-// Operations
-// Payroll
-// Inventory
-// Purchasing
-// Finance
-// Asset Management
-// Compliance
-// Information Technology
-// Eportal User
-
-// Administrator
-// Db Query
-// Db Encoding
-// Db Migrate
-// Maintenance
-// Toolbox

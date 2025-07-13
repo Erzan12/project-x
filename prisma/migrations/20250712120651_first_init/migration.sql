@@ -35,6 +35,7 @@ CREATE TABLE "User" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "person_id" INTEGER,
     "module_id" INTEGER,
+    "permission_template_id" INTEGER,
     "role_id" INTEGER,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -67,6 +68,7 @@ CREATE TABLE "RolePermission" (
     "sub_module_id" INTEGER NOT NULL,
     "module_id" INTEGER NOT NULL,
     "action" TEXT NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
     "sub_module_permission_id" INTEGER,
 
     CONSTRAINT "RolePermission_pkey" PRIMARY KEY ("id")
@@ -75,10 +77,10 @@ CREATE TABLE "RolePermission" (
 -- CreateTable
 CREATE TABLE "UserPermission" (
     "id" SERIAL NOT NULL,
-    "action" TEXT NOT NULL DEFAULT 'tempo',
+    "user_role_permission" TEXT NOT NULL DEFAULT 'tempo',
     "user_id" INTEGER NOT NULL,
     "user_role_id" INTEGER NOT NULL,
-    "subModulePermissionId" INTEGER,
+    "role_permission_id" INTEGER,
 
     CONSTRAINT "UserPermission_pkey" PRIMARY KEY ("id")
 );
@@ -119,6 +121,7 @@ CREATE TABLE "Division" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "division_head_id" INTEGER NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Division_pkey" PRIMARY KEY ("id")
@@ -129,10 +132,21 @@ CREATE TABLE "Department" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "division_id" INTEGER NOT NULL,
-    "department_head_id" INTEGER NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "department_head_id" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Department_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Position" (
+    "id" SERIAL NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "department_id" INTEGER NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -228,7 +242,7 @@ CREATE TABLE "Employee" (
     "employee_id" TEXT NOT NULL,
     "department_id" INTEGER NOT NULL,
     "hire_date" TIMESTAMP(3) NOT NULL,
-    "position" TEXT NOT NULL,
+    "position_id" INTEGER NOT NULL DEFAULT 1,
     "salary" DECIMAL(65,30) NOT NULL,
     "pay_frequency" TEXT NOT NULL,
     "employment_status" TEXT NOT NULL,
@@ -254,7 +268,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "RolePermission_role_id_sub_module_id_module_id_key" ON "RolePermission"("role_id", "sub_module_id", "module_id");
+CREATE UNIQUE INDEX "role_sub_module_module_action_unique" ON "RolePermission"("role_id", "sub_module_id", "module_id", "action");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Company_name_key" ON "Company"("name");
@@ -293,6 +307,9 @@ ALTER TABLE "User" ADD CONSTRAINT "User_person_id_fkey" FOREIGN KEY ("person_id"
 ALTER TABLE "User" ADD CONSTRAINT "User_module_id_fkey" FOREIGN KEY ("module_id") REFERENCES "Module"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_permission_template_id_fkey" FOREIGN KEY ("permission_template_id") REFERENCES "PermissionTemplate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -314,7 +331,7 @@ ALTER TABLE "UserPermission" ADD CONSTRAINT "UserPermission_user_id_fkey" FOREIG
 ALTER TABLE "UserPermission" ADD CONSTRAINT "UserPermission_user_role_id_fkey" FOREIGN KEY ("user_role_id") REFERENCES "UserRole"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserPermission" ADD CONSTRAINT "UserPermission_subModulePermissionId_fkey" FOREIGN KEY ("subModulePermissionId") REFERENCES "SubModulePermission"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "UserPermission" ADD CONSTRAINT "UserPermission_role_permission_id_fkey" FOREIGN KEY ("role_permission_id") REFERENCES "RolePermission"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserPermissionCompany" ADD CONSTRAINT "UserPermissionCompany_user_permission_id_fkey" FOREIGN KEY ("user_permission_id") REFERENCES "UserPermission"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -336,6 +353,9 @@ ALTER TABLE "UserRole" ADD CONSTRAINT "UserRole_departmentId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Department" ADD CONSTRAINT "Department_division_id_fkey" FOREIGN KEY ("division_id") REFERENCES "Division"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Position" ADD CONSTRAINT "Position_department_id_fkey" FOREIGN KEY ("department_id") REFERENCES "Department"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "SubModule" ADD CONSTRAINT "SubModule_module_id_fkey" FOREIGN KEY ("module_id") REFERENCES "Module"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -366,6 +386,9 @@ ALTER TABLE "PermissionTemplateRolePermission" ADD CONSTRAINT "PermissionTemplat
 
 -- AddForeignKey
 ALTER TABLE "EmailAddress" ADD CONSTRAINT "EmailAddress_person_id_fkey" FOREIGN KEY ("person_id") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Employee" ADD CONSTRAINT "Employee_position_id_fkey" FOREIGN KEY ("position_id") REFERENCES "Position"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Employee" ADD CONSTRAINT "Employee_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

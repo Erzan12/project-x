@@ -24,9 +24,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       include: {
         role: {
           include: {
-            role_permissions: { include: { permission: true } },
+            role_permissions: {
+              include: {
+                permission: true, // SubModule
+              },
+            },
           },
         },
+        module: true,
         user_permissions: true,
       },
     });
@@ -40,9 +45,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     //   role: user.role,
     //   user_permissions: user.user_permissions,
     // };
-    return {
-      id: payload.sub,
-      username: payload.name,
-    };
+    // return {
+    //   id: payload.sub,
+    //   username: payload.name,
+    // };
+    return user; // ✅ Return full user with module, role, etc.
   }
 }
