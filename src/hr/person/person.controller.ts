@@ -2,7 +2,7 @@ import { Controller, Delete, Body, HttpStatus, HttpCode } from '@nestjs/common';
 import { PersonService } from './person.service';
 import { DeletePersonDto } from './dto/delete-person.dto';
 import { Roles } from 'src/Auth/components/decorators/roles.decorator';
-import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
+import { Permissions } from 'src/Auth/components/decorators/can.decorator';
 import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 
 @Controller('person')

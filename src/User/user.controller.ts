@@ -1,13 +1,16 @@
 import { Body, Controller, Post, UsePipes, ValidationPipe, Req, ForbiddenException, UseGuards } from '@nestjs/common';
 import { RequestWithUser } from 'src/Auth/components/interfaces/request-with-user.interface';
-import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
-import { Actions, Role } from 'src/Auth/components/decorators/global.enums.decorator';
 import { UserService } from './user.service';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
 import { Roles } from 'src/Auth/components/decorators/roles.decorator';
-import { CanCreateUserGuard } from 'src/Auth/guards/can-create-user-guard';
-// import { canUserCreateAccounts } from 'src/Auth/components/commons/permissions/create-user-permission.helper';
-// import { CanCreateUserGuard } from 'src/Auth/guards/can-user-guard';
+import { Can } from '../Auth/components/decorators/can.decorator';
+import {
+  ACTION_CREATE,
+  SM_USER_ACCOUNT,
+  MODULE_MNGR,
+  MODULE_ADMIN,
+  ACTION_MANAGE,
+} from '../Auth/components/decorators/ability.enum';
 
 @Controller('api/manager')
 export class UserController {
@@ -15,10 +18,13 @@ export class UserController {
 
     //<<<<------- THE CONTROL ROUTES INTENDED FOR IT MANAGER -------> 
 
-    // using can-guard
-    @UseGuards(CanCreateUserGuard) //-> simple working can guard
+    // CAN DECORATOR PERMISSION AND ROLE HANDLING -> PERMISSIONGUARD -> CASLSERVICE
     @Post('user-create')
-    @Permissions(Actions.CREATE)
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_MNGR, MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     @UsePipes(new ValidationPipe({ whitelist: true }))
     async createUser(
     @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
@@ -27,24 +33,9 @@ export class UserController {
     return this.userService.createUserEmployee(createUserWithTemplateDto, req);
     }
 
-    //alternative can-guard
-    // @Post('user-create')
-    // @Permissions(Actions.CREATE)
-    // @UsePipes(new ValidationPipe({ whitelist: true }))
-    // async createUser(
-    // @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
-    // @Req() req: RequestWithUser,
-    // ) {
-    // if (!canUserCreateAccounts(req.user.role)) {
-    //     throw new ForbiddenException('Not authorized to create users');
-    // }
-
-    // return this.userService.createUserEmployee(createUserWithTemplateDto, req);
-    // }
-
     @Post('new-token')
     @Roles()    //to make enums
-    @Permissions('Approve ticket')      
+    // @Permissions('Approve ticket')      
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async newResetToken(@Body() body: { email: string }) {
         return this.userService.userNewResetToken(body.email);

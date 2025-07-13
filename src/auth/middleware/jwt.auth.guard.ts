@@ -9,8 +9,9 @@ export class CustomJwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
     super();
   }
-    //added public decorator in authcustom guard for @Public Routes ->decorators->public.decorator.ts
+    
   canActivate(context: ExecutionContext) {
+    //added public decorator in authcustom guard for @Public Routes ->decorators->public.decorator.ts
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
