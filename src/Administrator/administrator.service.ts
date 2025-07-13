@@ -356,7 +356,7 @@ export class AdministratorService {
     return await this.prisma.permissionTemplate.create({
     data: {
         name,
-        department_id: departmentId,
+        department_id: departmentId, // to be check if is it okay to add a manager or any role, for role permission template to multiple depts.
         companies: {
         //array to add multiple companies
         create: companyIds.map((company_id) => ({
@@ -389,54 +389,54 @@ export class AdministratorService {
 
     }
 
-    async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, req) {
-    const { role_id, action = [] } = updateRolePermissionsDto;
+    // async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, req) {
+    // const { role_id, action = [] } = updateRolePermissionsDto;
 
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    // //check for role administrator
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== 'Administrator' ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== 'Administrator' ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
-    const existingRole = await this.prisma.role.findUnique({
-        where: { id: role_id },
-        include: {
-        role_permissions: true,
-        },
-    });
+    // const existingRole = await this.prisma.role.findUnique({
+    //     where: { id: role_id },
+    //     include: {
+    //     role_permissions: true,
+    //     },
+    // });
 
-    if (!existingRole) {
-        throw new BadRequestException('Role does not exist!');
-    }
+    // if (!existingRole) {
+    //     throw new BadRequestException('Role does not exist!');
+    // }
 
-    const toUpdate = existingRole.role_permissions.filter((perm) =>
-        action.includes(perm.action)
-    );
+    // const toUpdate = existingRole.role_permissions.filter((perm) =>
+    //     action.includes(perm.action)
+    // );
 
-    const results = await Promise.all(
-        toUpdate.map((perm) =>
-        this.prisma.rolePermission.update({
-            where: { id: perm.id },
-            data: {
-            // Add fields you want to update here, e.g.:
-            action: perm.action, // or any new action value
-            },
-        })
-        )
-    );
+    // const results = await Promise.all(
+    //     toUpdate.map((perm) =>
+    //     this.prisma.rolePermission.update({
+    //         where: { id: perm.id },
+    //         data: {
+    //         // Add fields you want to update here, e.g.:
+    //         action: perm.action, // or any new action value
+    //         },
+    //     })
+    //     )
+    // );
 
-    if (existingRole.role_permissions.length === 0) {
-        throw new BadRequestException('This role has no existing permissions to update.');
-    }
+    // if (existingRole.role_permissions.length === 0) {
+    //     throw new BadRequestException('This role has no existing permissions to update.');
+    // }
 
-    return results;
-    }
+    // return results;
+    // }
 
     //assigning permission template to user who doesnt have a permission yet
     async assignPermissionTemplate(addPermissionTemplate:AddPermissionToExistingUserDto) {

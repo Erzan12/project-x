@@ -18,7 +18,7 @@ export class EmployeeController {
   @Can({
           action: ACTION_CREATE,
           subject: SM_EMPLOYEE_MASTERLIST,
-          module: [MODULE_ACCOUNTING] // or MODULE_HR if it's from Admin
+          module: [MODULE_HR] // or MODULE_HR if it's from Admin
   })
   @UsePipes(new ValidationPipe ({whitelist:true})) //to global in maints or appmodule
   async createEmployee(@Body() createDto: CreateEmployeeWithDetailsDto) {
