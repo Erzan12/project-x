@@ -88,8 +88,11 @@ export class AdministratorController {
     }
 
     @Post('create-role')                                                                          
-    @Roles('Administrator')
-    // @Permissions('add')
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
     async createRole(
         @Body() createRoleDto: CreateRoleDto,
@@ -100,8 +103,11 @@ export class AdministratorController {
     }
 
     @Post('create-role-permission')                                                            
-    @Roles('Administrator')
-    // @Permissions('add')
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
     async createRolePermission(
         @Body() createRolePermissionDto: CreateRolePermissionDto,
@@ -123,8 +129,11 @@ export class AdministratorController {
     }
 
     @Post('permission-templates')
-    @Roles('Administrator')
-    // @Permissions('add')
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))   
     async create(@Body() dto: CreatePermissionTemplateDto, @Req() req: RequestWithUser) {
     // const created_by = req.user.id;

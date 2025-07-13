@@ -115,8 +115,8 @@ export class UserService {
                 person_id: employee.person.id,
                 username: createUserWithTemplateDto.user_details.username,
                 email: createUserWithTemplateDto.user_details.email,
-                role_id: createUserWithTemplateDto.user_details.role_id,
-                module_id: createUserWithTemplateDto.module_id,
+                // role_id: createUserWithTemplateDto.user_details.role_id,
+                // module_id: createUserWithTemplateDto.module_id,
                 password: hashedPassword,
                 stat: 1,
                 require_reset: 1,
@@ -129,7 +129,7 @@ export class UserService {
         const userRole = await tx.userRole.create({
             data: {
                 user_id: user.id,
-                role_id: createUserWithTemplateDto.user_details.role_id,
+                role_id: createUserWithTemplateDto.role_id,
                 module_id: createUserWithTemplateDto.module_id,
                 created_at: new Date(),
             },
@@ -181,12 +181,12 @@ export class UserService {
         console.log('Hashed password stored:', hashedPassword);
 
         // After creating user and userToken:
-        // await this.mailService.sendWelcomeMail(
-        //     user.email,
-        //     user.username,
-        //     plainPassword,
-        //     tokenKey,
-        // );
+        await this.mailService.sendWelcomeMail(
+            user.email,
+            user.username,
+            plainPassword,
+            tokenKey,
+        );
 
         return {
             status: 'success',

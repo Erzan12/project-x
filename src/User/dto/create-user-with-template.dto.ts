@@ -19,5 +19,9 @@ export class CreateUserWithTemplateDto {
 
     @IsInt()
     @IsNotEmpty()
+    role_id: number;
+
+    @IsInt()
+    @IsNotEmpty()
     module_id: number;
 }

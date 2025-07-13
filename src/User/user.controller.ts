@@ -23,7 +23,7 @@ export class UserController {
     @Can({
         action: ACTION_CREATE,
         subject: SM_USER_ACCOUNT,
-        module: [MODULE_MNGR, MODULE_ADMIN] // or MODULE_HR if it's from Admin
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     @UsePipes(new ValidationPipe({ whitelist: true }))
     async createUser(
@@ -34,8 +34,11 @@ export class UserController {
     }
 
     @Post('new-token')
-    @Roles()    //to make enums
-    // @Permissions('Approve ticket')      
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_MNGR, MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })     
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async newResetToken(@Body() body: { email: string }) {
         return this.userService.userNewResetToken(body.email);
