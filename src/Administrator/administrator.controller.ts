@@ -1,17 +1,3 @@
-import { Body, Controller, Post, Req, Patch, Get, ValidationPipe, UsePipes } from '@nestjs/common';
-import { AdministratorService } from '../Administrator/administrator.service';
-import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
-import { CreateModuleDto } from '../Administrator/dto/create-module.dto';
-import { RequestWithUser } from 'src/Auth/components/interfaces/request-with-user.interface';
-import { Roles } from 'src/Auth/components/decorators/roles.decorator';
-// import { Permissions } from 'src/Auth/components/decorators/permissions.decorator';
-import { CreateSubModuleDto } from './dto/create-sub-module.dto';
-import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
-import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
-import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
-import { Can } from '../Auth/components/decorators/can.decorator';
 import {
   ACTION_CREATE,
   ACTION_READ,
@@ -21,29 +7,63 @@ import {
   ACTION_UPDATE,
 } from '../Auth/components/decorators/ability.enum';
 import { AddPermissionToExistingUserDto } from './dto/add-permission-template-existing-user-dto';
-
+import { CreateUserWithTemplateDto } from 'src/User/dto/create-user-with-template.dto';
+import { UserService } from 'src/User/user.service';
+import { Body, Controller, Post, Req, Patch, Get, ValidationPipe, UsePipes } from '@nestjs/common';
+import { AdministratorService } from '../Administrator/administrator.service';
+import { CreateModuleDto } from '../Administrator/dto/create-module.dto';
+import { RequestWithUser } from 'src/Auth/components/interfaces/request-with-user.interface';
+import { CreateSubModuleDto } from './dto/create-sub-module.dto';
+import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
+import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
+import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
+import { Can } from '../Auth/components/decorators/can.decorator';
 
 @Controller('administrator')
 export class AdministratorController {
-    constructor (private administratorService: AdministratorService) {}
+    constructor (private administratorService: AdministratorService, private userService: UserService) {}
 
     @Get('dashboard')                                                                           
-    // @Roles('Administrator')
+    // @Roles('Administrator') -> applied via permission guard and casl service
     @Can({
-        action: ACTION_READ,
-        subject: SM_USER_ACCOUNT,
-        module: [MODULE_MNGR, MODULE_ADMIN] // or MODULE_HR if it's from Admin
+        action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
+        subject: SM_USER_ACCOUNT, // SUBMODULE of Module Admin
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true}))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
     getAdminData() {
         return { message: 'Admin Access Granted' };
     }
 
-    @Patch('assign-permission-template')
+    @Post('users')
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
+    async createUserAdministrator(
+    @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
+    @Req() req: RequestWithUser,
+    ) {
+    return this.userService.createUserEmployee(createUserWithTemplateDto, req);
+    }
+
+    @Post('new_token')
     @Can({
         action: ACTION_CREATE,
         subject: SM_USER_ACCOUNT,
         module: [MODULE_MNGR, MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })     
+    async newResetToken(@Body() body: { email: string }) {
+        return this.userService.userNewResetToken(body.email);
+    }
+
+    @Patch('assign_permission_template')
+    @Can({
+        action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
+        subject: SM_USER_ACCOUNT, // SUBMODULE of Module Admin
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     async assignPermissionTemplate( 
         @Body() addPermissionTemplateDto: AddPermissionToExistingUserDto,                                                         // to make enum decorator
@@ -52,9 +72,11 @@ export class AdministratorController {
     }
 
     @Post('create-module')                                                                       
-    @Roles('Administrator')                                                                     // to make enum decorator
-    // @Permissions('add')                                                                         // to make enum decorator
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true}))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
+    @Can({
+        action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
+        subject: SM_USER_ACCOUNT, // SUBMODULE of Module Admin
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     async createModule( 
         @Body() createModuleDto: CreateModuleDto,
         @Req() req: RequestWithUser,                                                            // to make enum decorator
@@ -64,9 +86,11 @@ export class AdministratorController {
     }
 
     @Post('create-submodule')                                                                         
-    @Roles('Administrator')
-    // @Permissions('add')
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
+    @Can({
+        action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
+        subject: SM_USER_ACCOUNT, // SUBMODULE of Module Admin
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     async createSubModule( 
         @Body() createSubModuleDto: CreateSubModuleDto,
         @Req() req: RequestWithUser,                                                            //to make decorator
@@ -76,9 +100,11 @@ export class AdministratorController {
     }
 
     @Post('create-submodule-permissions')                                                                        
-    @Roles('Administrator')
-    // @Permissions('add')
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true}))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
+    @Can({
+        action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
+        subject: SM_USER_ACCOUNT, // SUBMODULE of Module Admin
+        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+    })
     async createSubModulePermission( 
         @Body() createSubModulePermissionDto: CreateSubModulePermissionDto,
         @Req() req: RequestWithUser,
@@ -89,11 +115,10 @@ export class AdministratorController {
 
     @Post('create-role')                                                                          
     @Can({
-        action: ACTION_CREATE,
-        subject: SM_USER_ACCOUNT,
+        action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
+        subject: SM_USER_ACCOUNT, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
     async createRole(
         @Body() createRoleDto: CreateRoleDto,
         @Req() req: RequestWithUser,
@@ -106,9 +131,8 @@ export class AdministratorController {
     @Can({
         action: ACTION_CREATE,
         subject: SM_USER_ACCOUNT,
-        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
-    })
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))               //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
+        module: [MODULE_ADMIN]
+    })       
     async createRolePermission(
         @Body() createRolePermissionDto: CreateRolePermissionDto,
         @Req() req : RequestWithUser,
@@ -118,9 +142,11 @@ export class AdministratorController {
     }
 
     @Patch('roles/permissions')                                                                           
-    @Roles('Administrator')
-    // @Permissions('add')                                                                         
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))              //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_USER_ACCOUNT,
+        module: [MODULE_ADMIN]
+    })                                                                                    //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
     async updateRolePermission( 
         @Body() updateRolePermissionsDto: UpdateRolePermissionsDto,
         @Req() req: RequestWithUser,
@@ -134,9 +160,7 @@ export class AdministratorController {
         subject: SM_USER_ACCOUNT,
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
-    @UsePipes(new ValidationPipe ({ whitelist:true, forbidNonWhitelisted: true }))   
     async create(@Body() dto: CreatePermissionTemplateDto, @Req() req: RequestWithUser) {
-    // const created_by = req.user.id;
     return this.administratorService.createPermissionTemplate(dto,req);
     }
 

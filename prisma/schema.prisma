@@ -147,8 +147,8 @@ model UserRole {
   module Module @relation(fields: [module_id], references: [id])
 
   user_permissions UserPermission[]
-  Department       Department?      @relation(fields: [departmentId], references: [id])
-  departmentId     Int?
+  department       Department?      @relation(fields: [department_id], references: [id])
+  department_id    Int?
 }
 
 model Company {
@@ -257,7 +257,7 @@ model PermissionTemplate {
   created_at    DateTime @default(now())
 
   department Department                  @relation(fields: [department_id], references: [id])
-  companies  PermissionTemplateCompany[]
+  companies  PermissionTemplateCompany[]        // arrayed -> to be comfirmed if it is possible to apply role permission template to multiple companies or multiple departments
 
   user             User[]
   role_permissions PermissionTemplateRolePermission[] // the actual permissions to apply
