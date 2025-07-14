@@ -28,6 +28,9 @@ import { CreatePositionDto } from './Master/position/dto/create-position.dto';
 import { CreateDepartmentDto } from './Master/department/dto/create-dept.dto';
 import { CaslModule } from './casl/casl.module';
 import { CaslAbilityService } from './casl/casl.service';
+import { HrController } from './HR/hr.controller';
+import { HrService } from './HR/hr.service';
+import { HrModule } from './HR/hr.module';
 
 @Module({
   imports: [
@@ -44,7 +47,8 @@ import { CaslAbilityService } from './casl/casl.service';
     EmployeeModule,
     AdministratorModule,
     MasterModule,
-    CaslModule
+    CaslModule,
+    HrModule
   ],
   providers: [ 
     // ManagerService,
@@ -55,16 +59,16 @@ import { CaslAbilityService } from './casl/casl.service';
       provide: APP_GUARD,
       useClass: CustomJwtAuthGuard,
     },
-    {
-      //global roles permission guard
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
+    // {
+    //   //global roles permission guard
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
     MailService, 
     PersonService, 
-    EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto, CaslAbilityService
+    EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto, CaslAbilityService, HrService
   ],
-  controllers: [PersonController, EmployeeController, AdministratorController, MasterController],
+  controllers: [PersonController, EmployeeController, AdministratorController, MasterController, HrController],
 })
 export class AppModule {}
 

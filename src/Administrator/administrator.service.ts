@@ -16,17 +16,17 @@ export class AdministratorService {
 
     // validate if module already exist
     async createModule(createModuleDto: CreateModuleDto, req, created_by: number) { 
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    //check for role administrator -> role authentication will happen in casl ability service
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
     const module = await this.prisma.module.findFirst({
         where : { name: createModuleDto.name }
@@ -72,17 +72,17 @@ export class AdministratorService {
     }
 
     async createSubModule(createSubModuleDto: CreateSubModuleDto, req, created_by: number) {
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    //check for role administrator -> role authentication will happen in casl ability service
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
     const findModule = await this.prisma.module.findUnique({
         where: { id: createSubModuleDto.module_id }
@@ -139,17 +139,17 @@ export class AdministratorService {
     //shortcut the createSubModulePermissionsDto will not be called again upon create
     const { action, sub_module_id } = createSubModulePermissionsDto;
 
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    //check for role administrator -> role authentication will happen in casl ability service
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
     const subModulePermissions = await this.prisma.subModule.findFirst({
         where: { id: createSubModulePermissionsDto.sub_module_id },
@@ -215,17 +215,17 @@ export class AdministratorService {
     async createRole(createRoleDto: CreateRoleDto, req, created_by: number) {
     const { name, description } = createRoleDto;
 
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    //check for role administrator -> role authentication will happen in casl ability service
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
     const role = await this.prisma.role.findUnique({
         where: { name: createRoleDto.name }
@@ -242,6 +242,8 @@ export class AdministratorService {
         }
     })
 
+    const user = req.user
+
     return {
         status: 'success',
         message: `Role have been successfully created!}`,
@@ -256,17 +258,17 @@ export class AdministratorService {
     async createRolePermissions(createRolePermissionDto: CreateRolePermissionDto, req, created_by) {
     const { action, sub_module_id, module_id, role_id } = createRolePermissionDto;
 
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    //check for role administrator -> role authentication will happen in casl ability service
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
     const rolePermissions = await this.prisma.role.findFirst({
         where: { id: createRolePermissionDto.role_id },
@@ -328,17 +330,17 @@ export class AdministratorService {
 
     const { name, departmentId, companyIds, rolePermissionIds } = createPermissionTemplateDto;
 
-    //check for role administrator
-    const user = await this.prisma.user.findUnique({
-        where: { id: req.user.id},
-        include: {
-            role: true,
-        }
-    })
+    // //check for role administrator -> role authentication will happen in casl ability service
+    // const user = await this.prisma.user.findUnique({
+    //     where: { id: req.user.id},
+    //     include: {
+    //         role: true,
+    //     }
+    // })
 
-    if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-    }
+    // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+    //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+    // }
 
     console.log('company_ids:', companyIds);
 
@@ -389,10 +391,10 @@ export class AdministratorService {
 
     }
 
-    // async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, req) {
-    // const { role_id, action = [] } = updateRolePermissionsDto;
+    async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, req) {
+    const { role_id, action_updates = [] } = updateRolePermissionsDto;
 
-    // //check for role administrator
+    //check for role administrator -> role authentication will happen in casl ability service
     // const user = await this.prisma.user.findUnique({
     //     where: { id: req.user.id},
     //     include: {
@@ -404,39 +406,44 @@ export class AdministratorService {
     //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
     // }
 
-    // const existingRole = await this.prisma.role.findUnique({
-    //     where: { id: role_id },
-    //     include: {
-    //     role_permissions: true,
-    //     },
-    // });
+    const existingRole = await this.prisma.role.findUnique({
+        where: { id: role_id },
+        include: {
+        role_permissions: true,
+        },
+    });
 
-    // if (!existingRole) {
-    //     throw new BadRequestException('Role does not exist!');
-    // }
+    if (!existingRole) {
+        throw new BadRequestException('Role does not exist!');
+    }
 
-    // const toUpdate = existingRole.role_permissions.filter((perm) =>
-    //     action.includes(perm.action)
-    // );
+    if(existingRole.role_permissions.length === 0) {
+        throw new BadRequestException('This role has no existing role to update');
+    }
 
-    // const results = await Promise.all(
-    //     toUpdate.map((perm) =>
-    //     this.prisma.rolePermission.update({
-    //         where: { id: perm.id },
-    //         data: {
-    //         // Add fields you want to update here, e.g.:
-    //         action: perm.action, // or any new action value
-    //         },
-    //     })
-    //     )
-    // );
+    const toUpdate = existingRole.role_permissions.filter((perm) =>
+        action_updates.some(update => update.currentAction === perm.action)
+    );
 
-    // if (existingRole.role_permissions.length === 0) {
-    //     throw new BadRequestException('This role has no existing permissions to update.');
-    // }
+    const results = await Promise.all(
+        toUpdate.map((perm) => {
+            const updateData = action_updates.find(u => u.currentAction === perm.action);
+            
+            if (!updateData) {
+                throw new ForbiddenException('Updating action failed')
+            }
 
-    // return results;
-    // }
+            return this.prisma.rolePermission.update({
+                where: { id: perm.id },
+                data: {
+                    action: updateData.newAction,
+                },
+            });
+        })
+    );
+
+    return results;
+    }
 
     //assigning permission template to user who doesnt have a permission yet
     async assignPermissionTemplate(addPermissionTemplate:AddPermissionToExistingUserDto) {

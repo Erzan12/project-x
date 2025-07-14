@@ -45,5 +45,26 @@ export const ACTION_MANAGE = 'manage';
 
 
 //submodules
+export const SM_HR = {
+    DASHBOARD : 'Dashboard',
+    EMPLOYEE_MASTERLIST : 'Employee Masterlist',
+    RECRUITMENT : 'Recruitment',
+    ACTION_MEMOS : 'Action Memos',
+    CREW_MOVEMENTS : 'Crew Movements',
+    AWOL_CASE : 'AWOL Case',
+    EMPLOYEE_RELATION : 'Employee Relations',
+    LEAVE_APPLICATION : 'Leave Applications',
+    OT_APPLICATION : 'OT Applications',
+    UT_APPLICATION : 'UT Applications',
+    OB_APPLICATION : 'OB Applications',
+    OJT_TRAINEES : 'On-the-Job Trainees',
+    PERFORMANCE_EVALUATION : 'Performance Evaluations',
+    BULLETIN : 'Bulletin',
+    VACCINE_CARD : 'Vaccine Cards',
+    ORG_CHART : 'Organizational Chart',
+    INCIDENT_REPORTS : 'Incident Reports',
+    HR_REPORTS : 'HR Reports',
+}
+
 export const SM_USER_ACCOUNT = 'User Account'
 export const SM_EMPLOYEE_MASTERLIST = 'Employee Masterlist'

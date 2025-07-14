@@ -9,5 +9,8 @@ export class UpdateRolePermissionsDto {
     @IsNotEmpty()
     @IsArray()
     @ArrayNotEmpty()
-    action: string[];
+    action_updates: {
+        currentAction: string;
+        newAction: string;
+    }[];
 }

@@ -25,36 +25,36 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
         // check for role that can only create a user account administrator and managers
-        const userCreate = await this.prisma.user.findUnique({
-            where: { id: req.user.id},
-            include: {
-                employee: {
-                    include: {
-                        position:true,  //include the position here
-                    },
-                },
-                role:true,  // optional, keep if still needed
-            },
-        });
+        // const userCreate = await this.prisma.user.findUnique({
+        //     where: { id: req.user.id},
+        //     include: {
+        //         employee: {
+        //             include: {
+        //                 position:true,  //include the position here
+        //             },
+        //         },
+        //         role:true,  // optional, keep if still needed
+        //     },
+        // });
     
-        const userPosition = userCreate?.employee?.position?.name;
+        // const userPosition = userCreate?.employee?.position?.name;
 
-        // if (!userCreate || !userPosition || !canUserCreateAccounts(userPosition)) {
-        // throw new ForbiddenException('You are not authorized to create user accounts.');
+        // // if (!userCreate || !userPosition || !canUserCreateAccounts(userPosition)) {
+        // // throw new ForbiddenException('You are not authorized to create user accounts.');
+        // // }
+        // if(!userPosition){
+        //     throw new ForbiddenException('User with the position does not exist');
         // }
-        if(!userPosition){
-            throw new ForbiddenException('User with the position does not exist');
-        }
 
-        // ✅ Check if the role is Administrator or Manager
-        const isAuthorized = [
-            UserRole.ADMINISTRATOR,
-            UserRole.MANAGERS // Assuming you meant 'Manager'
-        ].includes(userPosition);
+        // // ✅ Check if the role is Administrator or Manager
+        // const isAuthorized = [
+        //     UserRole.ADMINISTRATOR,
+        //     UserRole.MANAGERS // Assuming you meant 'Manager'
+        // ].includes(userPosition);
 
-        // if (!userCreate || !userPosition || !isAuthorized) {
-        //     throw new ForbiddenException('You are not authorized to create user accounts.');
-        // }
+        // // if (!userCreate || !userPosition || !isAuthorized) {
+        // //     throw new ForbiddenException('You are not authorized to create user accounts.');
+        // // }
 
         // validate and check user if it exist via username and email
         const existingUser = await this.prisma.user.findFirst({
@@ -115,13 +115,12 @@ export class UserService {
                 person_id: employee.person.id,
                 username: createUserWithTemplateDto.user_details.username,
                 email: createUserWithTemplateDto.user_details.email,
-                // role_id: createUserWithTemplateDto.user_details.role_id,
-                // module_id: createUserWithTemplateDto.module_id,
                 password: hashedPassword,
                 stat: 1,
                 require_reset: 1,
                 created_by: req.user.id,
                 created_at: new Date(),
+                role_id: createUserWithTemplateDto.role_id,
             },
         });
 

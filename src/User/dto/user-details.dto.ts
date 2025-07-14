@@ -22,9 +22,5 @@ export class UserDetailsDto {
     @IsString()
     @IsNotEmpty()
     username: string;
-
-    @IsInt()
-    @IsNotEmpty()
-    role_id: number;
 }
 
