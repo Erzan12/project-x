@@ -10,8 +10,6 @@ import { PersonModule } from './HR/Person/person.module';
 import { EmployeeService } from './HR/Employee/employee.service';
 import { EmployeeController } from './HR/Employee/employee.controller';
 import { EmployeeModule } from './HR/Employee/employee.module';
-// import { ManagerService } from './Manager/manager.service';
-// import { ManagerModule } from './Manager/manager.module';
 import { UserService } from './User/user.service';
 import { AdministratorController } from 'src/Administrator/administrator.controller';
 import { AdministratorService } from 'src/Administrator/administrator.service';
@@ -31,6 +29,8 @@ import { CaslAbilityService } from './casl/casl.service';
 import { HrController } from './HR/hr.controller';
 import { HrService } from './HR/hr.service';
 import { HrModule } from './HR/hr.module';
+import { ManagerModule } from './Manager/manager.module';
+import { ManagerController } from './Manager/manager.controller';
 
 @Module({
   imports: [
@@ -48,7 +48,8 @@ import { HrModule } from './HR/hr.module';
     AdministratorModule,
     MasterModule,
     CaslModule,
-    HrModule
+    HrModule,
+    ManagerModule
   ],
   providers: [ 
     // ManagerService,
@@ -59,16 +60,16 @@ import { HrModule } from './HR/hr.module';
       provide: APP_GUARD,
       useClass: CustomJwtAuthGuard,
     },
-    // {
-    //   //global roles permission guard
-    //   provide: APP_GUARD,
-    //   useClass: PermissionsGuard,
-    // },
+    {
+      //global roles permission guard
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
     MailService, 
     PersonService, 
     EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto, CaslAbilityService, HrService
   ],
-  controllers: [PersonController, EmployeeController, AdministratorController, MasterController, HrController],
+  controllers: [PersonController, EmployeeController, AdministratorController, MasterController, HrController, ManagerController],
 })
 export class AppModule {}
 

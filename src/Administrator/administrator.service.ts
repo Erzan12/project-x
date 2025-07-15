@@ -15,7 +15,7 @@ export class AdministratorService {
     constructor (private prisma: PrismaService) {}
 
     // validate if module already exist
-    async createModule(createModuleDto: CreateModuleDto, req, created_by: number) { 
+    async createModule(createModuleDto: CreateModuleDto, user) { 
     //check for role administrator -> role authentication will happen in casl ability service
     // const user = await this.prisma.user.findUnique({
     //     where: { id: req.user.id},
@@ -36,7 +36,7 @@ export class AdministratorService {
     }
 
     const creator = await this.prisma.user.findUnique({
-        where: { id: created_by },
+        where: { id: user.id },
         include: {
             employee: {
                 include: {
@@ -71,7 +71,7 @@ export class AdministratorService {
     }
     }
 
-    async createSubModule(createSubModuleDto: CreateSubModuleDto, req, created_by: number) {
+    async createSubModule(createSubModuleDto: CreateSubModuleDto, user) {
     //check for role administrator -> role authentication will happen in casl ability service
     // const user = await this.prisma.user.findUnique({
     //     where: { id: req.user.id},
@@ -92,7 +92,7 @@ export class AdministratorService {
     }
 
     const creator = await this.prisma.user.findUnique({
-        where: { id: created_by },
+        where: { id: user.id },
         include: {
             employee: {
                 include: {
@@ -135,7 +135,7 @@ export class AdministratorService {
     }
     }
 
-    async createSubModulePermissions(createSubModulePermissionsDto: CreateSubModulePermissionDto, req, created_by: number) {
+    async createSubModulePermissions(createSubModulePermissionsDto: CreateSubModulePermissionDto, user) {
     //shortcut the createSubModulePermissionsDto will not be called again upon create
     const { action, sub_module_id } = createSubModulePermissionsDto;
 
@@ -160,7 +160,7 @@ export class AdministratorService {
     }
 
     const creator = await this.prisma.user.findUnique({
-        where: { id: created_by },
+        where: { id: user.id },
         include: {
             employee: {
                 include: {
@@ -212,7 +212,7 @@ export class AdministratorService {
     }   
     }
 
-    async createRole(createRoleDto: CreateRoleDto, req, created_by: number) {
+    async createRole(createRoleDto: CreateRoleDto, user) {
     const { name, description } = createRoleDto;
 
     //check for role administrator -> role authentication will happen in casl ability service
@@ -242,20 +242,20 @@ export class AdministratorService {
         }
     })
 
-    const user = req.user
+    const requestUser = user.id
 
     return {
         status: 'success',
         message: `Role have been successfully created!}`,
         created_by: {
             id: createdRole.id,
-            role: user.role?.name
+            role: requestUser.role?.name
         },
         createdRole
     }
     }
 
-    async createRolePermissions(createRolePermissionDto: CreateRolePermissionDto, req, created_by) {
+    async createRolePermissions(createRolePermissionDto: CreateRolePermissionDto, user) {
     const { action, sub_module_id, module_id, role_id } = createRolePermissionDto;
 
     //check for role administrator -> role authentication will happen in casl ability service
@@ -311,7 +311,7 @@ export class AdministratorService {
     })
 
     const creatorUser = await this.prisma.user.findFirst({
-        where: { id: req.user.name },
+        where: { id: user.id },
     })
 
     return {
@@ -325,7 +325,7 @@ export class AdministratorService {
     }
     }
 
-    async createPermissionTemplate(createPermissionTemplateDto: CreatePermissionTemplateDto, req) {
+    async createPermissionTemplate(createPermissionTemplateDto: CreatePermissionTemplateDto, user) {
     console.log('DTO Received:', createPermissionTemplateDto);
 
     const { name, departmentId, companyIds, rolePermissionIds } = createPermissionTemplateDto;
@@ -391,7 +391,7 @@ export class AdministratorService {
 
     }
 
-    async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, req) {
+    async updateRolePermissions(updateRolePermissionsDto: UpdateRolePermissionsDto, user) {
     const { role_id, action_updates = [] } = updateRolePermissionsDto;
 
     //check for role administrator -> role authentication will happen in casl ability service

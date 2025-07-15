@@ -1,13 +1,12 @@
+import {
+  ACTION_CREATE,
+  MODULE_HR,
+} from '../../Auth/components/decorators/ability.enum';
 import { Controller, Post, Body, Get, ValidationPipe, UsePipes } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeWithDetailsDto } from './dto/create-employe-with-details.dto';
 import { Can } from '../../Auth/components/decorators/can.decorator';
-import {
-  ACTION_CREATE,
-  MODULE_HR,
-  SM_HR,
-} from '../../Auth/components/decorators/ability.enum';
-import { Roles } from 'src/Auth/components/decorators/roles.decorator';
+import { SM_HR } from 'src/Auth/components/constants/core-constants';
 
 @Controller('hr')
 export class EmployeeController {
