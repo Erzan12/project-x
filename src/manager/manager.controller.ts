@@ -1,14 +1,14 @@
 import { 
     ACTION_CREATE,
-    SM_USER_ACCOUNT,
-    MODULE_MNGR,
-    ACTION_MANAGE    
+    MODULE_MNGR,  
  } from 'src/Auth/components/decorators/ability.enum';
 import { Can } from 'src/Auth/components/decorators/can.decorator';
 import { Body, Controller, Post, Req } from '@nestjs/common';
-import { RequestWithUser } from 'src/Auth/components/interfaces/request-with-user.interface';
+import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 import { UserService } from 'src/User/user.service';
 import { CreateUserWithTemplateDto } from 'src/User/dto/create-user-with-template.dto';
+import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
+import { SM_MANAGER } from 'src/Auth/components/constants/core-constants';
 
 @Controller('manager')
 export class ManagerController {
@@ -16,26 +16,29 @@ export class ManagerController {
 
     //<<<<------- THE CONTROL ROUTES INTENDED FOR IT MANAGER -------> 
 
-    @Post('manager')
+    @Post('users')
     @Can({
         action: ACTION_CREATE,
-        subject: SM_USER_ACCOUNT,
+        subject: SM_MANAGER.USER_ACCOUNT,
         module: [MODULE_MNGR] // or MODULE_HR if it's from Admin
     })
     async createUserManager(
-    @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
-    @Req() req: RequestWithUser,
+        @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
+        @SessionUser() user: RequestUser,
     ) {
-    return this.userService.createUserEmployee(createUserWithTemplateDto, req);
+    return this.userService.createUserEmployee(createUserWithTemplateDto, user);
     }
 
-    @Post('new-token')
+    @Post('users')
     @Can({
         action: ACTION_CREATE,
-        subject: SM_USER_ACCOUNT,
+        subject: SM_MANAGER.USER_ACCOUNT,
         module: [MODULE_MNGR] // or MODULE_HR if it's from Admin
     })     
-    async newResetToken(@Body() body: { email: string }) {
-        return this.userService.userNewResetToken(body.email);
+    async newResetToken(
+        @Body() body: { email: string },
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.userService.userNewResetToken(body.email, user);
     }
 }

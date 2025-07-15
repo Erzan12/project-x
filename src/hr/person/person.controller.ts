@@ -1,17 +1,13 @@
+import {
+  ACTION_CREATE,
+  MODULE_HR,
+  ACTION_DELETE,
+} from '../../Auth/components/decorators/ability.enum';
 import { Controller, Delete, Body, HttpStatus, HttpCode } from '@nestjs/common';
 import { PersonService } from './person.service';
 import { DeletePersonDto } from './dto/delete-person.dto';
-import { Roles } from 'src/Auth/components/decorators/roles.decorator';
-import { Permissions } from 'src/Auth/components/decorators/can.decorator';
-import { Authenticated } from 'src/Auth/components/decorators/auth-guard.decorator';
 import { Can } from '../../Auth/components/decorators/can.decorator';
-import {
-  ACTION_CREATE,
-  SM_EMPLOYEE_MASTERLIST,
-  MODULE_HR,
-  MODULE_ACCOUNTING,
-  ACTION_DELETE,
-} from '../../Auth/components/decorators/ability.enum';
+import { SM_HR } from 'src/Auth/components/constants/core-constants';
 
 
 @Controller('person')
@@ -22,7 +18,7 @@ export class PersonController {
     @Delete()
     @Can({
             action: ACTION_DELETE,
-            subject: SM_EMPLOYEE_MASTERLIST,
+            subject: SM_HR.EMPLOYEE_MASTERLIST,
             module: [MODULE_HR] // or MODULE_HR if it's from Admin
     })
     @HttpCode(HttpStatus.NO_CONTENT)

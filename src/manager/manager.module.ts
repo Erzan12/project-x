@@ -7,10 +7,11 @@ import { AuthModule } from 'src/Auth/auth.module';
 import { MailService } from 'src/Mail/mail.service';
 import { ProtectedController } from './protected.controller';
 import { UserService } from 'src/User/user.service';
+import { ManagerController } from './manager.controller';
 
 @Module({
   imports: [ AuthModule ],
-  controllers: [ ProtectedController, HomeController, ProfileController ],
+  controllers: [ ProtectedController, HomeController, ProfileController, ManagerController ],
   providers: [UserService, PrismaService, AuthService, JwtService, MailService],
   exports: [AuthService, UserService],
 })

@@ -1,11 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import {
-    SM_HR,
     MODULE_HR,
     ACTION_READ,
 } from '../Auth/components/decorators/ability.enum';
 import { Can } from 'src/Auth/components/decorators/can.decorator';
-
+import { SM_HR } from 'src/Auth/components/constants/core-constants';
 @Controller('hr')
 export class HrController {
 

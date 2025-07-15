@@ -36,7 +36,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       },
     });
 
-    if (!user || !user.is_active) {
+    if (!user || !user.is_active || !user.role) {
       throw new UnauthorizedException('Invalid or inactive user');
     }
     // return {
@@ -49,6 +49,24 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     //   id: payload.sub,
     //   username: payload.name,
     // };
-    return user; // ✅ Return full user with module, role, etc.
+    // return user; // ✅ Return full user with module, role, etc.
+
+    //returns only the necessary user details needed for auth and role and permission
+    return {
+      id: user.id,
+      email: user.email,
+      role: {
+        id: user.role.id,
+        role_permissions: user.role.role_permissions.map((rp) => ({
+          action: rp.action,
+          permission: { name: rp.permission.name },
+          status: rp.status,
+        })),
+      },
+      module: {
+        id: user.module?.id,
+        name: user.module?.name,
+      },
+    };
   }
 }
