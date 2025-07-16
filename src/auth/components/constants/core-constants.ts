@@ -48,7 +48,7 @@ export const SM_ADMIN = {
     MAINTENANCE_SCHEDULE : 'Maintenance Schedules',
     MASTER_TABLE : 'Master Table',
     USER_ACCOUNT : 'User Accounts',
-    USER_TOKEN_KEYS : 'User Token Keys',
+    USER_TOKEN_KEY : 'User Token Keys',
     SMS_SUBSCRIPTION : 'SMS Subscriptions',
     REPORT,
     //or if array approach
@@ -59,11 +59,6 @@ export const SM_ADMIN = {
     //     USERS_SUMMARY: 'Users Summary',
     //     USERS_LOGIN_HISTORY: 'Users Login History',
     // },
-}
-
-export const SM_ADMIN_REP = {
-    USER_SUMMARY : 'Users Summary',
-    USERS_LOGIN_HIS : 'Users Login History',
 }
 
 export const EXEC_REPORT = {
@@ -87,6 +82,5 @@ export const SM_MANAGER = {
     //      PROC_KPI_REP : 'Procurement KPI Report',
     //      RFP_APPROVAL_HIS: 'RFP Approval History', 
     // },
-    USER_ACCOUNT : 'User Accounts',
 }
 

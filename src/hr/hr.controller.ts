@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import {
     MODULE_HR,
     ACTION_READ,
-} from '../Auth/components/decorators/ability.enum';
+} from '../Auth/components/decorators/ability';
 import { Can } from 'src/Auth/components/decorators/can.decorator';
 import { SM_HR } from 'src/Auth/components/constants/core-constants';
 @Controller('hr')

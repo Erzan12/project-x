@@ -2,7 +2,7 @@ import {
   ACTION_CREATE,
   MODULE_HR,
   ACTION_DELETE,
-} from '../../Auth/components/decorators/ability.enum';
+} from '../../Auth/components/decorators/ability';
 import { Controller, Delete, Body, HttpStatus, HttpCode } from '@nestjs/common';
 import { PersonService } from './person.service';
 import { DeletePersonDto } from './dto/delete-person.dto';

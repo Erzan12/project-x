@@ -60,11 +60,11 @@ import { ManagerController } from './Manager/manager.controller';
       provide: APP_GUARD,
       useClass: CustomJwtAuthGuard,
     },
-    {
-      //global roles permission guard
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
+    // {
+    //   //global roles permission guard
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
     MailService, 
     PersonService, 
     EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto, CaslAbilityService, HrService

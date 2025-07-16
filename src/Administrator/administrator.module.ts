@@ -13,7 +13,6 @@ import { RoleService } from './role/role.service';
 import { ModuleService } from './module/module.service';
 import { ModuleController } from './module/module.controller';
 import { SubModuleController } from './sub_module/sub_module.controller';
-import { SubModuleService } from './sub_module/sub_module.service';
 
 @Module({
     imports:[AuthModule],

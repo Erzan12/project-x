@@ -82,6 +82,7 @@ model SubModulePermission {
   id            Int      @id @default(autoincrement())
   action        String // e.g. create, allow, view, edit, update, cancel, verify, approve, note
   sub_module_id Int
+  status        Boolean  @default(true) // <-- true = active, false = inactive
   created_at    DateTime @default(now())
 
   //Relations
@@ -152,22 +153,23 @@ model UserRole {
 }
 
 model Company {
-  id                          Int                         @id @default(autoincrement())
-  name                        String                      @unique
-  abbreviation                String                      @unique @db.VarChar(10)
-  company_code                String                      @unique @default("TEMP") @db.VarChar(10) // to work on later
-  created_at                  DateTime                    @default(now())
-  //  user_permission_company   UserPermissionCompany[]
-  employee                    Employee[]
-  user_permission_company     UserPermissionCompany[]
-  permission_template_company PermissionTemplateCompany[]
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  abbreviation String   @unique @db.VarChar(10)
+  company_code String   @unique @default("TEMP") @db.VarChar(10) // to work on later
+  created_at   DateTime @default(now())
+
+  //Relations
+  employee                Employee[]
+  user_permission_company UserPermissionCompany[]
+  permissionTemplates     PermissionTemplate[]
 }
 
 model Division {
   id               Int      @id @default(autoincrement())
   name             String   @db.VarChar(255)
   division_head_id Int
-  status           Boolean @default(true) // <-- true = active, false = inactive
+  status           Boolean  @default(true) // <-- true = active, false = inactive
   created_at       DateTime @default(now())
 
   departments Department[] // 1:N relation with Department -> a division can have many department or company
@@ -177,28 +179,27 @@ model Department {
   id                 Int      @id @default(autoincrement())
   name               String   @db.VarChar(255)
   division_id        Int
-  status             Boolean @default(true) // <-- true = active, false = inactive
+  status             Boolean  @default(true) // <-- true = active, false = inactive
   department_head_id Int?
   created_at         DateTime @default(now())
 
   //Relations
-  division             Division             @relation(fields: [division_id], references: [id])
-  positions            Position[]           // One-to-many relation -> a department has many positions
-  employees            Employee[]
-  sub_modules          SubModule[]
-  user_roles           UserRole[]
-  permission_templates PermissionTemplate[]
-  
+  division                       Division                       @relation(fields: [division_id], references: [id])
+  positions                      Position[] // One-to-many relation -> a department has many positions
+  employees                      Employee[]
+  sub_modules                    SubModule[]
+  user_roles                     UserRole[]
+  permission_template_deparmtent PermissionTemplateDepartment[]
 }
 
 model Position {
-  id               Int      @id @default(autoincrement())
-  name             String   @db.VarChar(255)
-  department_id    Int
-  status           Boolean @default(true) // <-- true = active, false = inactive
+  id            Int     @id @default(autoincrement())
+  name          String  @db.VarChar(255)
+  department_id Int
+  status        Boolean @default(true) // <-- true = active, false = inactive
 
-  department       Department @relation(fields: [department_id], references: [id])
-  employee         Employee[]
+  department Department @relation(fields: [department_id], references: [id])
+  employee   Employee[]
 }
 
 model Module {
@@ -251,27 +252,28 @@ model PasswordResetToken {
 }
 
 model PermissionTemplate {
-  id            Int      @id @default(autoincrement())
-  name          String
-  department_id Int
-  created_at    DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  name       String
+  status     Boolean  @default(true) // <-- true = active, false = inactive
+  created_at DateTime @default(now())
 
-  department Department                  @relation(fields: [department_id], references: [id])
-  companies  PermissionTemplateCompany[]        // arrayed -> to be comfirmed if it is possible to apply role permission template to multiple companies or multiple departments
+  departments PermissionTemplateDepartment[] // arrayed -> to be comfirmed if it is possible to apply role permission template to multiple companies or multiple departments
+  company     Company                        @relation(fields: [company_id], references: [id])
+  company_id  Int
 
   user             User[]
   role_permissions PermissionTemplateRolePermission[] // the actual permissions to apply
 }
 
-model PermissionTemplateCompany {
+model PermissionTemplateDepartment {
   id                     Int @id @default(autoincrement())
   permission_template_id Int
-  company_id             Int
+  department_id          Int
 
   permission_template PermissionTemplate @relation(fields: [permission_template_id], references: [id])
-  company             Company            @relation(fields: [company_id], references: [id])
+  department          Department         @relation(fields: [department_id], references: [id])
 
-  @@unique([permission_template_id, company_id])
+  @@unique([permission_template_id, department_id])
 }
 
 model PermissionTemplateRolePermission {
@@ -303,7 +305,7 @@ model Employee {
   employee_id               String    @unique
   department_id             Int // will assign dept
   hire_date                 DateTime
-  position_id               Int @default(1)
+  position_id               Int       @default(1)
   salary                    Decimal
   pay_frequency             String
   employment_status         String

@@ -1,7 +1,7 @@
 import { 
     ACTION_CREATE,
     MODULE_MNGR,  
- } from 'src/Auth/components/decorators/ability.enum';
+ } from 'src/Auth/components/decorators/ability';
 import { Can } from 'src/Auth/components/decorators/can.decorator';
 import { Body, Controller, Post, Req } from '@nestjs/common';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
@@ -16,29 +16,5 @@ export class ManagerController {
 
     //<<<<------- THE CONTROL ROUTES INTENDED FOR IT MANAGER -------> 
 
-    @Post('users')
-    @Can({
-        action: ACTION_CREATE,
-        subject: SM_MANAGER.USER_ACCOUNT,
-        module: [MODULE_MNGR] // or MODULE_HR if it's from Admin
-    })
-    async createUserManager(
-        @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
-        @SessionUser() user: RequestUser,
-    ) {
-    return this.userService.createUserEmployee(createUserWithTemplateDto, user);
-    }
 
-    @Post('users')
-    @Can({
-        action: ACTION_CREATE,
-        subject: SM_MANAGER.USER_ACCOUNT,
-        module: [MODULE_MNGR] // or MODULE_HR if it's from Admin
-    })     
-    async newResetToken(
-        @Body() body: { email: string },
-        @SessionUser() user: RequestUser,
-    ) {
-        return this.userService.userNewResetToken(body.email, user);
-    }
 }
