@@ -49,6 +49,7 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('Access denied: no permission metadata.');
     }
 
+    //handles module for Modules like Administrator or Human Resources, in can permission guard vs db driven data or input
     const userModule = user.module?.name?.toLowerCase().trim();
     const allowedModules = Array.isArray(permission.module)
       ? permission.module.map((m) => m.toLowerCase().trim())
@@ -60,6 +61,7 @@ export class PermissionsGuard implements CanActivate {
       );
     }
 
+    //handles the action AKA actual permission and subject AKA submodule,in can permission guard vs db driven data or input
     const action = permission.action.toLowerCase().trim();
     const subject = permission.subject.toLowerCase().trim();
 
@@ -68,7 +70,7 @@ export class PermissionsGuard implements CanActivate {
     const ability = this.caslAbilityService.defineAbilitiesFor(user.role);
 
     this.logger.debug(
-      `Checking role "${user.role.role}" -> ${action} on ${subject} (Module: ${userModule})`,
+      `Checking role "${user.role}" -> ${action} on ${subject} (Module: ${userModule})`,
     );
 
     if (!VALID_ACTIONS.includes(action)) {
@@ -97,6 +99,7 @@ export class PermissionsGuard implements CanActivate {
       this.logger.debug(`Allowed: ${pAction} on ${pSubject}`);
     }
 
+    //handles the action AKA actual permission and subject AKA submodule,in can permission guard vs db driven data or input
     const canAccess = ability.can(action, subject);
 
     if (!canAccess) {

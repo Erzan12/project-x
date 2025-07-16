@@ -37,6 +37,7 @@ export const ACTION_UPDATE = 'update';
 export const ACTION_DELETE = 'delete';
 export const ACTION_MANAGE = 'manage';
 export const ACTION_VERIFY = 'verify';
+export const ACTION_ACCESS = 'access';
 // export const ACTION_CANCEL = 'cancel';
 // export const ACTION_EDIT = 'edit';
 // export const ACTION_APPROVE= 'approve';

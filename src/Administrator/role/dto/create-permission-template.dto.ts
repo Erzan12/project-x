@@ -32,12 +32,12 @@ export class CreatePermissionTemplateDto {
 
   @IsInt()
   @IsNotEmpty()
-  departmentId: number;
+  company_id: number;
 
   @IsArray()
   @ArrayNotEmpty()
   @IsInt({ each: true }) // validate each item is an integer
-  companyIds: number[]; //permission template can be applied to multiple companies
+  department_ids: number[]; //permission template can be applied to multiple departments
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -45,7 +45,6 @@ export class CreatePermissionTemplateDto {
   @ArrayNotEmpty()
   rolePermissionIds: RolePermissionInput[];
 }
-
 
 // import {
 //     IsString,

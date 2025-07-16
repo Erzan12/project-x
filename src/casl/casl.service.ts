@@ -64,18 +64,19 @@ export class CaslAbilityService {
   }
 
   defineAbilitiesFor(role: {
-    role: number;
+    id: number;
     role_permissions: {
       action: string;
       permission: { name: string };
       status: boolean;
     }[];
-  }) {
+  }) 
+  {
     const { can, build } = new AbilityBuilder(this.Ability);
 
     // Define what "manage" should actually mean
     const actionMap: Record<string, string[]> = {
-      manage: ['create', 'read', 'update', 'delete','edit'],
+      manage: ['create', 'read', 'update', 'delete'],
     };
 
     if (role.role_permissions && role.role_permissions.length > 0) {
@@ -94,14 +95,13 @@ export class CaslAbilityService {
         }
 
         // Expand "manage" into specific actions
-        const actionsToGrant = ACTION_MAP[rawAction] ?? [rawAction];
+        const actionsToGrant = actionMap[rawAction] ?? [rawAction];
 
         for (const action of actionsToGrant) {
           can(action, subject);
         }
       }
     }
-
     return build();
   }
 }

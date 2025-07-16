@@ -2,7 +2,7 @@ import { Injectable, ForbiddenException, ConflictException } from '@nestjs/commo
 import { PrismaService } from 'prisma/prisma.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 // import { PositionStatus } from 'src/Auth/components/decorators/global.enums.decorator';
-import { UserRole } from 'src/Auth/components/decorators/ability.enum';
+import { UserRole } from 'src/Auth/components/decorators/ability';
 
 @Injectable()
 export class PositionService {
