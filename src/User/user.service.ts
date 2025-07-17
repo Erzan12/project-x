@@ -1,10 +1,11 @@
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, ConflictException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from 'src/Mail/mail.service';
 import { CreatePermissionTemplateDto } from 'src/Administrator/role/dto/create-permission-template.dto';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
+import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
 
 @Injectable()
 export class UserService {
@@ -104,11 +105,19 @@ export class UserService {
         });
 
         // Create UserPermission based on created PermissionTemplate
-        const permissionTemplateId = createUserWithTemplateDto.user_permission_template_id;
+        const permissionTemplateId = createUserWithTemplateDto.user_permission_template_ids;
+
+        if (!Array.isArray(permissionTemplateId) || permissionTemplateId.length === 0) {
+            throw new BadRequestException('Permission template IDs must be a non-empty array.');
+        }
 
         //fetch role permissions from the template
         const templatePermissions = await this.prisma.permissionTemplateRolePermission.findMany({
-            where: { permission_template_id: permissionTemplateId },
+            where: {
+            permission_template_id: {
+                in: permissionTemplateId, // ✅ this is correct if it's an array of IDs
+            },
+            },
             include: { role_permission: true },
         });
 
@@ -123,13 +132,23 @@ export class UserService {
         });
 
         // record the permission template that was used when creating user
+        // await tx.user.update({
+        //     where: { id: userCreate.id },
+        //     data: {
+        //             // if going to apply.. add the permission_template_id on the user model field
+        //         permission_template_id: permissionTemplateId, // add this field to User model if needed
+        //     },
+        // });
+
         await tx.user.update({
-            where: { id: userCreate.id },
-            data: {
-                    // if going to apply.. add the permission_template_id on the user model field
-                permission_template_id: permissionTemplateId, // add this field to User model if needed
+        where: { id: userCreate.id },
+        data: {
+            permission_templates: {
+            connect: permissionTemplateId.map(id => ({ id })),
             },
+        },
         });
+
 
         // Step 4: Create a password reset token
         const tokenKey = crypto.randomBytes(64).toString('hex');
@@ -137,9 +156,20 @@ export class UserService {
         const createdToken = await tx.passwordResetToken.create({
             data: {
                 user_id: userCreate.id,
-                token: tokenKey,
-                // ⛔ TEMP: For testing - token expires in 3 days
+                password_token: tokenKey,
+                // ⛔ TEMP: For testing - token expires in 3 days -> reset password token for first time log in
                 expires_at: new Date(Date.now() + 60 * 60 * 24 * 3 * 1000), // 3 day expire -> 60 * 60 = 1hour * 24 = 1 day *3 = 3days
+            },
+        });
+
+        //generate user token 
+        const userToken = crypto.randomBytes(64).toString('hex');
+
+        await tx.userToken.create({
+            data: {
+                user_id: userCreate.id,
+                user_token: userToken,
+                //generate user token for newly create user account
             },
         });
 
@@ -164,9 +194,11 @@ export class UserService {
                 name: admin,
                 position: adminPos,
             },
-            user_id: user.id,
+            user_id: userCreate.id,
+            username: userCreate.username,
             password: plainPassword,
-            reset_token: createdToken.token, // send this in email or secure output only
+            // user_token: createdUserToken.user_token,
+            reset_token: createdToken.password_token, // send this in email or secure output only
         };
         });
     }
@@ -192,7 +224,7 @@ export class UserService {
         const createdToken = await this.prisma.passwordResetToken.create({
             data: {
                 user_id: user.id,
-                token: tokenKey,
+                password_token: tokenKey,
                 // ⛔ TEMP: For testing - token expires in 3 days
                 expires_at: new Date(Date.now() + 60 * 60 * 24 * 3 * 1000), //3days
             }
@@ -209,7 +241,66 @@ export class UserService {
             status: 'success',
             message: `Reset token created and sent to ${requestUser.email}`,
             user_id: requestUser.id,
-            reset_token: createdToken.token,
+            reset_token: createdToken.password_token,
         });
     }
+
+    async deactivateUserAccount(deactivateUserAccountDto: DeactivateUserAccountDto, user) {
+        const existingUser = await this.prisma.user.findUnique({
+            where: { id: deactivateUserAccountDto.user_id }
+        });
+
+        if(!existingUser){
+            throw new BadRequestException('User not found');
+        }
+
+        if(existingUser.stat === 0) {
+            throw new ForbiddenException('User account is already deactivated')
+        }
+
+        // deactivation method
+        await this.prisma.user.update({
+            where: { id: deactivateUserAccountDto.user_id },
+            data: {
+                stat: 0,
+                is_active: false,
+            },
+        });
+
+        return {
+            status: 'success',
+            message: `User ID ${deactivateUserAccountDto.user_id} has been deactivated`,
+            deactivated_by: `User Role ID No. ${user.id}`
+        }
+    }
+
+    async reactivateUserAccount(reactivateUserAccountDto: ReactivateUserAccountDto, user) {
+        
+        const existingDeactivatedUser = await this.prisma.user.findUnique({
+            where: { id: reactivateUserAccountDto.user_id },
+        }); 
+
+        if(!existingDeactivatedUser) {
+            throw new BadRequestException('Deactivated User not found');
+        }
+
+        if(existingDeactivatedUser.stat === 1) {
+            throw new ConflictException('User Account is still active');
+        }
+        
+        await this.prisma.user.update({
+            where: { id: reactivateUserAccountDto.user_id },
+            data: {
+                stat: 1,
+                is_active: true,
+            },
+        });
+
+        return {
+            status: 'success',
+            message: `User ID ${reactivateUserAccountDto.user_id} has been reactivated!`,
+            reactivated_by: `User Role ID No. ${user.id}`
+        }
+    }
+
 }

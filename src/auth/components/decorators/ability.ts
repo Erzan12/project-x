@@ -43,3 +43,12 @@ export const ACTION_ACCESS = 'access';
 // export const ACTION_APPROVE= 'approve';
 // export const ACTION_NOTE = 'note';
 
+export const USER_TOKEN_STATUS = {
+    UNASSIGNED : 'true',
+    DEACTIVATED : 'false',
+}
+
+export const PASSWORD_RESET_TOKEN = {
+    USED : 'true',
+    UNUSED : 'false',
+}

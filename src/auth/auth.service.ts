@@ -23,7 +23,7 @@ export class AuthService {
 
         // find the user token
         const passwordresetToken = await this.prisma.passwordResetToken.findFirst({
-            where: { token: token },
+            where: { password_token: token },
             include: { user: true },
         });
 

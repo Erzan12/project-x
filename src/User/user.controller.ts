@@ -1,11 +1,12 @@
-import { Controller, Body, Post, Get } from '@nestjs/common';
+import { Controller, Body, Post, Get, Patch } from '@nestjs/common';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
 import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
 import { UserService } from './user.service';
 import { Can } from 'src/Auth/components/decorators/can.decorator';
-import { ACTION_CREATE, ACTION_READ, MODULE_ADMIN, MODULE_MNGR } from 'src/Auth/components/decorators/ability';
+import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN, MODULE_MNGR } from 'src/Auth/components/decorators/ability';
 import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
 
 @Controller('users')
 export class UserController {
@@ -67,6 +68,32 @@ export class UserController {
             @SessionUser() user: RequestUser
         ) {
         return this.userService.createUserEmployee(createUserWithTemplateDto, user);
+        }
+
+        @Patch('deactivate')
+        @Can({
+            action: ACTION_UPDATE,
+            subject: SM_ADMIN.USER_ACCOUNT,
+            module: [MODULE_ADMIN],
+        })
+        async deactivateUser(
+            @Body() deactivateUserAccountDto: DeactivateUserAccountDto,
+            @SessionUser() user: RequestUser,
+        ) {
+        return this.userService.deactivateUserAccount(deactivateUserAccountDto,user);
+        }
+
+        @Patch('reactivate')
+        @Can({
+            action: ACTION_UPDATE,
+            subject: SM_ADMIN.USER_ACCOUNT,
+            module: [MODULE_ADMIN],
+        })
+        async reactivateUser(
+            @Body() reactivateUserAccountDto: ReactivateUserAccountDto,
+            @SessionUser() user: RequestUser,
+        ) {
+            return this.userService.reactivateUserAccount(reactivateUserAccountDto,user)
         }
 }
 

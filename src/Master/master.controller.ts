@@ -5,13 +5,21 @@ import { CreateDepartmentDto } from './department/dto/create-dept.dto';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 import { DepartmentService } from './department/department.service';
 import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
+import { Can } from 'src/Auth/components/decorators/can.decorator';
+import { ACTION_CREATE, MODULE_ADMIN } from 'src/Auth/components/decorators/ability';
+import { subject } from '@casl/ability';
+import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 
 @Controller('master')
 export class MasterController {
     constructor(private positionService: PositionService, private departmentService: DepartmentService) {} 
 
     @Post('position')
-    // @Permissions(Actions.CREATE)
+    @Can({
+        action: ACTION_CREATE,
+        subject: SM_ADMIN.MASTER_TABLE,
+        module: [MODULE_ADMIN]
+    })
     async createPosition(
         @Body() createDto: CreatePositionDto, 
         @SessionUser() user: RequestUser,

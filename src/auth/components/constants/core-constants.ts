@@ -46,9 +46,9 @@ export const SM_ADMIN = {
     // },
 
     MAINTENANCE_SCHEDULE : 'Maintenance Schedules',
-    MASTER_TABLE : 'Master Table',
-    USER_ACCOUNT : 'User Accounts',
-    USER_TOKEN_KEY : 'User Token Keys',
+    MASTER_TABLE : 'Master Tables',
+    USER_ACCOUNT : 'User Account',
+    USER_TOKEN_KEY : 'User Token Key',
     SMS_SUBSCRIPTION : 'SMS Subscriptions',
     REPORT,
     //or if array approach
