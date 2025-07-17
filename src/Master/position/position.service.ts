@@ -8,20 +8,20 @@ import { UserRole } from 'src/Auth/components/decorators/ability';
 export class PositionService {
     constructor(private prisma: PrismaService, private createPositionDto: CreatePositionDto) {}
 
-    async createPosition(createPositionDto: CreatePositionDto, req) {
+    async createPosition(createPositionDto: CreatePositionDto, user) {
         const { name, department_id, status } = createPositionDto;
 
-        //check for role administrator
-        const user = await this.prisma.user.findUnique({
-            where: { id: req.user.id},
-            include: {
-                role: true,
-            }
-        })
+        // //check for role administrator
+        // const user = await this.prisma.user.findUnique({
+        //     where: { id: req.user.id},
+        //     include: {
+        //         role: true,
+        //     }
+        // })
     
-        if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-            throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-        }
+        // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
+        //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
+        // }
 
         const existingPosition = await this.prisma.position.findFirst({
             where: { name: createPositionDto.name },

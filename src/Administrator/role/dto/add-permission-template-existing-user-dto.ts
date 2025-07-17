@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsInt } from "class-validator";
 
 export class AddPermissionToExistingUserDto {
-    @IsInt({ each: true})
+    @IsInt()
     @IsNotEmpty()
-    user_id: number;
+    role_id: number;
 
     @IsInt()
     @IsNotEmpty()

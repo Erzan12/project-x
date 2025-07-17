@@ -70,7 +70,7 @@ export class PermissionsGuard implements CanActivate {
     const ability = this.caslAbilityService.defineAbilitiesFor(user.role);
 
     this.logger.debug(
-      `Checking role "${user.role}" -> ${action} on ${subject} (Module: ${userModule})`,
+      `Checking role "${user.role.name}" -> ${action} on ${subject} (Module: ${userModule})`,
     );
 
     if (!VALID_ACTIONS.includes(action)) {

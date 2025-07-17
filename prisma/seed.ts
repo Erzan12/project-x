@@ -264,6 +264,7 @@ async function main() {
   const hrUser = await prisma.user.create({
     data: {
       employee_id: hrEmployee.id,
+      must_reset_password: false,
       username: 'hr.staff',
       email: 'hr@abas.com',
       password: '$2b$12$iks.Lzf0hVod5nZRERqRSejAz0IVV4DnTGcH9XJjHSkkS19E6btQG',
@@ -275,6 +276,7 @@ async function main() {
   const itUser = await prisma.user.create({
     data: {
       employee_id: itEmployee.id,
+      must_reset_password: false,
       username: 'it.manager',
       email: 'it@abas.com',
       password: '$2b$12$4W60KW9bCajFDJWvzGD1LeHPokn2FcdO5i.LPYHmFHwjzYT2TAdbW',
@@ -286,6 +288,7 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: {
       employee_id: adminEmployee.id,
+      must_reset_password: false,
       username: 'admin',
       email: 'admin@yourdomain.com',
       password: '$2y$10$UGYEBYURPcDplaRlaBvgB.sGvQRs9vZxZQ6/JzC6cvmb3ygTbA/2G',
@@ -325,22 +328,43 @@ async function main() {
   await prisma.passwordResetToken.createMany({
     data: [
       {
-        token: uuidv4(),
+        password_token: uuidv4(),
         user_id: hrUser.id,
         expires_at: new Date(now.getTime() + 1000 * 60 * 60 * 24),
-        used: false,
+        is_used: false,
       },
       {
-        token: uuidv4(),
+        password_token: uuidv4(),
         user_id: itUser.id,
         expires_at: new Date(now.getTime() + 1000 * 60 * 60 * 24),
-        used: false,
+        is_used: false,
       },
       {
-        token: uuidv4(),
+        password_token: uuidv4(),
         user_id: adminUser.id,
         expires_at: new Date(now.getTime() + 1000 * 60 * 60 * 24),
-        used: false,
+        is_used: false,
+      },
+    ],
+  });
+
+  // 15. Seed Password Reset Tokens
+  await prisma.userToken.createMany({
+    data: [
+      {
+        user_token: uuidv4(),
+        user_id: hrUser.id,
+        status: false,
+      },
+      {
+        user_token: uuidv4(),
+        user_id: itUser.id,
+        status: false,
+      },
+      {
+        user_token: uuidv4(),
+        user_id: adminUser.id,
+        status: false,
       },
     ],
   });

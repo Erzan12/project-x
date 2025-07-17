@@ -20,26 +20,25 @@ import { CreateRolePermissionDto } from './role/dto/create-role-permission.dto';
 import { UpdateRolePermissionsDto } from './role/dto/update-role-permissions.dto';
 import { CreatePermissionTemplateDto } from './role/dto/create-permission-template.dto';
 import { Can } from '../Auth/components/decorators/can.decorator';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
 import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { ModuleService } from './module/module.service';
+import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
 
 @Controller('administrator')
 export class AdministratorController {
-    // constructor (private administratorService: AdministratorService, private userService: UserService, private moduleService: ModuleService) {}
+    constructor (private administratorService: AdministratorService) {}
 
     //load dashboard
-    @Get('dashboard')                                                                           
-    // @Roles('Administrator') -> applied via permission guard and casl service
+    @Get('dashboard')
     @Can({
-        action: ACTION_READ,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.DASHBOARD, // SUBMODULE of Module Admin
-        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+        action: ACTION_READ,
+        subject: SM_ADMIN.DASHBOARD,
+        module: [MODULE_ADMIN],
     })
-    getAdminData(@SessionUser() user: RequestUser) {
-        console.log('Current User:', user)
-        return { message: 'Admin Dashboard Access Granted', };
-        // return this.userService.createUserEmployee(createUserWithTemplateDto, user);
+    async getAdminDashboard(
+        @SessionUser() user: RequestUser
+    ) {
+        return this.administratorService.getAdminDashboardStats(user);
     }
 
     @Get('audit_trail')                                                                           

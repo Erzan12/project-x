@@ -54,7 +54,7 @@ export class MailService {
         const mailOption = { 
             from : '"AV Human Resource" dummybusiness29@gmail.com',
             to,
-            subject: 'Welcome to the ABAS-v3 system! Here is your Temporary password',
+            subject: 'Welcome to the ABAS-v3 system! Here is your reset password link!',
             html: `
                 <h3>Hello ${username},</h3>
                 <p>Your account has been created successfully.</p>

@@ -310,17 +310,40 @@ export class RoleService {
 
     //assigning permission template to user who doesnt have a permission yet
     async assignPermissionTemplate(addPermissionTemplate:AddPermissionToExistingUserDto) {
-        const existingUser = await this.prisma.user.findUnique({
-            where: { id: addPermissionTemplate.user_id},
-            include: {
-                person: true,
-                permission_template: true,
-            },
-        })
+        // const existingUsers  = await this.prisma.user.findMany({
+        //     where: { role_id: addPermissionTemplate.role_id},
+        //     include: {
+        //         person: true
+        //     },
+        // });
 
-        if(!existingUser) {
-            throw new BadRequestException('User not found')
+        const { role_id, permission_template_id } = addPermissionTemplate;
+
+        if (!role_id || !permission_template_id) {
+            throw new BadRequestException('Missing role_id or permission_template_id');
         }
+
+        // const existingUsers = await this.prisma.user.findMany({
+        //     where: { role_id },
+        // });
+
+        // 1. Fetch users with their permission_templates
+        const existingUsers = await this.prisma.user.findMany({
+        where: {
+            role_id: addPermissionTemplate.role_id,
+        },
+        include: {
+            permission_templates: true,
+        },
+        });
+
+        console.log('Matching users:', existingUsers);
+        
+        console.log('Existing Users:', existingUsers);
+
+        if (existingUsers.length === 0) {
+                throw new BadRequestException('No users found for this role');
+            }
 
         const existingPermissionTemplate = await this.prisma.permissionTemplate.findUnique({
             where: {id: addPermissionTemplate.permission_template_id},
@@ -330,16 +353,58 @@ export class RoleService {
             throw new BadRequestException('Permission Template not found')
         }
         //if data is existing in db but want to assign a role or permission just update not create
-        await this.prisma.user.update({
-            where: { id: addPermissionTemplate.user_id },
+        // ✅ Step 1: Assign template to role (many-to-many)
+        await this.prisma.role.update({
+            where: { id: addPermissionTemplate.role_id },
             data: {
-                permission_template_id: addPermissionTemplate.permission_template_id,
+                permission_template: {
+                    connect: { id: addPermissionTemplate.permission_template_id },
+                },
             },
+        });
+
+        // const usersToUpdate = existingUsers.filter(
+        //     user => user.permission_template_id !== addPermissionTemplate.permission_template_id
+        // );
+
+        // // ✅ Step 2: Assign the template directly to all users with this role
+        // for (const user of existingUsers) {
+        //     await this.prisma.user.update({
+        //         where: { id: user.id },
+        //         data: {
+        //             permission_template_id: addPermissionTemplate.permission_template_id,
+        //         },
+        //     });
+        // }
+
+        // 2. Filter out users who already have this template
+        const usersToUpdate = existingUsers.filter(user =>
+            !user.permission_templates.some(pt => pt.id === addPermissionTemplate.permission_template_id)
+        );
+
+        // 3. Add the template to those users
+        for (const user of usersToUpdate) {
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: {
+            permission_templates: {
+                connect: { id: addPermissionTemplate.permission_template_id },
+            },
+            },
+        });
+        }
+
+        const updatedTemplate = await this.prisma.permissionTemplate.findUnique({
+            where: { id: addPermissionTemplate.permission_template_id },
+            include: { user: true }, // should show the users you just updated
         });
 
         return {
             status: 'success',
-            message: `Added Permission Template to user ${existingUser.person?.first_name ?? existingUser.id} ${existingUser.person?.last_name ?? existingUser.id}`
+            message: `Assigned permission template to role and all users with role: ${addPermissionTemplate.role_id}`,
+            updated_data: {
+                updatedTemplate
+            }    
+        };
         }
-    }
 }
