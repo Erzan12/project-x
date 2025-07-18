@@ -29,7 +29,7 @@ export class AdministratorController {
     constructor (private administratorService: AdministratorService) {}
 
     //load dashboard
-    @Get('dashboard')
+    @Get()
     @Can({
         action: ACTION_READ,
         subject: SM_ADMIN.DASHBOARD,
@@ -78,7 +78,7 @@ export class AdministratorController {
     // @Roles('Administrator') -> applied via permission guard and casl service
     @Can({
         action: ACTION_READ,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.CORE_MODULE.MODULE, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.CORE_MODULE_MODULE, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     getModule() {
@@ -89,7 +89,7 @@ export class AdministratorController {
     // @Roles('Administrator') -> applied via permission guard and casl service
     @Can({
         action: ACTION_READ,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.CORE_MODULE.SUB_MODULE, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.CORE_MODULE_SUB_MODULE, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     getSubModule() {
@@ -100,7 +100,7 @@ export class AdministratorController {
     // @Roles('Administrator') -> applied via permission guard and casl service
     @Can({
         action: ACTION_READ,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.CORE_MODULE.ROLE, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.CORE_MODULE_ROLE, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     getRole() {
@@ -166,7 +166,7 @@ export class AdministratorController {
     // @Roles('Administrator') -> applied via permission guard and casl service
     @Can({
         action: ACTION_READ,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.REPORT.USER_SUMMARY, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.REPORT_USER_SUMMARY, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     getUserSummary() {
@@ -177,7 +177,7 @@ export class AdministratorController {
     // @Roles('Administrator') -> applied via permission guard and casl service
     @Can({
         action: ACTION_READ,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.REPORT.USER_LOGIN_HISTORY, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.REPORT_USER_LOGIN_HISTORY, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     getUserLoginHistory() {

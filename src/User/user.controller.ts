@@ -7,6 +7,7 @@ import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN, MODULE_MNGR } 
 import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
+import { Interface } from 'readline/promises';
 
 @Controller('users')
 export class UserController {
@@ -20,11 +21,10 @@ export class UserController {
             subject: SM_ADMIN.USER_ACCOUNT,
             module: [ MODULE_MNGR, MODULE_ADMIN ] // or MODULE_HR if it's from Admin
         })
-        async viewUserAccounts(
-            @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
-            @SessionUser() user: RequestUser
+        async viewUsers(
+            @SessionUser() user: RequestUser,
         ) {
-        return this.userService.createUserEmployee(createUserWithTemplateDto, user);
+            return this.userService.viewUserAccount(user);
         }
 
         //create user account
@@ -38,7 +38,7 @@ export class UserController {
             @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
             @SessionUser() user: RequestUser
         ) {
-        return this.userService.createUserEmployee(createUserWithTemplateDto, user);
+        return this.userService.createUserAccount(createUserWithTemplateDto, user);
         }
 
         //for expired first time login reset token key 
@@ -56,7 +56,7 @@ export class UserController {
         }
 
         // view user tokens
-        // to set up viewuser accounts in service
+        // to set up viewuser token keys in service
         @Get('token_keys')
         @Can({
             action: ACTION_READ,
@@ -67,7 +67,7 @@ export class UserController {
             @Body() createUserWithTemplateDto: CreateUserWithTemplateDto,
             @SessionUser() user: RequestUser
         ) {
-        return this.userService.createUserEmployee(createUserWithTemplateDto, user);
+        return this.userService.createUserAccount(createUserWithTemplateDto, user);
         }
 
         @Patch('deactivate')
