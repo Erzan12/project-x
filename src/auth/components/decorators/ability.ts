@@ -1,7 +1,7 @@
 //permissions or action
 export const MODULE_ADMIN = 'Administrator';
 export const MODULE_HR = 'Human Resources';
-export const MODULE_MNGR = 'Manager';
+export const MODULE_MNGR = 'Managers Access';
 export const MODULE_COPR_SERV = 'Corporate Services';
 export const MODULE_PAYROLL = 'Payroll';
 export const MODULE_PURCHASING = 'Purchasing';

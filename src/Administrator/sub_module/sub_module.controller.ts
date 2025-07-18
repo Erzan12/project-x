@@ -15,7 +15,7 @@ export class SubModuleController {
         @Post('submodule')                                                                         
         @Can({
             action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
-            subject: SM_ADMIN.CORE_MODULE.SUB_MODULE, // SUBMODULE of Module Admin
+            subject: SM_ADMIN.CORE_MODULE_SUB_MODULE, // SUBMODULE of Module Admin
             module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
         })
         async createSubModule( 
@@ -29,7 +29,7 @@ export class SubModuleController {
         @Post('submodule/permissions')                                                                        
         @Can({
             action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
-            subject: SM_ADMIN.CORE_MODULE.SUB_MODULE, // SUBMODULE of Module Admin
+            subject: SM_ADMIN.CORE_MODULE_SUB_MODULE, // SUBMODULE of Module Admin
             module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
         })
         async createSubModulePermission( 

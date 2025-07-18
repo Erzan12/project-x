@@ -22,7 +22,7 @@ export class RoleController {
     @Get('role')                                                                          
     @Can({
         action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.CORE_MODULE.ROLE, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.CORE_MODULE_ROLE, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     async createRole(
@@ -36,7 +36,7 @@ export class RoleController {
     @Post('role_permission')                                                            
     @Can({
         action: ACTION_CREATE,
-        subject: SM_ADMIN.CORE_MODULE.ROLE,
+        subject: SM_ADMIN.CORE_MODULE_ROLE,
         module: [MODULE_ADMIN]
     })       
     async createRolePermission(
@@ -63,7 +63,7 @@ export class RoleController {
     @Patch('update_role_permission')
     @Can({
         action: ACTION_UPDATE,
-        subject: SM_ADMIN.CORE_MODULE.ROLE,
+        subject: SM_ADMIN.CORE_MODULE_ROLE,
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     async updateRolePermissions( 
@@ -77,7 +77,7 @@ export class RoleController {
     @Patch('unassign_role_permission')
     @Can({
         action: ACTION_UPDATE,
-        subject: SM_ADMIN.CORE_MODULE.ROLE,
+        subject: SM_ADMIN.CORE_MODULE_ROLE,
         module: [MODULE_ADMIN]
     })
     async unassingRolePermission(
@@ -107,7 +107,7 @@ export class RoleController {
     @Post('permission_templates')
     @Can({
         action: ACTION_CREATE,
-        subject: SM_ADMIN.CORE_MODULE.ROLE,
+        subject: SM_ADMIN.CORE_MODULE_ROLE,
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     async create(
@@ -120,7 +120,7 @@ export class RoleController {
     @Patch('assign_permission_template')
     @Can({
         action: ACTION_UPDATE,  // the action of the subtion will be match with the current user role permission
-        subject: SM_ADMIN.CORE_MODULE.ROLE, // SUBMODULE of Module Admin
+        subject: SM_ADMIN.CORE_MODULE_ROLE, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     async assignPermissionTemplate( 

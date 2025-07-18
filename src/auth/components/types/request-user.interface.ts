@@ -1,6 +1,6 @@
 // types/request-user.interface.ts
 export interface RequestUser {
-  id: string;
+  id: number;
   email: string;
   role: {
     id: number;

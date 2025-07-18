@@ -14,7 +14,7 @@ export class ModuleController {
     @Post('module')                                                                       
     @Can({
         action: ACTION_CREATE,
-        subject: SM_ADMIN.CORE_MODULE.MODULE,
+        subject: SM_ADMIN.CORE_MODULE_MODULE,
         module: [MODULE_ADMIN],
     })
     async createModule( 

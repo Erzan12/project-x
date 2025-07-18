@@ -20,37 +20,21 @@ export const SM_HR = {
     HR_REPORTS : 'HR Reports',
 }
 
-export const CORE_MODULE = {
-    MODULE: 'Module',
-    SUB_MODULE: 'Sub Module',
-    ROLE: 'Role',
-}
-
-export const REPORT = {
-    USER_SUMMARY : 'User Summary',
-    USER_LOGIN_HISTORY : 'User Login History',
-}
-
 export const SM_ADMIN = {
     DASHBOARD : 'Dashboard',
     AUDIT_TRAIL : 'Audit Trail',
     DB_ENCONDING : 'Database Encoding',
     DB_MANUAL_QUERY : 'Database Manual Query',
-    CORE_MODULE,
-    //or if array approach
-    //CORE_MODULE: ['Module', 'Sub-Module', 'Role'],
-    // CORE_MODULE: {
-    //      MODULE: 'Module',
-    //      SUB_MODULE: 'Sub Module',
-    //      ROLE: 'Role',
-    // },
-
+    CORE_MODULE_MODULE: 'Core Module - Module',
+    CORE_MODULE_SUB_MODULE: 'Core Module - Sub Module',
+    CORE_MODULE_ROLE: 'Core Module - Role',
     MAINTENANCE_SCHEDULE : 'Maintenance Schedules',
     MASTER_TABLE : 'Master Tables',
-    USER_ACCOUNT : 'User Account',
-    USER_TOKEN_KEY : 'User Token Key',
+    USER_ACCOUNT : 'User Accounts',
+    USER_TOKEN_KEY : 'User Token Keys',
     SMS_SUBSCRIPTION : 'SMS Subscriptions',
-    REPORT,
+    REPORT_USER_SUMMARY : 'User Summary',
+    REPORT_USER_LOGIN_HISTORY : 'User Login History',
     //or if array approach
     //REPORTS: ['Users Summary', 'Users Login History'],
 
@@ -72,15 +56,10 @@ export const EXEC_REPORT = {
 export const SM_MANAGER = {
     DASHBOARD   : 'Dashboard',
     INBOX       : 'Inbox',
-    EXEC_REPORT,
-    //or if array approach
-    //nested objects appraoch
-    // EXEC_REPORT: {
-    //      VES_EXP_AMOUNT : 'Vessel Expenses Account Report',
-    //      VES_DRY_DOCK : 'Vessel Dry-dock Repairs Statistics',
-    //      VES_TRADE_PUR : 'Vessel Trading Purchase History',
-    //      PROC_KPI_REP : 'Procurement KPI Report',
-    //      RFP_APPROVAL_HIS: 'RFP Approval History', 
-    // },
+    EXEC_REPORT_VES_EXP_AMOUNT : 'Vessel Expenses Account Report',
+    EXEC_REPORT_VES_DRY_DOCK : 'Vessel Dry-dock Repairs Statistics',
+    EXEC_REPORT_VES_TRADE_PUR : 'Vessel Trading Purchase History',
+    EXEC_REPORT_PROC_KPI_REP : 'Procurement KPI Report',
+    EXEC_REPORT_RFP_APPROVAL_HIS: 'RFP Approval History',  
 }
 

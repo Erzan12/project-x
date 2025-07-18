@@ -6,12 +6,63 @@ import { MailService } from 'src/Mail/mail.service';
 import { CreatePermissionTemplateDto } from 'src/Administrator/role/dto/create-permission-template.dto';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
+import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 
 @Injectable()
 export class UserService {
     constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
     
-    async createUserEmployee(createUserWithTemplateDto: CreateUserWithTemplateDto, user) {
+    async viewUserAccount(user: RequestUser) {
+
+        //if the role administrator can only access this point
+        // const isAdmin = user.role.name === 'Administrator'; // or use role ID
+
+        // const users = await this.prisma.user.findMany({
+        //     where: isAdmin ? {} : { id: user.id },  // show all users if admin, else only self
+        //     select: {
+        //         id: true,
+        //         username: true,
+        //         role: {
+        //             select: {
+        //                 id: true,
+        //                 name: true,
+        //                 description: true,
+        //                 created_at: true
+        //             }
+        //         },
+        //         stat: true
+        //     }
+        // });
+
+        // both manager and administrator role are allowed to view user accounts
+        const canViewAllUsers = ['Administrator', 'Manager'].includes(user.role.name);
+
+        const users = await this.prisma.user.findMany({
+            where: canViewAllUsers ? {} : { id: user.id },
+            select: {
+                id: true,
+                username: true,
+                role: {
+                    select: {
+                        name: true,
+                    },
+                },
+                stat: true
+            },
+        });
+
+        return {
+            status: 'success',
+            message: canViewAllUsers ? 'All User Accounts' : 'User Account',
+            data: {
+                user_accounts: users
+            }
+        };
+    }
+
+
+    //create user account to link with created employee account by hr
+    async createUserAccount(createUserWithTemplateDto: CreateUserWithTemplateDto, user) {
 
         // console.log('Raw body:', req.body);
         // console.log('DTO after transform:', createUserWithTemplateDto);
@@ -202,6 +253,7 @@ export class UserService {
         };
         });
     }
+    
 
     async userNewResetToken(email: string,user) {
         //find user via email
@@ -302,5 +354,14 @@ export class UserService {
             reactivated_by: `User Role ID No. ${user.id}`
         }
     }
+
+    // async viewNewEmployeeWithoutUserAccount(user: RequestUser) {
+    //     const findNewEmployees = await this.prisma.employee.findMany({
+    //         where: { id: user.id }
+    //         select: {
+    //             id
+    //         }
+    //     })
+    // }
 
 }

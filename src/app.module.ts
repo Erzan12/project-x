@@ -31,6 +31,7 @@ import { HrService } from './HR/hr.service';
 import { HrModule } from './HR/hr.module';
 import { ManagerModule } from './Manager/manager.module';
 import { ManagerController } from './Manager/manager.controller';
+import { JwtStrategy } from './Auth/middleware/jwt.strategy';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ManagerController } from './Manager/manager.controller';
   ],
   providers: [ 
     // ManagerService,
+    // JwtStrategy,
     UserService,
     PrismaService,
     {
