@@ -122,13 +122,25 @@ model UserRole {
   role_id          Int
   module_id        Int              @default(1)
   created_at       DateTime         @default(now())
-  department_id    Int?
+  department_id    Int              @default(1)
   user_permissions UserPermission[]
   department       Department?      @relation(fields: [department_id], references: [id])
   module           Module           @relation(fields: [module_id], references: [id])
   role             Role             @relation(fields: [role_id], references: [id])
   user             User             @relation(fields: [user_id], references: [id])
 }
+
+//model UserRole {
+//  id         Int      @id @default(autoincrement())
+//  user_id    Int
+//  role_id    Int
+//  module_id  Int
+//  created_at DateTime @default(now())
+//  user       User     @relation(fields: [user_id], references: [id])
+//  role       Role     @relation(fields: [role_id], references: [id])
+//  module     Module   @relation(fields: [module_id], references: [id])
+//}
+
 
 model Company {
   id                      Int                     @id @default(autoincrement())

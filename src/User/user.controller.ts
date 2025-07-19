@@ -8,6 +8,7 @@ import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
 import { Interface } from 'readline/promises';
+import { UserEmailResetTokenDto } from './dto/user-email-reset-token.dto';
 
 @Controller('users')
 export class UserController {
@@ -49,10 +50,10 @@ export class UserController {
             module: [MODULE_MNGR, MODULE_ADMIN] // or MODULE_HR if it's from Admin
         })     
         async newResetToken(
-            @Body() body: { email: string },
+            @Body() userEmailResetTokenDto: UserEmailResetTokenDto,
             @SessionUser() user: RequestUser,
         ) {
-            return this.userService.userNewResetToken(body.email, user);
+            return this.userService.userNewResetToken(userEmailResetTokenDto, user);
         }
 
         // view user tokens
@@ -94,6 +95,18 @@ export class UserController {
             @SessionUser() user: RequestUser,
         ) {
             return this.userService.reactivateUserAccount(reactivateUserAccountDto,user)
+        }
+
+        @Get('new_employees')
+        @Can({
+            action: ACTION_READ,
+            subject: SM_ADMIN.USER_ACCOUNT,
+            module: [MODULE_ADMIN,MODULE_MNGR]
+        })
+        async viewNewEmployees(
+            @SessionUser() user: RequestUser,
+        ) {
+            return this.userService.viewNewEmployeeWithoutUserAccount(user)
         }
 }
 
