@@ -31,6 +31,11 @@ export class AuthService {
             throw new BadRequestException('Invalid or expired reset token.');
         }
 
+        // Check if token was already used
+        if (passwordresetToken.is_used) {
+            throw new BadRequestException('Reset token has already been used.');
+        }
+
         // optional: check expiration
         if (passwordresetToken.expires_at < new Date()) {
             throw new BadRequestException('Reset token has expired.');
@@ -56,6 +61,24 @@ export class AuthService {
                 password_reset: '',             // clear any reset token/flag
             },
         });
+
+        const passwordToken = await this.prisma.passwordResetToken.findUnique({
+            where: { id: passwordresetToken.id },
+        });
+
+        if (!passwordToken?.is_used) {
+        await this.prisma.passwordResetToken.update({
+            where: { id: passwordresetToken.id },
+            data: { is_used: true },
+        });
+        }
+
+        await this.prisma.passwordResetToken.update({
+            where: { id: passwordresetToken.id },
+            data: {
+                is_used: true,
+            }
+        })
 
         //delete the token or mark it used
 

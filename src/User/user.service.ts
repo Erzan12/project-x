@@ -7,6 +7,8 @@ import { CreatePermissionTemplateDto } from 'src/Administrator/role/dto/create-p
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { UserEmailResetTokenDto } from './dto/user-email-reset-token.dto';
+import { fail } from 'assert';
 
 @Injectable()
 export class UserService {
@@ -125,6 +127,14 @@ export class UserService {
             throw new BadRequestException('User already exist');
         } 
 
+        //TO MAKE USER BE APPLICABLE TO MULTIPLE ROLES
+
+        // const roleIds = createUserWithTemplateDto.role_ids;
+
+        // if (!Array.isArray(roleIds) || roleIds.length === 0) {
+        //     throw new BadRequestException('role_ids must be a non-empty array.');
+        // }
+
         // Create user
         const userCreate = await tx.user.create({
             data: {
@@ -137,7 +147,7 @@ export class UserService {
                 require_reset: 1,
                 created_by: createUser.id,
                 created_at: new Date(),
-                role_id: createUserWithTemplateDto.role_id,
+                // role_id: createUserWithTemplateDto.role_id,
                 module_id: createUserWithTemplateDto.module_id,
             },
             include: {
@@ -145,7 +155,7 @@ export class UserService {
             }
         });
 
-        //Create UserRole (user linked to role)
+        // Create UserRole (user linked to role)
         const userRole = await tx.userRole.create({
             data: {
                 user_id: userCreate.id,
@@ -154,6 +164,32 @@ export class UserService {
                 created_at: new Date(),
             },
         });
+
+        // const empDept = await this.prisma.employee.findUnique({
+        //     where: { id: employee.id },
+        //     include: {
+        //         department: true,
+        //     }
+        // })
+
+        // if(!empDept){
+        //     throw new BadRequestException('Employee Department does not exist')
+        // }
+
+        // const userRoleRecords = [];
+
+        // for (const roleId of roleIds) {
+        //     const userRole = await tx.userRole.create({
+        //         data: {
+        //             user_id: userCreate.id,
+        //             role_id: roleId,
+        //             module_id: createUserWithTemplateDto.module_id,
+        //             department_id: empDept.department_id,
+        //             created_at: new Date(),
+        //         },
+        //     });
+        //     userRoleRecords.push(userRole);
+        // }
 
         // Create UserPermission based on created PermissionTemplate
         const permissionTemplateId = createUserWithTemplateDto.user_permission_template_ids;
@@ -255,10 +291,14 @@ export class UserService {
     }
     
 
-    async userNewResetToken(email: string,user) {
+    async userNewResetToken(userEmailResetTokenDto: UserEmailResetTokenDto, user: RequestUser) {
         //find user via email
+        // const requestUser = await this.prisma.user.findUnique({
+        //     where: { id: user.id }
+        // });
+
         const requestUser = await this.prisma.user.findUnique({
-            where: { id: user.id }
+            where: { email: userEmailResetTokenDto.email },
         });
 
         if(!requestUser) {
@@ -275,17 +315,20 @@ export class UserService {
 
         const createdToken = await this.prisma.passwordResetToken.create({
             data: {
-                user_id: user.id,
+                user: {
+                    connect: { id: requestUser.id }
+                },
                 password_token: tokenKey,
                 // ⛔ TEMP: For testing - token expires in 3 days
                 expires_at: new Date(Date.now() + 60 * 60 * 24 * 3 * 1000), //3days
+                is_used: false
             }
         });
 
         //send new reset email
         await this.mailService.sendResetTokenEmail(
-            user.email,
-            user.username,
+            requestUser.email,
+            requestUser.username,
             tokenKey,
         );
 
@@ -356,12 +399,108 @@ export class UserService {
     }
 
     // async viewNewEmployeeWithoutUserAccount(user: RequestUser) {
-    //     const findNewEmployees = await this.prisma.employee.findMany({
-    //         where: { id: user.id }
-    //         select: {
-    //             id
+    //     const canViewAllNewEmployees = ['Administrator', 'Manager'].includes(user.role.name);
+
+    //     const findUser = await this.prisma.user.findUnique({
+    //         where: { id: user.id },
+    //         include: {
+    //             employee: true
     //         }
     //     })
-    // }
 
+    //     if(!findUser){
+    //         throw new BadRequestException('User does not exist')
+    //     };
+
+    //     const employees = await this.prisma.employee.findMany({
+    //         where: {
+    //             user: null, // ← filter to employees who do NOT have user accounts
+    //             ...(canViewAllNewEmployees ? {} : { id: findUser.employee.id }), // restrict to self if not admin/manager
+    //         },
+    //         select: {
+    //             id: true,
+    //             person: true,
+    //             user: true,
+    //         },
+    //     });
+
+    //     if (employees.length === 0) {
+    //         throw new ForbiddenException('No new employees without user accounts found');
+    //     }
+
+    //     return {
+    //         status: 'success',
+    //         message: canViewAllNewEmployees ? 'All new employees without user accounts' : 'Your profile (no user account)',
+    //         data: { employees }
+    //     };
+    // }
+    async viewNewEmployeeWithoutUserAccount(user: RequestUser) {
+        const roleName = user.role.name;
+
+        // Base access control
+        const isAdmin = roleName === 'Administrator';
+        const isManager = roleName === 'Manager';
+
+        const findUser = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include: {
+                employee: true
+            }
+        })
+
+        if(!findUser){
+            throw new BadRequestException('User does not exist')
+        };
+
+        // Find the manager's department (if not admin)
+        let departmentFilter = {};
+        if (!isAdmin) {
+            const currentEmployee = await this.prisma.employee.findUnique({
+                where: { id: findUser.employee.id },
+                select: { department_id: true },
+            });
+
+            if (!currentEmployee) {
+                throw new ForbiddenException('User is not linked to an employee profile.');
+            }
+
+            // Only allow managers to view their own department
+            if (isManager) {
+                departmentFilter = { department_id: currentEmployee.department_id };
+            } else {
+                throw new ForbiddenException('Only administrators or department managers can view new employees.');
+            }
+        }
+
+        // Fetch employees with no user account in allowed department
+        const newEmployees = await this.prisma.employee.findMany({
+            where: {
+                user: null,
+                ...departmentFilter,
+            },
+            select: {
+                id: true,
+                employee_id: true,
+                person: true,
+                department: {
+                    select: { id: true, name: true },
+                },
+                user: true,
+            },
+        });
+
+        if (newEmployees.length === 0) {
+            throw new ForbiddenException('No new employees without user accounts found.');
+        }
+
+        return {
+            status: 'success',
+            message: isAdmin
+                ? 'All new employees without user accounts'
+                : 'New employees in your department without user accounts',
+            data: {
+                employees: newEmployees,
+            },
+        };
+    }
 }

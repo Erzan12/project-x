@@ -19,7 +19,7 @@ export class RoleController {
     constructor(private roleService: RoleService, private prisma: PrismaService) {}
 
     //create role
-    @Get('role')                                                                          
+    @Post()                                                                          
     @Can({
         action: ACTION_CREATE,  // the action of the subtion will be match with the current user role permission
         subject: SM_ADMIN.CORE_MODULE_ROLE, // SUBMODULE of Module Admin
