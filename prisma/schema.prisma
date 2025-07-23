@@ -26,35 +26,36 @@ model Person {
 }
 
 model User {
-  id                     Int                  @id @default(autoincrement())
-  employee_id            Int                  @unique
-  username               String               @unique
-  password               String
-  email                  String               @unique
-  stat                   Int                  @default(1)
-  must_reset_password    Boolean              @default(true)
-  password_reset         String?              @default("")
-  require_reset          Int                  @default(0)
-  reports_to             Int?
-  is_active              Boolean              @default(true)
-  last_login             DateTime?
-  security_questions     Json?
-  created_by             Int?
-  created_at             DateTime             @default(now())
-  person_id              Int?
-  module_id              Int?
-  role_id                Int?
-  password_reset_token   PasswordResetToken[]
-  employee               Employee             @relation(fields: [employee_id], references: [id])
-  module                 Module?              @relation(fields: [module_id], references: [id])
-  person                 Person?              @relation(fields: [person_id], references: [id])
-  role                   Role?                @relation(fields: [role_id], references: [id])
-  user_permissions       UserPermission[]
+  id                  Int       @id @default(autoincrement())
+  employee_id         Int       @unique
+  username            String    @unique
+  password            String
+  email               String    @unique
+  stat                Int       @default(1)
+  must_reset_password Boolean   @default(true)
+  password_reset      String?   @default("")
+  require_reset       Int       @default(0)
+  reports_to          Int?
+  is_active           Boolean   @default(true)
+  last_login          DateTime?
+  security_questions  Json?
+  created_by          Int?
+  created_at          DateTime  @default(now())
+  person_id           Int?
+  module_id           Int?
+
+  password_reset_token PasswordResetToken[]
+  employee             Employee             @relation(fields: [employee_id], references: [id])
+  module               Module?              @relation(fields: [module_id], references: [id])
+  person               Person?              @relation(fields: [person_id], references: [id])
   permission_templates PermissionTemplate[] @relation("UserToPermissionTemplates") //many to many relationship; users can have multiple role permission templates
   //permission_template_id Int? one to one relatioship -> one to one relationship with permission template
   //permission_template    PermissionTemplate?  @relation(fields: [permission_template_id], references: [id])
-  user_roles             UserRole[]
-  user_token             UserToken[]
+  user_roles           UserRole[]
+  user_token           UserToken[]
+  Role                 Role?                @relation(fields: [roleId], references: [id])
+  roleId               Int?
+  UserPermission       UserPermission[]
 }
 
 model Role {
@@ -140,7 +141,6 @@ model UserRole {
 //  role       Role     @relation(fields: [role_id], references: [id])
 //  module     Module   @relation(fields: [module_id], references: [id])
 //}
-
 
 model Company {
   id                      Int                     @id @default(autoincrement())
@@ -237,7 +237,6 @@ model PermissionTemplate {
   role_permissions PermissionTemplateRolePermission[]
   role             Role[]                             @relation("PermissionTemplateToRole")
   user             User[]                             @relation("UserToPermissionTemplates")
-
 }
 
 model PermissionTemplateDepartment {

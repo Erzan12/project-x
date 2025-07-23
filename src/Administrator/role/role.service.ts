@@ -317,9 +317,9 @@ export class RoleService {
         //     },
         // });
 
-        const { role_id, permission_template_id } = addPermissionTemplate;
+        const { role_ids, permission_template_id } = addPermissionTemplate;
 
-        if (!role_id || !permission_template_id) {
+        if (!role_ids || !permission_template_id) {
             throw new BadRequestException('Missing role_id or permission_template_id');
         }
 
@@ -330,12 +330,19 @@ export class RoleService {
         // 1. Fetch users with their permission_templates
         const existingUsers = await this.prisma.user.findMany({
         where: {
-            role_id: addPermissionTemplate.role_id,
+            user_roles: {
+            some: {
+                role_id: {
+                in: addPermissionTemplate.role_ids, // ✅ filter users who have at least one of the given role_ids
+                },
+            },
+            },
         },
         include: {
             permission_templates: true,
         },
         });
+
 
         console.log('Matching users:', existingUsers);
         
@@ -354,14 +361,32 @@ export class RoleService {
         }
         //if data is existing in db but want to assign a role or permission just update not create
         // ✅ Step 1: Assign template to role (many-to-many)
-        await this.prisma.role.update({
-            where: { id: addPermissionTemplate.role_id },
+        await Promise.all(
+        addPermissionTemplate.role_ids.map(roleId =>
+            this.prisma.role.update({
+            where: { id: roleId },
             data: {
                 permission_template: {
-                    connect: { id: addPermissionTemplate.permission_template_id },
+                connect: { id: addPermissionTemplate.permission_template_id },
                 },
             },
-        });
+            })
+        )
+        );
+
+        //use when using prisma transaction
+        // await tx.$transaction(
+        // addPermissionTemplate.role_ids.map(roleId =>
+        //     tx.role.update({
+        //     where: { id: roleId },
+        //     data: {
+        //         permission_template: {
+        //         connect: { id: addPermissionTemplate.permission_template_id },
+        //         },
+        //     },
+        //     })
+        // )
+        // );
 
         // const usersToUpdate = existingUsers.filter(
         //     user => user.permission_template_id !== addPermissionTemplate.permission_template_id
@@ -401,7 +426,7 @@ export class RoleService {
 
         return {
             status: 'success',
-            message: `Assigned permission template to role and all users with role: ${addPermissionTemplate.role_id}`,
+            message: `Assigned permission template to role and all users with role: ${addPermissionTemplate.role_ids}`,
             updated_data: {
                 updatedTemplate
             }    

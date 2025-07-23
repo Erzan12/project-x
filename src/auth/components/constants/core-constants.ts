@@ -30,6 +30,8 @@ export const SM_ADMIN = {
     CORE_MODULE_ROLE: 'Core Module - Role',
     MAINTENANCE_SCHEDULE : 'Maintenance Schedules',
     MASTER_TABLE : 'Master Tables',
+    MASTER_TABLE_POSITION : 'Position',
+    MASTER_TABLE_DEPARTMENT : 'Department',
     USER_ACCOUNT : 'User Accounts',
     USER_TOKEN_KEY : 'User Token Keys',
     SMS_SUBSCRIPTION : 'SMS Subscriptions',

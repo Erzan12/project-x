@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       passReqToCallback: true,
     });
   }
-  //merge jwt strategy and jwt middleware -> JWT STRATEGY USE JWT PASSPORT FOR CLEANER CODES AND EASIER TO MAIN
+
   async validate(req: Request, payload: any) {
     
     console.log('Correct payload:', payload);         // Should now show { sub: 3, ... }
@@ -22,48 +22,39 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       include: {
-        role: {
+        user_roles: {
           include: {
-            role_permissions: {
+            role: {
               include: {
-                permission: true, // SubModule
+                role_permissions: {
+                  include: {
+                    permission: true,
+                  }
+                }
               },
             },
           },
         },
         module: true,
-        user_permissions: true,
       },
     });
 
-    if (!user || !user.is_active || !user.role) {
+    if (!user || !user.is_active || !user.user_roles) {
       throw new UnauthorizedException('Invalid or inactive user');
     }
-    // return {
-    //   id: user.id,
-    //   username: user.username,
-    //   role: user.role,
-    //   user_permissions: user.user_permissions,
-    // };
-    // return {
-    //   id: payload.sub,
-    //   username: payload.name,
-    // };
-    // return user; // ✅ Return full user with module, role, etc.
-
-    //returns only the necessary user details needed for auth and role and permission
+ //returns only the necessary user details needed for auth and role and permission
     return {
       id: user.id,
       email: user.email,
-      role: {
-        id: user.role.id,
-        name: user.role.name,
-        role_permissions: user.role.role_permissions.map((rp) => ({
+      roles: user.user_roles.map((ur) => ({
+      id: ur.role_id,
+      name: ur.role.name,
+      permissions: ur.role.role_permissions.map((rp) => ({
           action: rp.action,
           permission: { name: rp.permission.name },
           status: rp.status,
         })),
-      },
+      })),
       module: {
         id: user.module?.id,
         name: user.module?.name,

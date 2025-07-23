@@ -67,10 +67,10 @@ export class PermissionsGuard implements CanActivate {
 
     //validator that throws an error if the action used in the @Can() decorator:
     //Is not in your predefined list (enum or array); Or doesn't exist in the role’s actual permission records
-    const ability = this.caslAbilityService.defineAbilitiesFor(user.role);
+    const ability = this.caslAbilityService.defineAbilitiesFor(user.roles);
 
     this.logger.debug(
-      `Checking role "${user.role.name}" -> ${action} on ${subject} (Module: ${userModule})`,
+      `Checking role "${user.roles}" -> ${action} on ${subject} (Module: ${userModule})`,
     );
 
     if (!VALID_ACTIONS.includes(action)) {
@@ -81,7 +81,8 @@ export class PermissionsGuard implements CanActivate {
 
     //cross-check the action in @Can() against only what's defined in the user’s DB permissions
     const definedActions = new Set(
-      user.role.role_permissions
+      user.roles
+        .flatMap((role) => role.permissions)
         .filter((p) => p.status)
         .map((p) => p.action.toLowerCase().trim())
     );
@@ -93,10 +94,19 @@ export class PermissionsGuard implements CanActivate {
     }
 
     // Debug: print all user permissions
-    for (const perm of user.role.role_permissions) {
-      const pAction = perm.action.toLowerCase();
-      const pSubject = perm.permission?.name?.toLowerCase();
-      this.logger.debug(`Allowed: ${pAction} on ${pSubject}`);
+    // for (const perm of user.user_roles.role_permissions) {
+    //   const pAction = perm.action.toLowerCase();
+    //   const pSubject = perm.permission?.name?.toLowerCase();
+    //   this.logger.debug(`Allowed: ${pAction} on ${pSubject}`);
+    // }
+
+    for (const role of user.roles) {
+      for (const perm of role.permissions) {
+        if (!perm.status) continue;
+        const pAction = perm.action.toLowerCase();
+        const pSubject = perm.permission?.name?.toLowerCase();
+        this.logger.debug(`Allowed: ${pAction} on ${pSubject}`);
+      }
     }
 
     //handles the action AKA actual permission and subject AKA submodule,in can permission guard vs db driven data or input
@@ -111,96 +121,3 @@ export class PermissionsGuard implements CanActivate {
     return true;
   }
 }
-
-// import {
-//   CanActivate,
-//   ExecutionContext,
-//   ForbiddenException,
-//   Injectable,
-//   Logger
-// } from '@nestjs/common';
-// import { Reflector } from '@nestjs/core';
-// import { IS_PUBLIC_KEY } from '../components/decorators/public.decorator';
-// import { CaslAbilityService } from '../../casl/casl.service';
-// import { PERMISSIONS_KEY, PermissionMetadata } from '../components/decorators/can.decorator';
-// import { RequestUser } from '../components/types/request-user.interface';
-
-// @Injectable()
-// export class PermissionsGuard implements CanActivate {
-//   private readonly logger = new Logger(PermissionsGuard.name);
-
-//   constructor(
-//     private readonly reflector: Reflector,
-//     private readonly caslAbilityService: CaslAbilityService,
-//   ) {}
-
-//   canActivate(context: ExecutionContext): boolean {
-//     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-//       context.getHandler(),
-//       context.getClass(),
-//     ]);
-
-//     if (isPublic) return true;
-
-//     // const request = context.switchToHttp().getRequest();
-//     // const user = request.user as RequestUser;
-
-//     const user: RequestUser = context.switchToHttp().getRequest().user;
-
-//     if (!user) {
-//       throw new ForbiddenException('Please login to access this resource.');
-//     }
-
-//     const permission = this.reflector.get<PermissionMetadata>(
-//       PERMISSIONS_KEY,
-//       context.getHandler(),
-//     );
-
-//     if (!permission) {
-//       this.logger.warn('No @Permissions metadata found – denying access.');
-//       throw new ForbiddenException('Access denied: no permission metadata.');
-//     }
-
-//     const userModule = user.module;
-
-//     const userModuleName = userModule?.name;
-
-//     const hasModuleAccess = Array.isArray(permission.module)
-//       ? permission.module.includes(userModuleName)
-//       : userModuleName === permission.module;
-
-//     this.logger.debug(`User module name: ${userModule?.name}`);
-//     this.logger.debug(`Allowed modules: ${permission.module}`);
-
-//     this.logger.debug(`Checking module access for user ID ${user.id}, module ID: ${user.module?.id}`);
-
-//     if (!hasModuleAccess) {
-//       throw new ForbiddenException(
-//         `Access denied: your module (ID: ${userModule?.id}, Name: ${userModule?.name}) is not allowed to perform this action.`,
-//       );
-//     }
-
-//     const { action, subject, module } = permission;
-
-//     const ability = this.caslAbilityService.defineAbilitiesFor(user.role);
-
-//     const canAccess = ability.can(action, subject);
-
-//     this.logger.debug(
-//       `Checking role "${user.role}" -> ${action} on ${subject} (Module: ${module})`,
-//     );
-
-//     const role = user.role;
-
-//     for (const perm of role.role_permissions) {
-//       console.log(`Allowed: ${perm.action} on ${perm.permission?.name}`);
-//     }
-    
-
-//     if (!canAccess) {
-//       throw new ForbiddenException(`You do not have permission to ${action} ${subject}`);
-//     }
-
-//     return true;
-//   }
-// }

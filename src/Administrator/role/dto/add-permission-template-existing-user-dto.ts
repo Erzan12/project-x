@@ -1,11 +1,15 @@
-import { IsNotEmpty, IsInt } from "class-validator";
+import { IsNotEmpty, IsInt, IsArray, ArrayNotEmpty } from "class-validator";
+import { Type } from "class-transformer";
 
 export class AddPermissionToExistingUserDto {
-    @IsInt()
-    @IsNotEmpty()
-    role_id: number;
+  @IsArray()
+  @ArrayNotEmpty()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  role_ids: number[];
 
-    @IsInt()
-    @IsNotEmpty()
-    permission_template_id: number;
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  permission_template_id: number;
 }
