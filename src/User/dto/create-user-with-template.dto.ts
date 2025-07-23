@@ -3,9 +3,9 @@ import {
     IsInt,
     ValidateNested,
     IsArray,
-    ArrayNotEmpty
+    ArrayNotEmpty,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Expose } from 'class-transformer';
 import { UserDetailsDto } from './user-details.dto';
 
 export class CreateUserWithTemplateDto {
@@ -21,9 +21,11 @@ export class CreateUserWithTemplateDto {
     @IsNotEmpty()
     user_permission_template_ids: number[];
 
-    @IsInt()
+    @IsInt({ each:true })
     @IsNotEmpty()
-    role_id: number;
+    @IsArray()
+    @ArrayNotEmpty()
+    role_ids: number[];
 
     @IsInt()
     @IsNotEmpty()

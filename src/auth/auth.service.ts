@@ -101,17 +101,20 @@ export class AuthService {
         const user = await this.prisma.user.findUnique({
         where: { username },
         include: {
-            role: {
+            user_roles: {
             include: {
-                //map for role permission prisma
-                role_permissions: {
-                    include: { permission: true },
+                role: {
+                include: {
+                    role_permissions: {
+                    include: {
+                        permission: true,
+                    },
+                    },
+                },
                 },
             },
             },
             module: true,
-            //map for user_permission prisma
-            user_permissions: true,
         },
         });
 
@@ -173,6 +176,14 @@ export class AuthService {
         const token = this.jwtService.sign(payload, {
             secret: process.env.JWT_SECRET,
             expiresIn: '1h',
+        });
+
+        // Update last login
+        await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+            last_login: new Date(), // set to current timestamp
+        },
         });
         
         const isNewAccount = password === 'avegabros' || user.password_reset || user.require_reset === 1;

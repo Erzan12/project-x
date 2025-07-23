@@ -8,43 +8,21 @@ import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 import { UserEmailResetTokenDto } from './dto/user-email-reset-token.dto';
-import { fail } from 'assert';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class UserService {
     constructor (private readonly prisma: PrismaService, private readonly mailService: MailService, ) {}
     
     async viewUserAccount(user: RequestUser) {
-
-        //if the role administrator can only access this point
-        // const isAdmin = user.role.name === 'Administrator'; // or use role ID
-
-        // const users = await this.prisma.user.findMany({
-        //     where: isAdmin ? {} : { id: user.id },  // show all users if admin, else only self
-        //     select: {
-        //         id: true,
-        //         username: true,
-        //         role: {
-        //             select: {
-        //                 id: true,
-        //                 name: true,
-        //                 description: true,
-        //                 created_at: true
-        //             }
-        //         },
-        //         stat: true
-        //     }
-        // });
-
-        // both manager and administrator role are allowed to view user accounts
-        const canViewAllUsers = ['Administrator', 'Manager'].includes(user.role.name);
+        const canViewAllUsers = user.roles.some(role => role.name === 'Administrator', 'Manager');
 
         const users = await this.prisma.user.findMany({
             where: canViewAllUsers ? {} : { id: user.id },
             select: {
                 id: true,
                 username: true,
-                role: {
+                Role: {
                     select: {
                         name: true,
                     },
@@ -58,10 +36,9 @@ export class UserService {
             message: canViewAllUsers ? 'All User Accounts' : 'User Account',
             data: {
                 user_accounts: users
-            }
+            },
         };
     }
-
 
     //create user account to link with created employee account by hr
     async createUserAccount(createUserWithTemplateDto: CreateUserWithTemplateDto, user) {
@@ -129,11 +106,11 @@ export class UserService {
 
         //TO MAKE USER BE APPLICABLE TO MULTIPLE ROLES
 
-        // const roleIds = createUserWithTemplateDto.role_ids;
+        const roleIds = createUserWithTemplateDto.role_ids;
 
-        // if (!Array.isArray(roleIds) || roleIds.length === 0) {
-        //     throw new BadRequestException('role_ids must be a non-empty array.');
-        // }
+        if (!Array.isArray(roleIds) || roleIds.length === 0) {
+            throw new BadRequestException('role_ids must be a non-empty array.');
+        }
 
         // Create user
         const userCreate = await tx.user.create({
@@ -147,7 +124,6 @@ export class UserService {
                 require_reset: 1,
                 created_by: createUser.id,
                 created_at: new Date(),
-                // role_id: createUserWithTemplateDto.role_id,
                 module_id: createUserWithTemplateDto.module_id,
             },
             include: {
@@ -155,41 +131,31 @@ export class UserService {
             }
         });
 
-        // Create UserRole (user linked to role)
-        const userRole = await tx.userRole.create({
-            data: {
-                user_id: userCreate.id,
-                role_id: createUserWithTemplateDto.role_id,
-                module_id: createUserWithTemplateDto.module_id,
-                created_at: new Date(),
-            },
-        });
+        const empDept = await this.prisma.employee.findUnique({
+            where: { id: employee.id },
+            include: {
+                department: true,
+            }
+        })
 
-        // const empDept = await this.prisma.employee.findUnique({
-        //     where: { id: employee.id },
-        //     include: {
-        //         department: true,
-        //     }
-        // })
+        if(!empDept){
+            throw new BadRequestException('Employee Department does not exist')
+        }
 
-        // if(!empDept){
-        //     throw new BadRequestException('Employee Department does not exist')
-        // }
+        const userRoleRecords: any[] = [];
 
-        // const userRoleRecords = [];
-
-        // for (const roleId of roleIds) {
-        //     const userRole = await tx.userRole.create({
-        //         data: {
-        //             user_id: userCreate.id,
-        //             role_id: roleId,
-        //             module_id: createUserWithTemplateDto.module_id,
-        //             department_id: empDept.department_id,
-        //             created_at: new Date(),
-        //         },
-        //     });
-        //     userRoleRecords.push(userRole);
-        // }
+        for (const roleId of roleIds) {
+            const UserRole = await tx.userRole.create({
+                data: {
+                    user_id: userCreate.id,
+                    role_id: roleId,
+                    module_id: createUserWithTemplateDto.module_id,
+                    department_id: empDept.department_id,
+                    created_at: new Date(),
+                },
+            });
+            userRoleRecords.push(UserRole);
+        }
 
         // Create UserPermission based on created PermissionTemplate
         const permissionTemplateId = createUserWithTemplateDto.user_permission_template_ids;
@@ -208,24 +174,16 @@ export class UserService {
             include: { role_permission: true },
         });
 
-        // insert user permissions based on template
-        await tx.userPermission.createMany({
-            data: templatePermissions.map((tp) => ({
-                user_id: userCreate.id,
-                user_role_id: userRole.id, //still needed
-                user_role_permission: tp.role_permission.action, // the actual permission action
-                role_permission_id: tp.role_permission_id, // linking to the role permission
-            })),
-        });
-
-        // record the permission template that was used when creating user
-        // await tx.user.update({
-        //     where: { id: userCreate.id },
-        //     data: {
-        //             // if going to apply.. add the permission_template_id on the user model field
-        //         permission_template_id: permissionTemplateId, // add this field to User model if needed
-        //     },
-        // });
+        for (const roleUser of userRoleRecords) {
+            await tx.userPermission.createMany({
+                data: templatePermissions.map((tp) => ({
+                    user_id: userCreate.id,
+                    user_role_id: roleUser.id,
+                    user_role_permission: tp.role_permission.action,
+                    role_permission_id: tp.role_permission_id,
+                })),
+            });
+        }
 
         await tx.user.update({
         where: { id: userCreate.id },
@@ -236,6 +194,28 @@ export class UserService {
         },
         });
 
+        for (const roleId of roleIds) {
+        await tx.role.update({
+            where: { id: roleId },
+            data: {
+            users: {
+                connect: [{ id: userCreate.id }],
+            },
+            permission_template: {
+                connect: permissionTemplateId.map(id => ({ id })),
+            },
+            },
+        });
+        }
+
+        for (const roleId of roleIds) {
+        await tx.role.update({
+            where: { id: roleId },
+            data: {
+
+            },
+        });
+        }
 
         // Step 4: Create a password reset token
         const tokenKey = crypto.randomBytes(64).toString('hex');
@@ -284,7 +264,6 @@ export class UserService {
             user_id: userCreate.id,
             username: userCreate.username,
             password: plainPassword,
-            // user_token: createdUserToken.user_token,
             reset_token: createdToken.password_token, // send this in email or secure output only
         };
         });
@@ -292,10 +271,6 @@ export class UserService {
     
 
     async userNewResetToken(userEmailResetTokenDto: UserEmailResetTokenDto, user: RequestUser) {
-        //find user via email
-        // const requestUser = await this.prisma.user.findUnique({
-        //     where: { id: user.id }
-        // });
 
         const requestUser = await this.prisma.user.findUnique({
             where: { email: userEmailResetTokenDto.email },
@@ -398,48 +373,10 @@ export class UserService {
         }
     }
 
-    // async viewNewEmployeeWithoutUserAccount(user: RequestUser) {
-    //     const canViewAllNewEmployees = ['Administrator', 'Manager'].includes(user.role.name);
-
-    //     const findUser = await this.prisma.user.findUnique({
-    //         where: { id: user.id },
-    //         include: {
-    //             employee: true
-    //         }
-    //     })
-
-    //     if(!findUser){
-    //         throw new BadRequestException('User does not exist')
-    //     };
-
-    //     const employees = await this.prisma.employee.findMany({
-    //         where: {
-    //             user: null, // ← filter to employees who do NOT have user accounts
-    //             ...(canViewAllNewEmployees ? {} : { id: findUser.employee.id }), // restrict to self if not admin/manager
-    //         },
-    //         select: {
-    //             id: true,
-    //             person: true,
-    //             user: true,
-    //         },
-    //     });
-
-    //     if (employees.length === 0) {
-    //         throw new ForbiddenException('No new employees without user accounts found');
-    //     }
-
-    //     return {
-    //         status: 'success',
-    //         message: canViewAllNewEmployees ? 'All new employees without user accounts' : 'Your profile (no user account)',
-    //         data: { employees }
-    //     };
-    // }
     async viewNewEmployeeWithoutUserAccount(user: RequestUser) {
-        const roleName = user.role.name;
-
-        // Base access control
-        const isAdmin = roleName === 'Administrator';
-        const isManager = roleName === 'Manager';
+        
+        const isAdmin = user.roles.some((role) => role.name === 'Administrator');
+        const isManager = user.roles.some((role) => role.name === 'Manager');
 
         const findUser = await this.prisma.user.findUnique({
             where: { id: user.id },
@@ -495,7 +432,7 @@ export class UserService {
 
         return {
             status: 'success',
-            message: isAdmin
+            message: findUser
                 ? 'All new employees without user accounts'
                 : 'New employees in your department without user accounts',
             data: {

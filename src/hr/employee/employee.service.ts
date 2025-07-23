@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { CreatePersonDto } from '../Person/dto/create-person.dto';
+import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 
 @Injectable()
 export class EmployeeService {
@@ -90,5 +91,55 @@ export class EmployeeService {
         console.log('Generated Employee ID:', employeeID); // debug only
 
         return employeeID;
+    }
+
+    //view employee masterlist
+    async viewEmployeeMasterlist(user: RequestUser) {
+        // const hrViewEmployee = [ 'Human Resources' ].includes(user.role.name);
+
+        const hrViewEmployee = user.roles.some(role => role.name === 'Human Resources');
+
+
+        const viewEmployee = await this.prisma.employee.findMany({
+            where: hrViewEmployee ? {} : { id: user.id },
+            select: {
+                id: true,
+                employee_id: true,
+                person: {
+                    select: {
+                        first_name: true,
+                        middle_name: true,
+                        last_name: true,
+                    },
+                },
+                company: {
+                    select: {
+                        name: true
+                    }
+                },
+                //to include designation in employee schema
+                //to include group in employee schema
+                department: {
+                    select:{
+                        name: true,
+                    }
+                },
+                //to include division in employee schema
+                position: {
+                    select: {
+                        name: true,
+                    }
+                },
+                employment_status: true,
+            },
+        });
+
+        return {
+            status: 'success',
+            message: hrViewEmployee ? 'Employee Masterlists' : 'Employees',
+            data: {
+                employee_masterlist: viewEmployee
+            },
+        };
     }
 }

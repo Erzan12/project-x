@@ -70,10 +70,10 @@ async function main() {
     },
   });
 
-  // 5. Create Modules
-  const hrModule = await prisma.module.create({
+   // 5. Create Modules
+  const adminModule = await prisma.module.create({
     data: {
-      name: 'Human Resources',
+      name: 'Administrator',
     },
   });
 
@@ -82,12 +82,90 @@ async function main() {
       name: 'Managers Access',
     },
   });
+  
+  const corpServicesModule = await prisma.module.create({
+    data: {
+      name: 'Corporate Services',
+    },
+  });
+
+  const hrModule = await prisma.module.create({
+    data: {
+      name: 'Human Resources',
+    },
+  });
+
+  const payrollModule = await prisma.module.create({
+    data: {
+      name: 'Payroll',
+    },
+  });
+
+  const purchasingModule = await prisma.module.create({
+    data: {
+      name: 'Purchasing',
+    },
+  });
+
+  const inventoryModule = await prisma.module.create({
+    data: {
+      name: 'Inventory',
+    },
+  });
+
+  const accountingModule = await prisma.module.create({
+    data: {
+      name: 'Accounting',
+    },
+  });
+
+  const financeModule = await prisma.module.create({
+    data: {
+      name: 'Finance',
+    },
+  });
+
+  const markopsModule = await prisma.module.create({
+    data: {
+      name: 'Marketing & Operations',
+    },
+  });
+
+  const assetModule = await prisma.module.create({
+    data: {
+      name: 'Asset Management',
+    },
+  });
+
+  const complianceModule = await prisma.module.create({
+    data: {
+      name: 'Compliance',
+    },
+  });
+
+  const itModule = await prisma.module.create({
+    data: {
+      name: 'IT Helpdesk',
+    },
+  });
 
     // 5. Create Positions
-  const [itManager, hrManager, administrator] = await Promise.all([
+  const [itManager, hrManager, administrator, itStaff, hrClerk] = await Promise.all([
+    prisma.position.create({
+      data: {
+        name: 'ADMINISTRATOR',
+        department_id: itDept.id,
+      },
+    }),
     prisma.position.create({
       data: {
         name: 'IT MANAGER',
+        department_id: itDept.id,
+      },
+    }),
+    prisma.position.create({
+      data: {
+        name: 'IT STAFF',
         department_id: itDept.id,
       },
     }),
@@ -99,8 +177,8 @@ async function main() {
     }),
     prisma.position.create({
       data: {
-        name: 'ADMINISTRATOR',
-        department_id: itDept.id,
+        name: 'HR CLERK',
+        department_id: hrDept.id,
       },
     }),
   ]);
@@ -112,6 +190,8 @@ async function main() {
       { name: 'Dashboard', module_id: hrModule.id },
       { name: 'User Account', module_id: managerModule.id },
       { name: 'Dashboard', module_id: managerModule.id },
+      { name: 'User Account', module_id: adminModule.id },
+      { name: 'Dashboard', module_id: adminModule.id },
     ],
     skipDuplicates: true,
   });
@@ -120,16 +200,22 @@ async function main() {
 
   // 7. Create Permissions
   const permissions = [
-    { action: 'view', sub_module_id: 1 },
-    { action: 'edit', sub_module_id: 1 },
-    { action: 'approve', sub_module_id: 1 },
-    { action: 'view', sub_module_id: 2 },
-    { action: 'edit', sub_module_id: 2 },
-    { action: 'view', sub_module_id: 3 },
-    { action: 'work', sub_module_id: 3 },
-    { action: 'report', sub_module_id: 3 },
-    { action: 'access', sub_module_id: 4 },
-    { action: 'add', sub_module_id: 4 },
+    { action: 'read', sub_module_id: 1 },
+    { action: 'update', sub_module_id: 1 },
+    { action: 'read', sub_module_id: 2 },
+    { action: 'update', sub_module_id: 2 },
+    { action: 'read', sub_module_id: 3 },
+    { action: 'create', sub_module_id: 3 },
+    { action: 'update', sub_module_id: 3 },
+    { action: 'delete', sub_module_id: 3 },
+    { action: 'read', sub_module_id: 4 },
+    { action: 'update', sub_module_id: 4 },
+    { action: 'read', sub_module_id: 5 },
+    { action: 'create', sub_module_id: 5 },
+    { action: 'update', sub_module_id: 5 },
+    { action: 'delete', sub_module_id: 5 },
+    { action: 'read', sub_module_id: 6 },
+    { action: 'update', sub_module_id: 6 },
   ];
 
   const permissionRecords = await Promise.all(
@@ -154,6 +240,7 @@ async function main() {
     'Compliance',
     'Information Technology',
     'Eportal User',
+    'Manager'
   ];
 
   const roleRecords = await Promise.all(
@@ -169,6 +256,7 @@ async function main() {
   const adminRole = roleRecords.find((r) => r.name === 'Administrator')!;
   const hrRole = roleRecords.find((r) => r.name === 'Human Resources')!;
   const itRole = roleRecords.find((r) => r.name === 'Information Technology')!;
+  const manRole = roleRecords.find((r) => r.name === 'Manager')!;
 
   // 9. Create RolePermissions
   await prisma.rolePermission.createMany({
@@ -268,7 +356,6 @@ async function main() {
       username: 'hr.staff',
       email: 'hr@abas.com',
       password: '$2b$12$iks.Lzf0hVod5nZRERqRSejAz0IVV4DnTGcH9XJjHSkkS19E6btQG',
-      role_id: hrRole.id,
       person_id: hrPerson.id,
     },
   });
@@ -280,7 +367,6 @@ async function main() {
       username: 'it.manager',
       email: 'it@abas.com',
       password: '$2b$12$4W60KW9bCajFDJWvzGD1LeHPokn2FcdO5i.LPYHmFHwjzYT2TAdbW',
-      role_id: itRole.id,
       person_id: itPerson.id,
     },
   });
@@ -292,9 +378,61 @@ async function main() {
       username: 'admin',
       email: 'admin@yourdomain.com',
       password: '$2y$10$UGYEBYURPcDplaRlaBvgB.sGvQRs9vZxZQ6/JzC6cvmb3ygTbA/2G',
-      role_id: adminRole.id,
       person_id: adminPerson.id,
     },
+  });
+
+  await prisma.userRole.createMany({
+    data: [
+      {
+        user_id: hrUser.id,
+        role_id: hrRole.id,
+        module_id: hrModule.id,
+        department_id: hrDept.id,
+      },
+      {
+        user_id: hrUser.id,
+        role_id: manRole.id,
+        module_id: managerModule.id,
+        department_id: hrDept.id,
+      },
+      {
+        user_id: adminUser.id,
+        role_id: adminRole.id,
+        module_id: adminModule.id,
+        department_id: itDept.id,
+      },
+      {
+        user_id: adminUser.id,
+        role_id: itRole.id,
+        module_id: itModule.id,
+        department_id: itDept.id,
+      },
+      {
+        user_id: adminUser.id,
+        role_id: manRole.id,
+        module_id: managerModule.id,
+        department_id: itDept.id,
+      },
+      {
+        user_id: adminUser.id,
+        role_id: hrRole.id,
+        module_id: hrModule.id,
+        department_id: hrDept.id,
+      },
+      {
+        user_id: itUser.id,
+        role_id: itRole.id,
+        module_id: itModule.id,
+        department_id: itDept.id,
+      },
+      {
+        user_id: itUser.id,
+        role_id: manRole.id,
+        module_id: managerModule.id,
+        department_id: itDept.id,
+      },
+    ],
   });
 
   // 13. Create UserRoles
