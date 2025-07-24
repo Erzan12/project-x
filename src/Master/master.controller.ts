@@ -10,10 +10,23 @@ import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN } from 'src/Aut
 import { subject } from '@casl/ability';
 import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { UpdateDeptInfoDto } from './department/dto/update-dept.dto';
+import { UpdatePositionDto } from './position/dto/update-position.dto';
 
 @Controller('mastertables')
 export class MasterController {
     constructor(private positionService: PositionService, private departmentService: DepartmentService) {} 
+
+    @Get('position')
+    @Can({
+        action: ACTION_READ,
+        subject: SM_ADMIN.MASTER_TABLE_POSITION,
+        module: [MODULE_ADMIN]
+    })
+    async getPosition(
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.positionService.getPosition( user );
+    }
 
     @Post('position')
     @Can({
@@ -26,6 +39,44 @@ export class MasterController {
         @SessionUser() user: RequestUser,
     ) {
         return this.positionService.createPosition( createDto, user);
+    }
+
+    @Patch('position')
+    @Can({
+        action: ACTION_UPDATE,
+        subject: SM_ADMIN.MASTER_TABLE_POSITION,
+        module: [MODULE_ADMIN]
+    })
+    async updatePositionInfo(
+        @Body() updatePositionDto: UpdatePositionDto,
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.positionService.updatePosition( updatePositionDto, user);
+    }
+
+    @Patch('position/status')
+    @Can({
+        action: ACTION_UPDATE,
+        subject: SM_ADMIN.MASTER_TABLE_POSITION,
+        module: [MODULE_ADMIN]
+    })
+    async deactivatePos(
+        @Body() updatePositioDto: UpdatePositionDto,
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.positionService.deactivatePos( updatePositioDto, user )
+    }
+
+    @Get('department')
+    @Can({
+        action: ACTION_READ,
+        subject: SM_ADMIN.MASTER_TABLE_DEPARTMENT,
+        module: [MODULE_ADMIN]
+    })
+    async getDepartment(
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.departmentService.getDepartments(user)
     }
 
     @Post('department')
@@ -90,6 +141,6 @@ export class MasterController {
         @SessionUser() user: RequestUser,
         @Query('status') status?: string,
     ) {
-        return this.departmentService.getDepartments(user, status);
+        return this.departmentService.getDepartmentStatus(user, status);
     }
 }
