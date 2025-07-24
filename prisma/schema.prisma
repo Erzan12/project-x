@@ -42,20 +42,19 @@ model User {
   created_by          Int?
   created_at          DateTime  @default(now())
   person_id           Int?
-  module_id           Int?
 
   password_reset_token PasswordResetToken[]
   employee             Employee             @relation(fields: [employee_id], references: [id])
-  module               Module?              @relation(fields: [module_id], references: [id])
   person               Person?              @relation(fields: [person_id], references: [id])
   permission_templates PermissionTemplate[] @relation("UserToPermissionTemplates") //many to many relationship; users can have multiple role permission templates
-  //permission_template_id Int? one to one relatioship -> one to one relationship with permission template
-  //permission_template    PermissionTemplate?  @relation(fields: [permission_template_id], references: [id])
-  user_roles           UserRole[]
+  user_roles           UserRole[] //multi role assignment for user
   user_token           UserToken[]
-  Role                 Role?                @relation(fields: [roleId], references: [id])
-  roleId               Int?
-  UserPermission       UserPermission[]
+
+  UserPermission UserPermission[]
+  Role           Role?            @relation(fields: [roleId], references: [id])
+  roleId         Int?
+  Module         Module?          @relation(fields: [moduleId], references: [id])
+  moduleId       Int?
 }
 
 model Role {
@@ -118,29 +117,21 @@ model UserPermissionCompany {
 }
 
 model UserRole {
-  id               Int              @id @default(autoincrement())
-  user_id          Int
-  role_id          Int
-  module_id        Int              @default(1)
-  created_at       DateTime         @default(now())
-  department_id    Int              @default(1)
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  role_id       Int
+  module_id     Int      @default(1)
+  created_at    DateTime @default(now())
+  department_id Int      @default(1)
+
   user_permissions UserPermission[]
   department       Department?      @relation(fields: [department_id], references: [id])
   module           Module           @relation(fields: [module_id], references: [id])
   role             Role             @relation(fields: [role_id], references: [id])
   user             User             @relation(fields: [user_id], references: [id])
-}
 
-//model UserRole {
-//  id         Int      @id @default(autoincrement())
-//  user_id    Int
-//  role_id    Int
-//  module_id  Int
-//  created_at DateTime @default(now())
-//  user       User     @relation(fields: [user_id], references: [id])
-//  role       Role     @relation(fields: [role_id], references: [id])
-//  module     Module   @relation(fields: [module_id], references: [id])
-//}
+  @@unique([user_id, role_id, module_id]) // ✅ Ensures unique role-module per user
+}
 
 model Company {
   id                      Int                     @id @default(autoincrement())

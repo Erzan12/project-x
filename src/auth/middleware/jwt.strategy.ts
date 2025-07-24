@@ -33,9 +33,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
                 }
               },
             },
+            module: true,
           },
         },
-        module: true,
+        // module: true,
       },
     });
 
@@ -47,18 +48,24 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       id: user.id,
       email: user.email,
       roles: user.user_roles.map((ur) => ({
-      id: ur.role_id,
-      name: ur.role.name,
+        id: ur.role_id,
+        name: ur.role.name,
+        //handle multi module per user
+        module: {
+          id: ur.module.id,
+          name: ur.module.name,
+        },
       permissions: ur.role.role_permissions.map((rp) => ({
           action: rp.action,
           permission: { name: rp.permission.name },
           status: rp.status,
         })),
       })),
-      module: {
-        id: user.module?.id,
-        name: user.module?.name,
-      },
+      //single module per user
+      // module: {
+      //   id: user.module?.id,
+      //   name: user.module?.name,
+      // },
     };
   }
 }

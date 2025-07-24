@@ -112,9 +112,9 @@ export class AuthService {
                     },
                 },
                 },
+                module: true,
             },
             },
-            module: true,
         },
         });
 
