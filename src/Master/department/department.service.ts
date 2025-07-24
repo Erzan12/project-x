@@ -9,6 +9,21 @@ import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 export class DepartmentService {
     constructor(private prisma: PrismaService, private createDepartmentDto: CreateDepartmentDto) {}
 
+    async getDepartments(user: RequestUser) {
+        const department = await this.prisma.department.findMany({
+            include: {
+                division: true,
+            }
+        })
+        return {
+            status: 'success',
+            message: 'Here are the list of Departments',
+            data: {
+                department,
+            }
+        }
+    }
+
     async createDepartment(createDepartmentDto: CreateDepartmentDto, user) {
         const { name, division_id, status } = createDepartmentDto;
 
@@ -31,7 +46,7 @@ export class DepartmentService {
             }
         })
         if(existingPosition) {
-            throw new ConflictException('Position already exist! Try again')
+            throw new ConflictException('Position already exist! Try again!')
         }
 
         
@@ -50,7 +65,7 @@ export class DepartmentService {
 
         return {
             status: 'success',
-            message: `Department successfully created`,
+            message: `${createdDepartment.name} Department has been created successfully!`,
             data: {
                 createdDepartment,
             },
@@ -62,7 +77,7 @@ export class DepartmentService {
             where: { id: updateDeptInfoDto.department_id }
         })
         if(!existingDept){
-            throw new BadRequestException('Department does not exist');
+            throw new BadRequestException('Department does not exist!');
         }
 
         const updatedDept = await this.prisma.department.update({
@@ -77,7 +92,8 @@ export class DepartmentService {
         });
 
         return {
-            message: 'Department updated successfully.',
+            status: 'success',
+            message: `${updatedDept.name} Department has been updated successfully!`,
             data: updatedDept,
         };
     }
@@ -92,7 +108,7 @@ export class DepartmentService {
         });
 
         if(!existingDept){
-            throw new BadRequestException('Department does not exist');
+            throw new BadRequestException('Department does not exist!');
         }
 
         const deactivate = await this.prisma.department.update({
@@ -104,8 +120,10 @@ export class DepartmentService {
 
         return {
             status: 'success',
-            message: `${existingDept.name} deactivated successfully`,
-            data: deactivate,
+            message: `${existingDept.name} Department has been deactivated successfully!`,
+            data: {
+                deactivate
+            }
         }
     }
 
@@ -119,32 +137,35 @@ export class DepartmentService {
         });
 
         if(!existingDept) {
-            throw new BadRequestException('Department does not exist');
+            throw new BadRequestException('Department does not exist!');
         }
 
-        const existingStat = await this.prisma.department.findFirst({
-            where: { status: updateDeptInfoDto.status },
+        const currentStat = await this.prisma.department.findFirst({
+            where: { status: existingDept.status },
         });
 
-        if(!existingStat === true ){
-            throw new ForbiddenException('Department is still active');
+        if(!currentStat === true ){
+            throw new ForbiddenException('Department is still active!');
         }
 
         const activate = await this.prisma.department.update({
             where: { id: updateDeptInfoDto.department_id },
             data: {
+                name: updateDeptInfoDto.department_name,
                 status: updateDeptInfoDto.status,
             },
         });
 
         return {
             status: 'success',
-            message: `${existingDept.name} successfully reactivated!`,
-            data: activate,
+            message: `${existingDept.name} Department has been reactivated successfully!`,
+            data: {
+                activate
+            }
         }
     }
 
-    async getDepartments(user: RequestUser, status?: string) {
+    async getDepartmentStatus(user: RequestUser, status?: string) {
         let statusFilter: boolean | undefined;
 
         if (status !== undefined) {
@@ -163,8 +184,11 @@ export class DepartmentService {
         });
 
         return {
-            message: 'Departments fetched successfully',
-            data: departments,
+            status: 'success',
+            message: 'Departments status fetched successfully!',
+            data: {
+                departments
+            }
         };
     }
 

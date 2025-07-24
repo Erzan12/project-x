@@ -69,8 +69,10 @@ export class PermissionsGuard implements CanActivate {
     //Is not in your predefined list (enum or array); Or doesn't exist in the role’s actual permission records
     const ability = this.caslAbilityService.defineAbilitiesFor(user.roles);
 
+    const roleNames = user.roles.map(role => role.name).join(', ');
+
     this.logger.debug(
-      `Checking role "${user.roles}" -> ${action} on ${subject} (Module: ${userModule})`,
+      `Checking role "${roleNames}" -> ${action} on ${subject} (Module: ${userModule})`,
     );
 
     if (!VALID_ACTIONS.includes(action)) {

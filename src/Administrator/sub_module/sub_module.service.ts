@@ -61,7 +61,7 @@ export class SubModuleService {
 
     return {
         status: 'success',
-        message: `Sub Module for Module ${subModule.module.name} has been added`,
+        message: `Sub Module ${subModule.name} for Module ${subModule.module.name} has been added`,
         created_by: {
                 id: creator.id,
                 name: admin,
@@ -93,7 +93,7 @@ export class SubModuleService {
     })
 
     if (!subModulePermissions) {
-        throw new BadRequestException('Sub-Module not found!');
+        throw new BadRequestException('Sub Module does not exist!');
     }
 
     const creator = await this.prisma.user.findUnique({
