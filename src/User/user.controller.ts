@@ -108,5 +108,11 @@ export class UserController {
         ) {
             return this.userService.viewNewEmployeeWithoutUserAccount(user)
         }
+
+        @Get('with_roles_permissions')
+        async getAllWithRolesPermissions() {
+            return this.userService.getUsersWithRolesAndPermissions();
+        }
+
 }
 

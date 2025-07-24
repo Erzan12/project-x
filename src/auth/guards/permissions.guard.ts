@@ -50,14 +50,37 @@ export class PermissionsGuard implements CanActivate {
     }
 
     //handles module for Modules like Administrator or Human Resources, in can permission guard vs db driven data or input
-    const userModule = user.module?.name?.toLowerCase().trim();
+    // const userModule = user.roles.module?.name?.toLowerCase().trim();
+    // const allowedModules = Array.isArray(permission.module)
+    //   ? permission.module.map((m) => m.toLowerCase().trim())
+    //   : [permission.module?.toLowerCase().trim()];
+
+    const userModules = user.roles.map(role => role.module.name.toLowerCase().trim());
+
+    // Ensure uniqueness, if needed:
+    const uniqueUserModules = [...new Set(userModules)];
+
+    // Normalize permission module(s)
     const allowedModules = Array.isArray(permission.module)
       ? permission.module.map((m) => m.toLowerCase().trim())
       : [permission.module?.toLowerCase().trim()];
 
-    if (!allowedModules.includes(userModule)) {
+    
+
+    //single module per user
+    // if (!allowedModules.includes(userModule)) {
+    //   throw new ForbiddenException(
+    //     `Access denied: your module (${userModule}) is not allowed.`,
+    //   );
+    // }
+
+    //handle multi module
+    // Check if user has at least one matching module
+    const hasModuleAccess = uniqueUserModules.some((mod) => allowedModules.includes(mod));
+
+    if (!hasModuleAccess) {
       throw new ForbiddenException(
-        `Access denied: your module (${userModule}) is not allowed.`,
+        `Access denied: your modules (${userModules.join(', ')}) are not allowed.`,
       );
     }
 
@@ -71,9 +94,10 @@ export class PermissionsGuard implements CanActivate {
 
     const roleNames = user.roles.map(role => role.name).join(', ');
 
-    this.logger.debug(
-      `Checking role "${roleNames}" -> ${action} on ${subject} (Module: ${userModule})`,
-    );
+    //single module per user
+    // this.logger.debug(
+    //   `Checking role "${roleNames}" -> ${action} on ${subject} (Module: ${userModule})`,
+    // );
 
     if (!VALID_ACTIONS.includes(action)) {
       throw new ForbiddenException(
