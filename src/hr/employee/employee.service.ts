@@ -52,7 +52,7 @@ export class EmployeeService {
                 position_id: createEmployeeDto.position_id,
                 salary: createEmployeeDto.salary,
                 pay_frequency:  createEmployeeDto.pay_frequency,
-                employment_status: createEmployeeDto.employment_status,
+                employment_status_id: createEmployeeDto.employment_status_id,
                 monthly_equivalent_salary: createEmployeeDto.monthly_equivalent_salary,
                 corporate_rank_id: createEmployeeDto.corporate_rank_id,
             }

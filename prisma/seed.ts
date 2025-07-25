@@ -293,6 +293,35 @@ async function main() {
     skipDuplicates: true,
   });
 
+    // Create Employement Status
+  // async function main() {
+    // EmploymentStatus seed
+    const employmentStatuses = [
+      { code: 'ACTIVE', label: 'Active' },
+      { code: 'ON_LEAVE', label: 'On Leave' },
+      { code: 'TERMINATED', label: 'Terminated' },
+      { code: 'RESIGNED', label: 'Resigned' },
+      { code: 'PROBATIONARY', label: 'Probationary' },
+    ]
+
+    for (const status of employmentStatuses) {
+      await prisma.employmentStatus.upsert({
+        where: { code: status.code },
+        update: {},
+        create: status,
+      })
+    }
+
+  //   console.log('✅ Seeded employment statuses')
+  // }
+
+  // After upserting employment statuses
+  const activeStatus = await prisma.employmentStatus.findUnique({ where: { code: 'ACTIVE' } });
+
+  if (!activeStatus) {
+    throw new Error("Active employment status not found!");
+  }
+
   // 10. Create Employees
   const hrEmployee = await prisma.employee.create({
     data: {
@@ -304,7 +333,7 @@ async function main() {
       position_id: hrManager.id,
       salary: 30000,
       pay_frequency: 'Monthly',
-      employment_status: 'Active',
+      employment_status_id: activeStatus.id,
       monthly_equivalent_salary: 30000,
       corporate_rank_id: 2,
     },
@@ -320,7 +349,7 @@ async function main() {
       position_id: itManager.id,
       salary: 60000,
       pay_frequency: 'Monthly',
-      employment_status: 'Active',
+      employment_status_id: activeStatus.id,
       monthly_equivalent_salary: 60000,
       corporate_rank_id: 1,
     },
@@ -336,7 +365,7 @@ async function main() {
       position_id: administrator.id,
       salary: 20000,
       pay_frequency: 'Monthly',
-      employment_status: 'Active',
+      employment_status_id: activeStatus.id,
       monthly_equivalent_salary: 60000,
       corporate_rank_id: 1,
     },

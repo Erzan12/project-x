@@ -44,6 +44,8 @@ export class PermissionsGuard implements CanActivate {
       context.getHandler(),
     );
 
+    this.logger.debug(`Fetched permission metadata: ${JSON.stringify(permission)}`);
+
     if (!permission) {
       this.logger.warn('No @Permissions metadata found – denying access.');
       throw new ForbiddenException('Access denied: no permission metadata.');

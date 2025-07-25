@@ -23,6 +23,7 @@ export const SM_HR = {
 export const SM_ADMIN = {
     DASHBOARD : 'Dashboard',
     AUDIT_TRAIL : 'Audit Trail',
+    EMP_STATUS: 'Employment Status',
     DB_ENCONDING : 'Database Encoding',
     DB_MANUAL_QUERY : 'Database Manual Query',
     CORE_MODULE_MODULE: 'Core Module - Module',

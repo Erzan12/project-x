@@ -23,7 +23,7 @@ export class ModuleService {
             where : { name: createModuleDto.name }
         })
         if (module) {
-            throw new BadRequestException('Username or Email address already exist!');
+            throw new BadRequestException('Module already exist!');
         }
     
         const creator = await this.prisma.user.findUnique({

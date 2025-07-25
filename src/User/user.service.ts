@@ -30,7 +30,6 @@ export class UserService {
                 stat: true
             },
         });
-
         return {
             status: 'success',
             message: canViewAllUsers ? 'All User Accounts' : 'User Account',
@@ -674,6 +673,7 @@ export class UserService {
             },
         };
     }
+    
     async getUsersWithRolesAndPermissions() {
         const users = await this.prisma.user.findMany({
             include: {
