@@ -26,7 +26,7 @@ export class CreateEmployeeDto {
     pay_frequency: string;
 
     @IsNotEmpty()
-    employment_status: string;
+    employment_status_id: number;
     
     @IsInt()
     @IsNotEmpty()

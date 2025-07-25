@@ -269,15 +269,25 @@ model Employee {
   position_id               Int        @default(1)
   salary                    Decimal
   pay_frequency             String
-  employment_status         String
+  employment_status_id      Int
   monthly_equivalent_salary Decimal
   created_at                DateTime   @default(now())
   archive_date              DateTime?
   other_employee_data       Json?
   corporate_rank_id         Int
+
+  //Relations
+  employment_status         EmploymentStatus @relation(fields: [employment_status_id], references: [id])
   company                   Company    @relation(fields: [company_id], references: [id])
   department                Department @relation(fields: [department_id], references: [id])
   person                    Person     @relation("PersonEmployee", fields: [person_id], references: [id])
   position                  Position   @relation(fields: [position_id], references: [id])
   user                      User?
+}
+
+model EmploymentStatus {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  label     String
+  employees Employee[]
 }

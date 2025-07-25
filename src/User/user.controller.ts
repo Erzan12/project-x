@@ -110,7 +110,13 @@ export class UserController {
         }
 
         @Get('with_roles_permissions')
-        async getAllWithRolesPermissions() {
+        @Can({
+            action: ACTION_READ,
+            subject: SM_ADMIN.USER_ACCOUNT,
+            module: [MODULE_ADMIN,MODULE_MNGR]
+        })
+        async getAllWithRolesPermissions(
+        ) {
             return this.userService.getUsersWithRolesAndPermissions();
         }
 
