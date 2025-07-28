@@ -7,7 +7,6 @@ import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN, MODULE_MNGR } 
 import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
-import { Interface } from 'readline/promises';
 import { UserEmailResetTokenDto } from './dto/user-email-reset-token.dto';
 
 @Controller('users')

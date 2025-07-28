@@ -8,6 +8,7 @@ export class PersonService {
 
     private async deleteUserDependencies(tx, user_id: number) {
         await tx.passwordResetToken.deleteMany({ where: { user_id } });
+        await tx.userToken.deleteMany({ where: { user_id } });
         await tx.userPermissionCompany.deleteMany({ where: { user_id } });
         await tx.userPermission.deleteMany({ where: { user_id } });
         await tx.user.delete({ where: { id: user_id } });
@@ -39,7 +40,7 @@ export class PersonService {
 
             if (user_id) {
                 await tx.passwordResetToken.deleteMany({ where: { user_id } });
-                // await tx.userPermissionCompany.deleteMany({ where: { user_id } });
+                await tx.userToken.deleteMany({ where: { user_id } });
                 await tx.userPermission.deleteMany({ where: { user_id } });
                 await tx.userRole.deleteMany({ where: { user_id } });
                 await tx.user.delete({ where: { id: user_id } });

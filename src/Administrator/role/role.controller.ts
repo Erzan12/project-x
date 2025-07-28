@@ -7,7 +7,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
 import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
-import { AddPermissionToExistingUserDto } from './dto/add-permission-template-existing-user-dto';
+import { AddPermissionToExistingRoleDto, AddPermissionToExistingUserDto } from './dto/add-permission-template.dto';
 import { ACTION_CREATE, MODULE_ADMIN, ACTION_UPDATE } from 'src/Auth/components/decorators/ability';
 import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { UnassignRolePermissionDto } from './dto/unassign-role-permission.dto';
@@ -46,29 +46,16 @@ export class RoleController {
         return this.roleService.createRolePermissions(createRolePermissionDto, user)
     }
 
-    // @Patch('update_roles_permissions')                                                                           
-    // @Can({
-    //     action: ACTION_UPDATE,
-    //     subject: SM_ADMIN.CORE_MODULE.ROLE,
-    //     module: [MODULE_ADMIN]
-    // })                                                                                    //whilelist -> Strips properties not in DTO; forbidNonWhitelisted -> Throws error for properties not in DTO
-    // async updateRolePermission( 
-    //     @Body() updateRolePermissionsDto: UpdateRolePermissionsDto,
-    //     @SessionUser() user: RequestUser,
-    // ) {
-    //     return this.administratorService.updateRolePermissions(updateRolePermissionsDto, user);
-    // }
-
     //update role permission
     @Patch('update_role_permission')
     @Can({
         action: ACTION_UPDATE,
         subject: SM_ADMIN.CORE_MODULE_ROLE,
-        module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
+        module: [MODULE_ADMIN] 
     })
     async updateRolePermissions( 
         @Body() updateRolePermissionsDto: UpdateRolePermissionsDto,
-        @SessionUser() user: RequestUser,                                                        // to make enum decorator
+        @SessionUser() user: RequestUser,                                                       
      ) {
         return this.roleService.updateRolePermissions(updateRolePermissionsDto, user);
     }
@@ -117,15 +104,27 @@ export class RoleController {
         return this.roleService.createPermissionTemplate(dto,user);
     }
 
-    @Patch('assign_permission_template')
+    @Patch('assign_permission_template/roles')
     @Can({
         action: ACTION_UPDATE,  // the action of the subtion will be match with the current user role permission
         subject: SM_ADMIN.CORE_MODULE_ROLE, // SUBMODULE of Module Admin
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
-    async assignPermissionTemplate( 
-        @Body() addPermissionTemplateDto: AddPermissionToExistingUserDto,                                                         // to make enum decorator
+    async assignPermissionTemplateByRole( 
+        @Body() addPermissionTemplateDto: AddPermissionToExistingRoleDto,                                                         // to make enum decorator
      ) {
-        return this.roleService.assignPermissionTemplate(addPermissionTemplateDto)
+        return this.roleService.assignPermissionTemplateByRole(addPermissionTemplateDto);
     }   
+
+    @Patch('assign_permission_template/user')
+    @Can({
+        action: ACTION_UPDATE,
+        subject: SM_ADMIN.CORE_MODULE_MODULE,
+        module: [MODULE_ADMIN]
+    })
+    async assignPermissionTemplateByUser(
+        @Body() addPermissionTemplateDto: AddPermissionToExistingUserDto,
+    ) {
+        return this.roleService.assignPermissionTemplateByUser(addPermissionTemplateDto);
+    }
 }

@@ -6,7 +6,7 @@ import {
   ACTION_UPDATE,
   ACTION_ACCESS
 } from '../Auth/components/decorators/ability';
-import { AddPermissionToExistingUserDto } from './role/dto/add-permission-template-existing-user-dto';
+import { AddPermissionToExistingUserDto } from './role/dto/add-permission-template.dto';
 import { CreateUserWithTemplateDto } from 'src/User/dto/create-user-with-template.dto';
 import { UserService } from 'src/User/user.service';
 import { Body, Controller, Post, Req, Patch, Get } from '@nestjs/common';
