@@ -51,10 +51,8 @@ model User {
   user_token           UserToken[]
 
   UserPermission UserPermission[]
-  Role           Role?            @relation(fields: [roleId], references: [id])
-  roleId         Int?
-  Module         Module?          @relation(fields: [moduleId], references: [id])
-  moduleId       Int?
+  roles          Role[]                @relation("UserToRoles")
+  modules        Module[]              @relation("ModuleToUsers")
 }
 
 model Role {
@@ -63,7 +61,7 @@ model Role {
   description         String
   created_at          DateTime             @default(now())
   role_permissions    RolePermission[]
-  users               User[]
+  users               User[]               @relation("UserToRoles")
   user_roles          UserRole[]
   permission_template PermissionTemplate[] @relation("PermissionTemplateToRole")
 }
@@ -79,18 +77,21 @@ model SubModulePermission {
 }
 
 model RolePermission {
-  id                        Int                                @id @default(autoincrement())
-  role_id                   Int
-  sub_module_id             Int
-  module_id                 Int
-  action                    String
-  status                    Boolean                            @default(true)
-  sub_module_permission_id  Int?
+  id                       Int     @id @default(autoincrement())
+  role_id                  Int
+  sub_module_id            Int
+  module_id                Int
+  action                   String
+  status                   Boolean @default(true)
+  sub_module_permission_id Int?
+
   permission_template_links PermissionTemplateRolePermission[]
-  role                      Role                               @relation(fields: [role_id], references: [id])
-  permission                SubModule                          @relation(fields: [sub_module_id], references: [id])
-  sub_module_permission     SubModulePermission?               @relation(fields: [sub_module_permission_id], references: [id])
-  user_permission           UserPermission[]
+
+  role                  Role                 @relation(fields: [role_id], references: [id])
+  permission            SubModule            @relation(fields: [sub_module_id], references: [id])
+  module                Module               @relation(fields: [module_id], references: [id]) // <--- Add this line!
+  sub_module_permission SubModulePermission? @relation(fields: [sub_module_permission_id], references: [id])
+  user_permission       UserPermission[]
 
   @@unique([role_id, sub_module_id, module_id, action], map: "role_sub_module_module_action_unique")
 }
@@ -130,7 +131,7 @@ model UserRole {
   role             Role             @relation(fields: [role_id], references: [id])
   user             User             @relation(fields: [user_id], references: [id])
 
-  @@unique([user_id, role_id, module_id]) // ✅ Ensures unique role-module per user
+  @@unique([user_id, role_id, module_id]) //Ensures unique role-module per user
 }
 
 model Company {
@@ -178,12 +179,14 @@ model Position {
 }
 
 model Module {
-  id         Int         @id @default(autoincrement())
-  name       String
-  created_at DateTime    @default(now())
-  sub_module SubModule[]
-  user       User[]
-  user_role  UserRole[]
+  id             Int              @id @default(autoincrement())
+  name           String
+  created_at     DateTime         @default(now())
+  sub_module     SubModule[]
+  users          User[]           @relation("ModuleToUsers") 
+  user_role      UserRole[]
+  RolePermission RolePermission[]
+  permission_templates PermissionTemplate[] @relation("ModuleToPermissionTemplates")
 }
 
 model SubModule {
@@ -228,6 +231,9 @@ model PermissionTemplate {
   role_permissions PermissionTemplateRolePermission[]
   role             Role[]                             @relation("PermissionTemplateToRole")
   user             User[]                             @relation("UserToPermissionTemplates")
+  
+  module_id        Int                                @default(1) 
+  module           Module[]                           @relation("ModuleToPermissionTemplates")
 }
 
 model PermissionTemplateDepartment {
@@ -260,34 +266,34 @@ model EmailAddress {
 }
 
 model Employee {
-  id                        Int        @id @default(autoincrement())
+  id                        Int       @id @default(autoincrement())
   company_id                Int
-  person_id                 Int        @unique
-  employee_id               String     @unique
+  person_id                 Int       @unique
+  employee_id               String    @unique
   department_id             Int
   hire_date                 DateTime
-  position_id               Int        @default(1)
+  position_id               Int       @default(1)
   salary                    Decimal
   pay_frequency             String
   employment_status_id      Int
   monthly_equivalent_salary Decimal
-  created_at                DateTime   @default(now())
+  created_at                DateTime  @default(now())
   archive_date              DateTime?
   other_employee_data       Json?
   corporate_rank_id         Int
 
   //Relations
-  employment_status         EmploymentStatus @relation(fields: [employment_status_id], references: [id])
-  company                   Company    @relation(fields: [company_id], references: [id])
-  department                Department @relation(fields: [department_id], references: [id])
-  person                    Person     @relation("PersonEmployee", fields: [person_id], references: [id])
-  position                  Position   @relation(fields: [position_id], references: [id])
-  user                      User?
+  employment_status EmploymentStatus @relation(fields: [employment_status_id], references: [id])
+  company           Company          @relation(fields: [company_id], references: [id])
+  department        Department       @relation(fields: [department_id], references: [id])
+  person            Person           @relation("PersonEmployee", fields: [person_id], references: [id])
+  position          Position         @relation(fields: [position_id], references: [id])
+  user              User?
 }
 
 model EmploymentStatus {
-  id        Int       @id @default(autoincrement())
-  code      String    @unique
+  id        Int        @id @default(autoincrement())
+  code      String     @unique
   label     String
   employees Employee[]
 }
