@@ -26,17 +26,17 @@ export class EmployeeController {
     return this.employeeService.createEmployee( person, employee, new Date(hire_date) );
   }
 
-  @Get('employees')
-  @Can({
-        action: ACTION_CREATE,
-        subject: SM_HR.EMPLOYEE_MASTERLIST,
-        module: [MODULE_HR]
-  })
-  async viewEmployees(
-    @SessionUser() user: RequestUser,
-  ) {
-    return this.employeeService.viewEmployeeMasterlist(user)
-  }
+  // @Get('employees')
+  // @Can({
+  //       action: ACTION_CREATE,
+  //       subject: SM_HR.EMPLOYEE_MASTERLIST,
+  //       module: [MODULE_HR]
+  // })
+  // async viewEmployees(
+  //   @SessionUser() user: RequestUser,
+  // ) {
+  //   return this.employeeService.viewEmployeeMasterlist(user)
+  // }
 }
 
 
