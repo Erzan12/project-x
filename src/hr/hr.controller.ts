@@ -2,12 +2,19 @@ import { Controller, Get } from '@nestjs/common';
 import {
     MODULE_HR,
     ACTION_READ,
+    ACTION_CREATE
 } from '../Auth/components/decorators/ability';
 import { Can } from 'src/Auth/components/decorators/can.decorator';
 import { SM_HR } from 'src/Auth/components/constants/core-constants';
+import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
+import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { HrService } from './hr.service';
+import { EmployeeService } from './Employee/employee.service';
+
 @Controller('hr')
 export class HrController {
 
+    constructor(private hrService: HrService, private readonly employeeService: EmployeeService) {}
     //sample path for each submodules employee_masterlist->retrievelistofemployees->action: view,add,edit,delete->retrievesingledocument->action: view,add,edit,delete
     @Get()
     @Can({
@@ -15,18 +22,22 @@ export class HrController {
         subject: SM_HR.DASHBOARD,
         module: [MODULE_HR],
     })
-    getHRDashBoard(){
-        return { message: 'hr dashboard'};
+    getHRDashBoard(
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.hrService.getHRDashboard(user)
     }
 
     @Get('employees')
     @Can({
-        action: ACTION_READ,
-        subject: SM_HR.EMPLOYEE_MASTERLIST,
-        module: [MODULE_HR],
+            action: ACTION_CREATE,
+            subject: SM_HR.EMPLOYEE_MASTERLIST,
+            module: [MODULE_HR]
     })
-    getHREmpMaster(){
-        return { message: 'hr emp masterlist'};
+    async viewEmployees(
+        @SessionUser() user: RequestUser,
+    ) {
+        return this.employeeService.viewEmployeeMasterlist(user)
     }
 
     @Get('recruitment')

@@ -13,11 +13,13 @@ import { RoleService } from './role/role.service';
 import { ModuleService } from './module/module.service';
 import { ModuleController } from './module/module.controller';
 import { SubModuleController } from './sub_module/sub_module.controller';
+import { EmploymentStatusController } from './employment_status/employment_status.controller';
+import { EmploymentStatusService } from './employment_status/employment_status.service';
 
 @Module({
     imports:[AuthModule],
-    controllers: [AdministratorController, SubModuleController, ModuleController, RoleController],
-    providers: [AdministratorService, JwtStrategy, JwtService, PrismaService, UserService, MailService, SubModuleService, ModuleService, RoleService],
+    controllers: [AdministratorController, SubModuleController, ModuleController, RoleController, EmploymentStatusController],
+    providers: [AdministratorService, JwtStrategy, JwtService, PrismaService, UserService, MailService, SubModuleService, ModuleService, RoleService, EmploymentStatusService],
     exports: [AdministratorModule]
 
 })
