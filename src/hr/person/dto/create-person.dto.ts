@@ -4,7 +4,10 @@ import {
     IsOptional,
     IsString,
     MinLength,
+    IsEnum
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CivilStatus, Gender } from 'src/Auth/components/decorators/global.enums.decorator';
 
 export class CreatePersonDto {
     @IsString()
@@ -23,9 +26,16 @@ export class CreatePersonDto {
     @IsString()
     date_of_birth: string;
 
+    @Type(() => String)
     @IsString()
-    gender: string;
+    @IsEnum(Gender, { message: 'Gender must be male and female'})
+    gender: Gender;
 
-    @IsString()
-    civil_status: string;
+    @Type(() => String)
+    @IsEnum(CivilStatus, { message : 'Civil status must be single, married, separated, or widowed'})
+    civil_status: CivilStatus;
+
+    @IsNotEmpty()
+    @IsEmail()
+    email: string;
 }

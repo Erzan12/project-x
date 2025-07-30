@@ -15,8 +15,16 @@ model Person {
   suffix                    String?
   date_of_birth             DateTime
   gender                    String?
-  civil_status              String?
-  nationality               String?
+  email                     String?        
+  contact_no                String?        @default("9632306492")
+  civil_status              String         @default("single")
+  home_address              String?        
+  city_provice              String?        
+  nationality               String?        
+  country                   String?        
+  zip_code                  String?
+  emergency_contact_person  String?       
+  emergency_contact_number  String?           
   created_at                DateTime       @default(now())
   anonymization_preferences Json?
   other_person_data         Json?
@@ -50,7 +58,7 @@ model User {
   user_roles           UserRole[] //multi role assignment for user
   user_token           UserToken[]
 
-  UserPermission UserPermission[]
+  user_permission UserPermission[]
   roles          Role[]                @relation("UserToRoles")
   modules        Module[]              @relation("ModuleToUsers")
 }
@@ -71,7 +79,7 @@ model SubModulePermission {
   action           String
   sub_module_id    Int
   created_at       DateTime         @default(now())
-  status           Boolean          @default(true)
+  stat             Int              @default(1)
   role_permissions RolePermission[]
   sub_module       SubModule        @relation(fields: [sub_module_id], references: [id])
 }
@@ -137,11 +145,16 @@ model UserRole {
 model Company {
   id                      Int                     @id @default(autoincrement())
   name                    String                  @unique
+  address                 String                  @default("TEMP")
   abbreviation            String                  @unique @db.VarChar(10)
+  telephone_no            String                  @default("23401802")
   company_code            String                  @unique @default("TEMP") @db.VarChar(10)
+  tin_no                  String                  @default("4726828000")
+  is_top_20000            Boolean?                @default(true)
+  stat                    Int                     @default(1)
   created_at              DateTime                @default(now())
   employee                Employee[]
-  permissionTemplates     PermissionTemplate[]
+  permission_templates    PermissionTemplate[]
   user_permission_company UserPermissionCompany[]
 }
 
@@ -149,8 +162,9 @@ model Division {
   id               Int          @id @default(autoincrement())
   name             String       @db.VarChar(255)
   division_head_id Int
-  status           Boolean      @default(true)
+  stat             Int          @default(1)
   created_at       DateTime     @default(now())
+  employee         Employee[]
   departments      Department[]
 }
 
@@ -158,7 +172,7 @@ model Department {
   id                             Int                            @id @default(autoincrement())
   name                           String                         @db.VarChar(255)
   division_id                    Int
-  status                         Boolean                        @default(true)
+  stat                           Int                            @default(1)
   department_head_id             Int?
   created_at                     DateTime                       @default(now())
   division                       Division                       @relation(fields: [division_id], references: [id])
@@ -173,7 +187,7 @@ model Position {
   id            Int        @id @default(autoincrement())
   name          String     @db.VarChar(255)
   department_id Int
-  status        Boolean    @default(true)
+  stat          Int        @default(1)
   employee      Employee[]
   department    Department @relation(fields: [department_id], references: [id])
 }
@@ -185,7 +199,7 @@ model Module {
   sub_module     SubModule[]
   users          User[]           @relation("ModuleToUsers") 
   user_role      UserRole[]
-  RolePermission RolePermission[]
+  role_permission RolePermission[]
   permission_templates PermissionTemplate[] @relation("ModuleToPermissionTemplates")
 }
 
@@ -224,7 +238,7 @@ model PermissionTemplate {
   id               Int                                @id @default(autoincrement())
   name             String
   created_at       DateTime                           @default(now())
-  status           Boolean                            @default(true)
+  stat             Int                                @default(1)
   company_id       Int
   company          Company                            @relation(fields: [company_id], references: [id])
   departments      PermissionTemplateDepartment[]
@@ -273,6 +287,7 @@ model Employee {
   department_id             Int
   hire_date                 DateTime
   position_id               Int       @default(1)
+  division_id               Int       @default(1)
   salary                    Decimal
   pay_frequency             String
   employment_status_id      Int
@@ -288,6 +303,7 @@ model Employee {
   department        Department       @relation(fields: [department_id], references: [id])
   person            Person           @relation("PersonEmployee", fields: [person_id], references: [id])
   position          Position         @relation(fields: [position_id], references: [id])
+  division          Division         @relation(fields: [division_id], references: [id])
   user              User?
 }
 

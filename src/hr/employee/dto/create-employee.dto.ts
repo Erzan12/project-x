@@ -1,8 +1,11 @@
 import {
     IsInt,
     IsNotEmpty,
-    IsOptional
+    IsOptional,
+    IsObject,
+    IsDateString
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateEmployeeDto {
     
@@ -20,7 +23,15 @@ export class CreateEmployeeDto {
 
     @IsInt()
     @IsNotEmpty()
+    division_id: number;
+
+    @IsInt()
+    @IsNotEmpty()
     salary: number;
+    
+    @IsDateString()
+    @Type(() => Date)
+    hire_date: Date;
 
     @IsNotEmpty()
     pay_frequency: string;
@@ -36,7 +47,8 @@ export class CreateEmployeeDto {
     archive_date: string;
 
     @IsOptional()
-    other_employee_data: string;
+    @IsObject()
+    other_employee_data?: Record<string, any>;
 
     @IsInt()
     @IsNotEmpty()

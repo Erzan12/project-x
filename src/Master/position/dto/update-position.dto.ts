@@ -15,9 +15,7 @@ export class UpdatePositionDto {
     department_id?: number;
 
     @IsOptional()
-    @Expose()
-    @IsBoolean()
-    // @Transform(({ obj }) => obj.status ? 'Active' : 'Inactive')
-    @Transform(({ value }) => value === 'true' || value === true, { toClassOnly: true })
-    status?: boolean;
+    @IsInt()
+    @IsNotEmpty()
+    stat: number;
 }

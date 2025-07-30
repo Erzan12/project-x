@@ -9,17 +9,23 @@ import { UpdateDeptInfoDto } from '../department/dto/update-dept.dto';
 export class PositionService {
     constructor(private prisma: PrismaService, private createPositionDto: CreatePositionDto) {}
 
-    async getPosition(user: RequestUser) {
-        const position = await this.prisma.position.findMany({
+    async getPositions(user: RequestUser) {
+
+        const existingPositions = await this.prisma.position.findMany({
             include: {
                 department: true,
             }
         })
+
+        if(existingPositions.length === 0 ) {
+            throw new BadRequestException('No available or active position exist!')
+        }
+
         return {
             status: 'success',
             message: 'Here are the list of Positions',
             data: {
-                position
+                existingPositions
             }
         }
     }
@@ -27,26 +33,15 @@ export class PositionService {
     async createPosition(createPositionDto: CreatePositionDto, user: RequestUser) {
         const { name, department_id, status } = createPositionDto;
 
-        // //check for role administrator
-        // const user = await this.prisma.user.findUnique({
-        //     where: { id: req.user.id},
-        //     include: {
-        //         role: true,
-        //     }
-        // })
-    
-        // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-        // }
-
         const existingPosition = await this.prisma.position.findFirst({
             where: { name: createPositionDto.name },
-            include: {
+            select: {
+                name: true,
                 department: true,
-            }
+            },
         })
 
-        if(existingPosition) {
+        if (existingPosition) {
             throw new ConflictException('Position already exist! Try again!')
         }
 
@@ -56,39 +51,69 @@ export class PositionService {
                 department: {
                     connect: { id: createPositionDto.department_id }   // this links the foreign key
                 },
-                status: true
+                stat: 1
             },
             include: {
                 department: true
             },
         });
 
+        const requestUser = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include:{
+                employee: {
+                    include: {
+                        person: true,
+                        position: true,
+                    },
+                },
+            },
+        });
+
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
+        }
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
+
         return {
             status: 'success',
             message: `${createdPosition.name} Position has been created successfully!`,
+            created_by: {
+                id: requestUser.id,
+                name: userName,
+                position: userPos,
+            },
             data: {
-                createdPosition,
+                position_id: createdPosition.id,
+                position_name: createdPosition.name
             },
         };
     }
 
     async updatePosition(updatePositionDto: UpdatePositionDto, user: RequestUser) {
-        const { position_id, position_name, department_id, status } = updatePositionDto;
+        const { position_id, position_name, department_id, stat } = updatePositionDto;
 
-        const existingPosition = await this.prisma.position.findUnique({
-            where: { id: updatePositionDto.position_id }
+        const existingPosition = await this.prisma.position.findFirst({
+            where: { id: updatePositionDto.position_id },
+            select: {
+                id: true,
+                name: true,
+                stat: true,
+            }
         });
 
         if(!existingPosition){
             throw new BadRequestException('Position not found!');
         }
 
-        // const existingDept = await this.prisma.department.findUnique({
-        //     where: { id: updatePositionDto.department_id }
-        // });
+        if(existingPosition.stat === 0){
+            throw new ForbiddenException(`${existingPosition.name} Position status is inactive!`)
+        }
 
         if (updatePositionDto.department_id !== undefined) {
-        const existingDept = await this.prisma.department.findUnique({
+        const existingDept = await this.prisma.department.findFirst({
             where: { id: updatePositionDto.department_id },
         });
 
@@ -97,17 +122,16 @@ export class PositionService {
         }
         }
 
-        // if(!existingDept){
-        //     throw new BadRequestException('Department does not exist');
-        // }
+        const checkStat = await this.prisma.position.findFirst({
+            where: { id: updatePositionDto.position_id },
+            select: {
+                stat: true,
+            },
+        })
 
-        // const checkStat = await this.prisma.position.findUnique({
-        //     where: { id: updatePositionDto.position_id },
-        //     select: {
-        //         status: true,
-        //     },
-        // })
-        // if(checkStat === false)
+        if(checkStat?.stat === 0) {
+            throw new ForbiddenException(`${existingPosition.name} Position status is currently inactive`)
+        }
 
         const updatePositionInfo = await this.prisma.position.update({
             where: { id: updatePositionDto.position_id },
@@ -115,17 +139,41 @@ export class PositionService {
                 id: existingPosition.id,
                 name: position_name,
                 department_id,
-                status,
+                stat,
             },
         });
+
+        const requestUser = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include:{
+                employee: {
+                    include: {
+                        person: true,
+                        position: true,
+                    }
+                }
+            }
+        })
+
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
+        }
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
 
         return {
             status: 'success',
             message: `${existingPosition.name} Position has been updated Successfully!`,
-            data: {
-                updatePositionInfo
+            updated_by: {
+                id: requestUser,
+                name: userName,
+                position: userPos,
             },
-        }
+            data: {
+                updatePositionInfo,
+            },
+        };
     }
 
     async deactivatePos (updatePositionDto: UpdatePositionDto, user: RequestUser) {
@@ -133,7 +181,7 @@ export class PositionService {
             where: { id: updatePositionDto.position_id },
             select: {
                 name: true,
-                status: true,
+                stat: true,
             },
         });
 
@@ -141,24 +189,44 @@ export class PositionService {
             throw new BadRequestException('Position does not exist!');
         }
 
-        const currentStat = await this.prisma.position.findFirst({
-            where: { status: existingPos.status },
-        });
-
-        if(!currentStat === true){
-            throw new ForbiddenException('Position is still active!');
+        if(existingPos.stat === 0){
+            throw new ForbiddenException(`${existingPos.name} Position is already deactivated!`);
         }
 
         const deactivate = await this.prisma.position.update({
             where: { id: updatePositionDto.position_id },
             data: {
-                status: updatePositionDto.status,
+                stat: updatePositionDto.stat,
             },
         });
+
+        const requestUser = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include:{
+                employee: {
+                    include: {
+                        person: true,
+                        position: true,
+                    }
+                }
+            }
+        })
+
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
+        }
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
 
         return {
             status: 'success',
             message: `${existingPos.name} Position has been deactivated successfully!`,
+            deactivated_by: {
+                id: requestUser.id,
+                name: userName,
+                position: userPos,
+            },
             data: {
                 deactivate
             },
@@ -170,36 +238,56 @@ export class PositionService {
             where: { id: updatePositionDto.department_id },
             select: {
                 name: true,
-                status: true,
+                stat: true,
             },
         });
 
-        if(!existingPos) {
+        if (!existingPos) {
             throw new BadRequestException('Position does not exist!');
         }
 
-        const existingStat = await this.prisma.position.findFirst({
-            where: { status: updatePositionDto.status },
-        });
-
-        if(!existingStat === true ){
-            throw new ForbiddenException('Position is already active!');
+        if (existingPos.stat === 1) {
+            throw new ForbiddenException(`${existingPos} Position status is already active!`);
         }
 
         const activate = await this.prisma.position.update({
             where: { id: updatePositionDto.position_id },
             data: {
                 name: updatePositionDto.position_name,
-                status: updatePositionDto.status,
+                stat: updatePositionDto.stat,
             },
         });
+
+        const requestUser = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include:{
+                employee: {
+                    include: {
+                        person: true,
+                        position: true,
+                    }
+                }
+            }
+        })
+
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
+        }
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
 
         return {
             status: 'success',
             message: `${existingPos.name} Position has been reactivated successfully!`,
+            activated_by: {
+                id: requestUser,
+                name: userName,
+                position: userPos,
+            },
             data: {
                 activate
             },
-        }
+        };
     }
 }

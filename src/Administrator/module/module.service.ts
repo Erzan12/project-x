@@ -7,41 +7,35 @@ export class ModuleService {
     constructor(private prisma: PrismaService) {}
         // validate if module already exist
         async createModule(createModuleDto: CreateModuleDto, user) { 
-        //check for role administrator -> role authentication will happen in casl ability service
-        // const user = await this.prisma.user.findUnique({
-        //     where: { id: req.user.id},
-        //     include: {
-        //         role: true,
-        //     }
-        // })
-    
-        // if(!user || user.role?.name !== UserRole.ADMINISTRATOR ) {
-        //     throw new ForbiddenException('Only Administrators are allowed to create permission templates')
-        // }
-    
-        const module = await this.prisma.module.findFirst({
-            where : { name: createModuleDto.name }
-        })
-        if (module) {
-            throw new BadRequestException('Module already exist!');
+
+        const existingModule = await this.prisma.module.findFirst({
+            where: {
+                name: createModuleDto.name,
+            }
+        });
+
+        if (existingModule) {
+            throw new BadRequestException('Module already exists!')
         }
     
-        const creator = await this.prisma.user.findUnique({
+        const requestUser = await this.prisma.user.findUnique({
             where: { id: user.id },
-            include: {
+            include:{
                 employee: {
                     include: {
                         person: true,
+                        position: true,
                     },
                 },
             },
         });
-    
-        if (!creator || !creator.employee || !creator.employee.person) {
-            throw new BadRequestException(`Creator ${creator?.employee.position_id} information not found.`);
+
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
         }
-        const admin = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
-        const adminPosition = creator.employee.position_id;
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
     
         const moduleCreate = await this.prisma.module.create({
             data: {
@@ -53,12 +47,14 @@ export class ModuleService {
             status: 'success',
             message: `New module has been added to the system!`,
             created_by: {
-                    id: creator.id,
-                    name: admin,
-                    position: adminPosition,
-                },
-            module_id: moduleCreate.id,
-            module_name: moduleCreate.name
-        }
-        }
+                    id: requestUser.id,
+                    name: userName,
+                    position: userPos,
+            },
+            data: {
+                module_id: moduleCreate.id,
+                module_name: moduleCreate.name
+            },
+        };
+    }
 }

@@ -34,10 +34,10 @@ export class HrController {
             subject: SM_HR.EMPLOYEE_MASTERLIST,
             module: [MODULE_HR]
     })
-    async viewEmployees(
+    async getEmployees(
         @SessionUser() user: RequestUser,
     ) {
-        return this.employeeService.viewEmployeeMasterlist(user)
+        return this.employeeService.getEmployeeMasterlist(user)
     }
 
     @Get('recruitment')
