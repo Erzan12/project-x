@@ -139,8 +139,8 @@ export class MasterController {
     })
     async getDepartments(
         @SessionUser() user: RequestUser,
-        @Query('status') status?: string,
+        @Query('status') stat?: number,
     ) {
-        return this.departmentService.getDepartmentStatus(user, status);
+        return this.departmentService.getDepartmentStatus(user, stat);
     }
 }

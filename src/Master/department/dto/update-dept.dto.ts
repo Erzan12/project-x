@@ -1,5 +1,4 @@
-import { Expose, Transform } from "class-transformer";
-import { IsBoolean, IsInt, IsNotEmpty, IsString } from "class-validator";
+import { IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class UpdateDeptInfoDto {
     @IsInt()
@@ -10,8 +9,7 @@ export class UpdateDeptInfoDto {
     @IsNotEmpty()
     department_name: string;
 
-    @Expose()
-    @IsBoolean()
-    @Transform(({ obj }) => obj.status ? 'Active' : 'Inactive')
-    status?: boolean;
+    @IsInt()
+    @IsNotEmpty()
+    stat: number;
 }

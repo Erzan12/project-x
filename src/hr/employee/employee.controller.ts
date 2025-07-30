@@ -21,9 +21,12 @@ export class EmployeeController {
         subject: SM_HR.EMPLOYEE_MASTERLIST,
         module: [MODULE_HR]
   })
-  async createEmployee(@Body() createDto: CreateEmployeeWithDetailsDto) {
-    const { person, employee, hire_date } = createDto;
-    return this.employeeService.createEmployee( person, employee, new Date(hire_date) );
+  async createEmployee(
+    @Body() createDto: CreateEmployeeWithDetailsDto,
+    @SessionUser() user: RequestUser,
+  ) {
+    const { person, employee } = createDto;
+    return this.employeeService.createEmployee( person, employee,  user);
   }
 
   // @Get('employees')

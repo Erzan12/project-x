@@ -9,6 +9,7 @@ export class SubModuleService {
     constructor(private prisma: PrismaService) {}
 
     async createSubModule(createSubModuleDto: CreateSubModuleDto, user) {
+
         const findModule = await this.prisma.module.findUnique({
             where: { id: createSubModuleDto.module_id }
         })
@@ -16,22 +17,24 @@ export class SubModuleService {
             throw new BadRequestException('Module not found!')
         }
 
-        const creator = await this.prisma.user.findUnique({
+        const requestUser = await this.prisma.user.findUnique({
             where: { id: user.id },
-            include: {
+            include:{
                 employee: {
                     include: {
                         person: true,
-                    },
-                },
-            },
-        });
+                        position: true,
+                    }
+                }
+            }
+        })
 
-        if (!creator || !creator.employee || !creator.employee.person) {
-            throw new BadRequestException(`Creator ${creator?.employee.position_id} information not found.`);
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
         }
-        const admin = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
-        const adminPosition = creator.employee.position_id;
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
 
         const subModule = await this.prisma.subModule.create({
             data: {
@@ -47,10 +50,10 @@ export class SubModuleService {
             status: 'success',
             message: `Sub Module ${subModule.name} for Module ${subModule.module.name} has been added`,
             created_by: {
-                    id: creator.id,
-                    name: admin,
-                    position: adminPosition,
-                },
+                    id: requestUser.id,
+                    name: userName,
+                    position: userPos,
+            },
             subModule_id: subModule.id,
             subModule_name: subModule.name
         }
@@ -68,23 +71,24 @@ export class SubModuleService {
             throw new BadRequestException('Sub Module does not exist!');
         }
 
-        const creator = await this.prisma.user.findUnique({
+        const requestUser = await this.prisma.user.findUnique({
             where: { id: user.id },
-            include: {
+            include:{
                 employee: {
                     include: {
                         person: true,
-                    },
-                },
-            },
-        });
+                        position: true,
+                    }
+                }
+            }
+        })
 
-        //to call the user who created the submodule
-        if (!creator || !creator.employee || !creator.employee.person) {
-            throw new BadRequestException(`Creator ${creator?.employee.position_id} information not found.`);
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
         }
-        const admin = `${creator.employee.person.first_name} ${creator.employee.person.last_name}`;
-        const adminPosition = creator.employee.position_id;
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
 
         const subModule = action.map(act =>({
             action: act,
@@ -111,10 +115,10 @@ export class SubModuleService {
             status: 'success',
             message: `Added permissions to Sub Module ${moduleName.sub_module.name}`,
             created_by: {
-                    id: creator.id,
-                    name: admin,
-                    position: adminPosition,
-                },
+                    id: requestUser.id,
+                    name: userName,
+                    position: userPos,
+            },
             data: {
                 result
             }
@@ -143,6 +147,25 @@ export class SubModuleService {
             throw new BadRequestException('Selected Sub Module Permissions does not exist');
         };
 
+        const requestUser = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include:{
+                employee: {
+                    include: {
+                        person: true,
+                        position: true,
+                    }
+                }
+            }
+        })
+
+        if (!requestUser || !requestUser.employee || !requestUser.employee.person) {
+            throw new BadRequestException(`User does not exist.`);
+        }
+
+        const userName = `${requestUser.employee.person.first_name} ${requestUser.employee.person.last_name}`;
+        const userPos = requestUser.employee.position.name;
+
         const unassignSubmodulePermissions = await this.prisma.subModulePermission.updateMany({
             where: {
                 id: {
@@ -150,8 +173,21 @@ export class SubModuleService {
                 }
             },
             data: {
-                status: false,
+                stat: 1,
             }
         })
+
+        return {
+            status: 'success',
+            message: `New module has been added to the system!`,
+            created_by: {
+                    id: requestUser.id,
+                    name: userName,
+                    position: userPos,
+            },
+            data: {
+                unassignSubmodulePermissions
+            }
+        }
     }
 }
