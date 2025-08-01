@@ -10,6 +10,11 @@ export enum CivilStatus {
     WIDOWED = 'widowed'
 }
 
+export enum StatusEnum {
+    ACTIVE = 'active',
+    INACTIVE = 'inactive',
+}
+
 // export enum Actions {
 //     CREATE  = 'create',
 //     SHOW    = 'show',

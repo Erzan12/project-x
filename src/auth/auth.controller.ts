@@ -3,12 +3,16 @@ import { LoginDto } from './dto/login.dto';
 import { ResetPasswordWithTokenDto } from './dto/reset-password-with-token-dto';
 import { AuthService } from './auth.service';
 import { Public } from './components/decorators/public.decorator';
+import { ApiOperation } from '@nestjs/swagger';
+import { ApiLoginResponse, ApiPostResponse } from './components/helpers/swagger-response.helper';
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post('login')
+    @ApiOperation({ summary: 'User authorized login' })
+    @ApiLoginResponse('User login successful')
     @Public()
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async login(@Body() loginDto: LoginDto) {
@@ -16,6 +20,8 @@ export class AuthController {
     }
 
     @Post('reset-password')
+    @ApiOperation({ summary: 'User reset password'})
+    @ApiPostResponse('User reset password successfully')
     @Public()
     @UsePipes(new ValidationPipe ({whitelist:true}))
     async passwordResetWithToken(

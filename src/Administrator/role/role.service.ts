@@ -75,7 +75,7 @@ export class RoleService {
             throw new BadRequestException('Role not found or does not exist!')
         }
 
-        const moduleID = await this.prisma.module.findUnique({
+        const moduleID = await this.prisma.module.findFirst({
             where: { id: module_id},
         });
 
@@ -83,7 +83,7 @@ export class RoleService {
             throw new BadRequestException('Module not found or does not exist!')
         }
 
-        const subID = await this.prisma.subModule.findUnique({
+        const subID = await this.prisma.subModule.findFirst({
             where: { id: sub_module_id}
         })
 

@@ -3,7 +3,6 @@ import { PrismaService } from 'prisma/prisma.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
-import { UpdateDeptInfoDto } from '../department/dto/update-dept.dto';
 
 @Injectable()
 export class PositionService {
@@ -31,13 +30,18 @@ export class PositionService {
     }
 
     async createPosition(createPositionDto: CreatePositionDto, user: RequestUser) {
-        const { name, department_id, status } = createPositionDto;
+        const { name, department_id, stat } = createPositionDto;
 
+        console.log('createPositionDto:', createPositionDto);
+        console.log('stat value:', createPositionDto.stat);
+
+        //Check for duplicate position name
         const existingPosition = await this.prisma.position.findFirst({
             where: { name: createPositionDto.name },
             select: {
                 name: true,
                 department: true,
+                stat: true
             },
         })
 
@@ -45,13 +49,19 @@ export class PositionService {
             throw new ConflictException('Position already exist! Try again!')
         }
 
+        //Validate incoming status
+        if (createPositionDto.stat !== 1) {
+            throw new BadRequestException('Invalid status. Only active is allowed.');
+        }
+
+        //Create the new position
         const createdPosition = await this.prisma.position.create({
             data: {
                 name: createPositionDto.name,
                 department: {
                     connect: { id: createPositionDto.department_id }   // this links the foreign key
                 },
-                stat: 1
+                stat: createPositionDto.stat
             },
             include: {
                 department: true
@@ -289,5 +299,32 @@ export class PositionService {
                 activate
             },
         };
+    }
+
+    async getPositionStatus(user: RequestUser, stat?: number) {
+        let statusFilter: number | undefined;
+
+        if (stat !== undefined) {
+            if (stat === 1) {
+                statusFilter = 1;
+            } else if ( stat === 0) {
+                statusFilter = 0;
+            } else {
+                throw new BadRequestException('Invalid status value. Must be "1 = active" or "0 = inactive".');
+            }
+        }
+
+        const positions = await this.prisma.position.findMany({
+            where: statusFilter !== undefined ? { stat: statusFilter } : {},
+            orderBy: { name: 'asc' },
+        });
+
+        return {
+            status: 'success',
+            message: 'Positions status fetched successfully!',
+            data: {
+                positions
+            }
+        }
     }
 }

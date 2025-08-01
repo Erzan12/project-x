@@ -111,9 +111,10 @@ export class RoleController {
         module: [MODULE_ADMIN] // or MODULE_HR if it's from Admin
     })
     async assignPermissionTemplateByRole( 
-        @Body() addPermissionTemplateDto: AddPermissionToExistingRoleDto,                                                         // to make enum decorator
+        @Body() addPermissionTemplateDto: AddPermissionToExistingRoleDto,   
+        @SessionUser() user: RequestUser,                                                      // to make enum decorator
      ) {
-        return this.roleService.assignPermissionTemplateByRole(addPermissionTemplateDto);
+        return this.roleService.assignPermissionTemplateByRole(addPermissionTemplateDto,user);
     }   
 
     @Patch('assign_permission_template/user')
