@@ -1,8 +1,9 @@
 import { Injectable, ForbiddenException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDepartmentDto } from './dto/create-dept.dto';
-import { UpdateDeptInfoDto } from './dto/update-dept.dto';
+import { UpdateDeptDto } from './dto/update-dept.dto';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { DeactivateDepartmentDto, ReactivateDepartmentDto } from './dto/pos-status.dto';
 
 @Injectable()
 export class DepartmentService {
@@ -24,7 +25,7 @@ export class DepartmentService {
     }
 
     async createDepartment(createDepartmentDto: CreateDepartmentDto, user) {
-        const { name, division_id, status } = createDepartmentDto;
+        const { name, division_id, stat } = createDepartmentDto;
         
         const existingDepartment = await this.prisma.department.findFirst({
             where: {
@@ -79,9 +80,9 @@ export class DepartmentService {
         };
     }
 
-    async updateDeptInfo(updateDeptInfoDto: UpdateDeptInfoDto, user) {
+    async updateDept(updateDeptDto: UpdateDeptDto, user) {
         const existingDept = await this.prisma.department.findUnique({
-            where: { id: updateDeptInfoDto.department_id },
+            where: { id: updateDeptDto.department_id },
             select: {
                 name: true,
                 stat: true,
@@ -97,10 +98,10 @@ export class DepartmentService {
         }
 
         const updatedDept = await this.prisma.department.update({
-            where: { id: updateDeptInfoDto.department_id },
+            where: { id: updateDeptDto.department_id },
             data: {
-                name: updateDeptInfoDto.department_name,  // assuming you want to change the name
-                stat: updateDeptInfoDto.stat,
+                name: updateDeptDto.department_name,  // assuming you want to change the name
+                stat: updateDeptDto.stat,
                 //will be added to department schema updated_by and updated_at fields
                 // updated_by: user.id,           // optional: if you track who updated it
                 // updated_at: new Date(),        // optional: if you track timestamps
@@ -141,9 +142,9 @@ export class DepartmentService {
         };
     }
 
-    async deactivateDept (updateDeptInfoDto: UpdateDeptInfoDto, user: RequestUser) {
+    async deactivateDept (deactivateDepartmentDto: DeactivateDepartmentDto, user: RequestUser) {
         const existingDept = await this.prisma.department.findUnique({
-            where: { id: updateDeptInfoDto.department_id },
+            where: { id: deactivateDepartmentDto.department_id },
             select: {
                 name: true,
                 stat: true,
@@ -154,14 +155,15 @@ export class DepartmentService {
             throw new BadRequestException('Department does not exist!');
         }
 
-        if (existingDept.stat === 0 && updateDeptInfoDto.stat === 0) {
+        if (existingDept.stat === 0 && deactivateDepartmentDto.stat === 0) {
             throw new ForbiddenException(`${existingDept.name} Department already deactivated`);
         }
 
         const deactivate = await this.prisma.department.update({
-            where: { id: updateDeptInfoDto.department_id },
+            where: { id: deactivateDepartmentDto.department_id },
             data: {
-                stat: updateDeptInfoDto.stat,
+                id: deactivateDepartmentDto.department_id,
+                stat: deactivateDepartmentDto.stat,
             }
         })
 
@@ -186,7 +188,7 @@ export class DepartmentService {
 
         return {
             status: 'success',
-            message: `${existingDept.name} Department has been deactivated successfully!`,
+            message: `${existingDept.name} has been deactivated successfully!`,
             deactivated_by: {
                 id: requestUser.id,
                 name: userName,
@@ -199,9 +201,9 @@ export class DepartmentService {
         };
     }
 
-    async reactivateDept(updateDeptInfoDto: UpdateDeptInfoDto, user: RequestUser ) {
+    async reactivateDept(reactivateDepartmentDto: ReactivateDepartmentDto, user: RequestUser ) {
         const existingDept = await this.prisma.department.findUnique({
-            where: { id: updateDeptInfoDto.department_id },
+            where: { id: reactivateDepartmentDto.department_id },
             select: {
                 name: true,
                 stat: true,
@@ -212,15 +214,15 @@ export class DepartmentService {
             throw new BadRequestException('Department does not exist!');
         }
 
-        if (existingDept.stat === 1 && updateDeptInfoDto.stat === 1) {
+        if (existingDept.stat === 1 && reactivateDepartmentDto.stat === 1) {
             throw new ForbiddenException(`${existingDept} Department is already active!`);
         }
 
         const activate = await this.prisma.department.update({
-            where: { id: updateDeptInfoDto.department_id },
+            where: { id: reactivateDepartmentDto.department_id },
             data: {
-                name: updateDeptInfoDto.department_name,
-                stat: updateDeptInfoDto.stat,
+                id: reactivateDepartmentDto.department_id,
+                stat: reactivateDepartmentDto.stat,
             },
         });
 
@@ -245,7 +247,7 @@ export class DepartmentService {
 
         return {
             status: 'success',
-            message: `${existingDept.name} Department has been reactivated successfully!`,
+            message: `${existingDept.name} has been reactivated successfully!`,
             activated_by: {
                 id: requestUser,
                 name: userName,
@@ -258,21 +260,34 @@ export class DepartmentService {
         }
     }
 
-    async getDepartmentStatus(user: RequestUser, stat?: number) {
-        let statusFilter: number | undefined;
+    async getDepartmentStatus(user: RequestUser,  status?: string) {
+        // let statusFilter: number | undefined;
 
-        if (stat !== undefined) {
-            if (stat === 1) {
-            statusFilter = 1;
-            } else if (stat === 0) {
-            statusFilter = 0;
+        // if (stat !== undefined) {
+        //     if (stat === 1) {
+        //     statusFilter = 1;
+        //     } else if (stat === 0) {
+        //     statusFilter = 0;
+        //     } else {
+        //     throw new BadRequestException('Invalid status value. Must be "1 = true" or "2 = false".');
+        //     }
+        // }
+
+        let stat: number | undefined;
+
+        if (status !== undefined) {
+            const normalizedStatus = status.toLowerCase();
+            if (normalizedStatus === 'active') {
+                stat = 1;
+            } else if (normalizedStatus === 'inactive') {
+                stat = 0;
             } else {
-            throw new BadRequestException('Invalid status value. Must be "true" or "false".');
+                throw new BadRequestException('Invalid status value. Use "active" or "inactive".');
             }
         }
 
         const departments = await this.prisma.department.findMany({
-            where: statusFilter !== undefined ? { stat: statusFilter } : {},
+            where: stat !== undefined ? { stat } : {},
             orderBy: { name: 'asc' },
         });
 

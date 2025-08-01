@@ -8,7 +8,7 @@ import { PersonService } from './person.service';
 import { DeletePersonDto } from './dto/delete-person.dto';
 import { Can } from '../../Auth/components/decorators/can.decorator';
 import { SM_HR } from 'src/Auth/components/constants/core-constants';
-
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('person')
 export class PersonController {
@@ -16,6 +16,8 @@ export class PersonController {
 
     //to be replaced with actual person name later for mapping
     @Delete()
+    @ApiOperation({ summary: 'Delete a person' })
+    @ApiResponse({ status: 200, description: 'Delete a person record including its employee and user record will be used for testing only' })
     @Can({
             action: ACTION_DELETE,
             subject: SM_HR.EMPLOYEE_MASTERLIST,
