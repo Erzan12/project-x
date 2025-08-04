@@ -186,12 +186,20 @@ async function main() {
   // 6. Create SubModules
   await prisma.subModule.createMany({
     data: [
-      { name: 'Employee Masterlist', module_id: hrModule.id },
       { name: 'Dashboard', module_id: hrModule.id },
+      { name: 'Employee Masterlist', module_id: hrModule.id },
       { name: 'User Account', module_id: managerModule.id },
       { name: 'Dashboard', module_id: managerModule.id },
-      { name: 'User Account', module_id: adminModule.id },
+      { name: 'Inbox', module_id: managerModule.id },
       { name: 'Dashboard', module_id: adminModule.id },
+      { name: 'Audit Trail', module_id: adminModule.id },
+      { name: 'Master Tables - Position', module_id: adminModule.id },
+      { name: 'Master Tables - Department', module_id: adminModule.id },
+      { name: 'Master Tables - Company', module_id: adminModule.id },
+      { name: 'Master Tables - Division', module_id: adminModule.id },
+      { name: 'User Account', module_id: adminModule.id },
+      { name: 'User Token Keys', module_id: adminModule.id },
+      
     ],
     skipDuplicates: true,
   });
@@ -202,20 +210,53 @@ async function main() {
   const permissions = [
     { action: 'read', sub_module_id: 1 },
     { action: 'update', sub_module_id: 1 },
+    { action: 'create', sub_module_id: 1 },
     { action: 'read', sub_module_id: 2 },
     { action: 'update', sub_module_id: 2 },
+    { action: 'create', sub_module_id: 2 },
+    { action: 'delete', sub_module_id: 2 },
     { action: 'read', sub_module_id: 3 },
     { action: 'create', sub_module_id: 3 },
     { action: 'update', sub_module_id: 3 },
     { action: 'delete', sub_module_id: 3 },
     { action: 'read', sub_module_id: 4 },
     { action: 'update', sub_module_id: 4 },
+    { action: 'create', sub_module_id: 4 },
     { action: 'read', sub_module_id: 5 },
     { action: 'create', sub_module_id: 5 },
     { action: 'update', sub_module_id: 5 },
     { action: 'delete', sub_module_id: 5 },
     { action: 'read', sub_module_id: 6 },
     { action: 'update', sub_module_id: 6 },
+    { action: 'create', sub_module_id: 6 },
+    { action: 'read', sub_module_id: 7 },
+    { action: 'create', sub_module_id: 7 },
+    { action: 'update', sub_module_id: 7 },
+    { action: 'delete', sub_module_id: 7 },
+    { action: 'read', sub_module_id: 8 },
+    { action: 'create', sub_module_id: 8 },
+    { action: 'update', sub_module_id: 8 },
+    { action: 'delete', sub_module_id: 8 },
+    { action: 'read', sub_module_id: 9 },
+    { action: 'create', sub_module_id: 9 },
+    { action: 'update', sub_module_id: 9 },
+    { action: 'delete', sub_module_id: 9 },
+    { action: 'read', sub_module_id: 10 },
+    { action: 'create', sub_module_id: 10 },
+    { action: 'update', sub_module_id: 10 },
+    { action: 'delete', sub_module_id: 10 },
+    { action: 'read', sub_module_id: 11 },
+    { action: 'create', sub_module_id: 11 },
+    { action: 'update', sub_module_id: 11 },
+    { action: 'delete', sub_module_id: 11 },
+    { action: 'read', sub_module_id: 12 },
+    { action: 'create', sub_module_id: 12 },
+    { action: 'update', sub_module_id: 12 },
+    { action: 'delete', sub_module_id: 12 },
+    { action: 'read', sub_module_id: 13 },
+    { action: 'create', sub_module_id: 13 },
+    { action: 'update', sub_module_id: 13 },
+    { action: 'delete', sub_module_id: 13 },
   ];
 
   const permissionRecords = await Promise.all(
@@ -223,6 +264,7 @@ async function main() {
       prisma.subModulePermission.create({
         data: perm,
       })
+      
     )
   );
 
@@ -263,31 +305,73 @@ async function main() {
     data: [
       {
         role_id: hrRole.id,
-        sub_module_id: permissionRecords[0].sub_module_id,
-        module_id: hrModule.id,
-        action: permissionRecords[0].action,
-        sub_module_permission_id: permissionRecords[0].id,
-      },
-      {
-        role_id: hrRole.id,
         sub_module_id: permissionRecords[1].sub_module_id,
         module_id: hrModule.id,
         action: permissionRecords[1].action,
         sub_module_permission_id: permissionRecords[1].id,
       },
       {
+        role_id: hrRole.id,
+        sub_module_id: permissionRecords[2].sub_module_id,
+        module_id: hrModule.id,
+        action: permissionRecords[2].action,
+        sub_module_permission_id: permissionRecords[2].id,
+      },
+      {
         role_id: itRole.id,
-        sub_module_id: permissionRecords[6].sub_module_id,
+        sub_module_id: permissionRecords[3].sub_module_id,
         module_id: managerModule.id,
+        action: permissionRecords[3].action,
+        sub_module_permission_id: permissionRecords[3].id,
+      },
+      {
+        role_id: itRole.id,
+        sub_module_id: permissionRecords[4].sub_module_id,
+        module_id: managerModule.id,
+        action: permissionRecords[4].action,
+        sub_module_permission_id: permissionRecords[4].id,
+      },
+      {
+        role_id: itRole.id,
+        sub_module_id: permissionRecords[5].sub_module_id,
+        module_id: managerModule.id,
+        action: permissionRecords[5].action,
+        sub_module_permission_id: permissionRecords[5].id,
+      },
+      {
+        role_id: adminRole.id,
+        sub_module_id: permissionRecords[6].sub_module_id,
+        module_id: adminModule.id,
         action: permissionRecords[6].action,
         sub_module_permission_id: permissionRecords[6].id,
       },
       {
-        role_id: itRole.id,
+        role_id: adminRole.id,
         sub_module_id: permissionRecords[7].sub_module_id,
-        module_id: managerModule.id,
+        module_id: adminModule.id,
         action: permissionRecords[7].action,
         sub_module_permission_id: permissionRecords[7].id,
+      },
+      {
+        role_id: adminRole.id,
+        sub_module_id: permissionRecords[8].sub_module_id,
+        module_id: adminModule.id,
+        action: permissionRecords[8].action,
+        sub_module_permission_id: permissionRecords[8].id,
+      },
+      {
+        role_id: adminRole.id,
+        sub_module_id: permissionRecords[9].sub_module_id,
+        module_id: adminModule.id,
+        action: permissionRecords[9].action,
+        sub_module_permission_id: permissionRecords[9].id,
+      },
+      {
+        role_id: adminRole.id,
+        sub_module_id: permissionRecords[10].sub_module_id,
+        module_id: adminModule.id,
+        action: permissionRecords[10].action,
+        sub_module_permission_id: permissionRecords[10].id,
       },
     ],
     skipDuplicates: true,
@@ -384,7 +468,7 @@ async function main() {
       must_reset_password: false,
       username: 'hr.staff',
       email: 'hr@abas.com',
-      password: '$2b$12$iks.Lzf0hVod5nZRERqRSejAz0IVV4DnTGcH9XJjHSkkS19E6btQG',
+      password: '$2y$10$feH1XYEQwtdpy2f62ALLxugQyk0Qi9PBdr4svi5IbJn8A8Z9U7XHu',
       person_id: hrPerson.id,
     },
   });
@@ -395,7 +479,7 @@ async function main() {
       must_reset_password: false,
       username: 'it.manager',
       email: 'it@abas.com',
-      password: '$2b$12$4W60KW9bCajFDJWvzGD1LeHPokn2FcdO5i.LPYHmFHwjzYT2TAdbW',
+      password: '$2y$10$feH1XYEQwtdpy2f62ALLxugQyk0Qi9PBdr4svi5IbJn8A8Z9U7XHu',
       person_id: itPerson.id,
     },
   });
@@ -406,7 +490,7 @@ async function main() {
       must_reset_password: false,
       username: 'admin',
       email: 'admin@yourdomain.com',
-      password: '$2y$10$UGYEBYURPcDplaRlaBvgB.sGvQRs9vZxZQ6/JzC6cvmb3ygTbA/2G',
+      password: '$2y$10$feH1XYEQwtdpy2f62ALLxugQyk0Qi9PBdr4svi5IbJn8A8Z9U7XHu',
       person_id: adminPerson.id,
     },
   });
@@ -536,7 +620,255 @@ async function main() {
     ],
   });
 
-  console.log('✅ Seeding completed successfully.');
+    // 16. Create a Permission Template
+    const permissionTemplates = [
+    {
+        name: 'HR Dashboard Access',
+        company_id: abisc.id,
+        department_ids: [hrDept.id],
+        rolePermissionIds: [
+        {
+            role_id: hrRole.id,
+            sub_module_id: 1, // HR Dashboard
+            module_id: hrModule.id,
+            action: ['read', 'create','update'],
+        },
+        ],
+    },
+    {
+        name: 'HR Employee Masterlist Access',
+        company_id: abisc.id,
+        department_ids: [hrDept.id],
+        rolePermissionIds: [
+        {
+            role_id: hrRole.id,
+            sub_module_id: 2, // Employee Masterlist
+            module_id: hrModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Manager User Account Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: manRole.id,
+            sub_module_id: 3, // User account (manager)
+            module_id: managerModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Manager Dashboard Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: manRole.id,
+            sub_module_id: 4, // Dashboard (manager)
+            module_id: managerModule.id,
+            action: ['read', 'update','create'],
+        },
+        ],
+    },
+    {
+        name: 'Manager Inbox Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: manRole.id,
+            sub_module_id: 5, // Inbox (manager)
+            module_id: managerModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Dashboard Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 6, // Dashboard (admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Audit Trail Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 7, // Audit Trail(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Master Tables - Position Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 8, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Master Tables - Department Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 9, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Master Tables - Company Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 10, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Master Tables - Division Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 11, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin User Account Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 12, // User Account(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin User Token Keys Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 13, // User Token Keys(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    ];
+
+    const allRolePermissions = permissionTemplates.flatMap(template =>
+        template.rolePermissionIds.flatMap(({ role_id, sub_module_id, module_id, action }) =>
+            action.map(act => ({
+            role_id,
+            sub_module_id,
+            module_id,
+            action: act,
+            status: true,
+            }))
+        )
+    );
+
+    const uniqueRolePermissions = Array.from(
+        new Map(allRolePermissions.map(rp => [`${rp.role_id}-${rp.sub_module_id}-${rp.module_id}-${rp.action}`, rp]))
+        .values()
+    );
+
+    await prisma.rolePermission.createMany({
+        data: uniqueRolePermissions,
+        skipDuplicates: true,
+    });
+
+    for (const dto of permissionTemplates) {
+    // Flatten rolePermissionIds again for connecting
+    const flattenedRolePermissions = dto.rolePermissionIds.flatMap(({ role_id, sub_module_id, module_id, action }) =>
+        action.map(act => ({
+        role_id,
+        sub_module_id,
+        module_id,
+        action: act,
+        }))
+    );
+
+    // Get unique role and module ids for connect
+    const uniqueRoleIds = [...new Set(flattenedRolePermissions.map(rp => rp.role_id))];
+    const uniqueModuleIds = [...new Set(flattenedRolePermissions.map(rp => rp.module_id))];
+
+    const template = await prisma.permissionTemplate.create({
+        data: {
+        name: dto.name,
+        company: {
+            connect: { id: dto.company_id },
+        },
+        departments: {
+            create: dto.department_ids.map(deptId => ({
+            department: { connect: { id: deptId } },
+            })),
+        },
+        role: {
+            connect: uniqueRoleIds.map(id => ({ id })),
+        },
+        module: {
+            connect: uniqueModuleIds.map(id => ({ id })),
+        },
+        role_permissions: {
+            create: flattenedRolePermissions.map(({ role_id, sub_module_id, module_id, action }) => ({
+            role_permission: {
+                connect: {
+                role_id_sub_module_id_module_id_action: {
+                    role_id,
+                    sub_module_id,
+                    module_id,
+                    action,
+                },
+                },
+            },
+            })),
+        },
+        },
+    });
+
+    console.log(`✅ Created Permission Template: ${template.name}`);
+    }
+
+    console.log('✅ Seeding completed successfully.');
+
 }
 
 main()

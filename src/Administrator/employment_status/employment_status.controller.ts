@@ -6,7 +6,7 @@ import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
 import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
 import { EmpStatusDto } from './dto/create-emp-stat.dto';
 import { RequestUser } from 'src/Auth/components/types/request-user.interface';
-import { UpdateEmpStatusDto } from './dto/update-emp-stat';
+import { UpdateEmpStatusDto } from './dto/update-emp-stat.dto';
 
 @Controller('employment_status')
 export class EmploymentStatusController {
