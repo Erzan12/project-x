@@ -193,7 +193,10 @@ async function main() {
       { name: 'Inbox', module_id: managerModule.id },
       { name: 'Dashboard', module_id: adminModule.id },
       { name: 'Audit Trail', module_id: adminModule.id },
-      { name: 'Master Tables', module_id: adminModule.id },
+      { name: 'Master Tables - Position', module_id: adminModule.id },
+      { name: 'Master Tables - Department', module_id: adminModule.id },
+      { name: 'Master Tables - Company', module_id: adminModule.id },
+      { name: 'Master Tables - Division', module_id: adminModule.id },
       { name: 'User Account', module_id: adminModule.id },
       { name: 'User Token Keys', module_id: adminModule.id },
       
@@ -242,7 +245,18 @@ async function main() {
     { action: 'create', sub_module_id: 10 },
     { action: 'update', sub_module_id: 10 },
     { action: 'delete', sub_module_id: 10 },
-    
+    { action: 'read', sub_module_id: 11 },
+    { action: 'create', sub_module_id: 11 },
+    { action: 'update', sub_module_id: 11 },
+    { action: 'delete', sub_module_id: 11 },
+    { action: 'read', sub_module_id: 12 },
+    { action: 'create', sub_module_id: 12 },
+    { action: 'update', sub_module_id: 12 },
+    { action: 'delete', sub_module_id: 12 },
+    { action: 'read', sub_module_id: 13 },
+    { action: 'create', sub_module_id: 13 },
+    { action: 'update', sub_module_id: 13 },
+    { action: 'delete', sub_module_id: 13 },
   ];
 
   const permissionRecords = await Promise.all(
@@ -700,7 +714,7 @@ async function main() {
         ],
     },
     {
-        name: 'Admin Master Tables Access',
+        name: 'Admin Master Tables - Position Access',
         company_id: abisc.id,
         department_ids: [itDept.id],
         rolePermissionIds: [
@@ -713,13 +727,52 @@ async function main() {
         ],
     },
     {
+        name: 'Admin Master Tables - Department Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 9, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Master Tables - Company Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 10, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
+        name: 'Admin Master Tables - Division Access',
+        company_id: abisc.id,
+        department_ids: [itDept.id],
+        rolePermissionIds: [
+        {
+            role_id: adminRole.id,
+            sub_module_id: 11, // Master Tables(admin)
+            module_id: adminModule.id,
+            action: ['read', 'update', 'create', 'delete'],
+        },
+        ],
+    },
+    {
         name: 'Admin User Account Access',
         company_id: abisc.id,
         department_ids: [itDept.id],
         rolePermissionIds: [
         {
             role_id: adminRole.id,
-            sub_module_id: 9, // User Account(admin)
+            sub_module_id: 12, // User Account(admin)
             module_id: adminModule.id,
             action: ['read', 'update', 'create', 'delete'],
         },
@@ -732,7 +785,7 @@ async function main() {
         rolePermissionIds: [
         {
             role_id: adminRole.id,
-            sub_module_id: 10, // User Token Keys(admin)
+            sub_module_id: 13, // User Token Keys(admin)
             module_id: adminModule.id,
             action: ['read', 'update', 'create', 'delete'],
         },
