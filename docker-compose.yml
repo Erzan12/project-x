@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  nestjs:
+    container_name: nestjs-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    command: npm run start:dev
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: abas_v2
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  prisma-studio:
+    image: node:lts
+    container_name: prisma-studio
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npx prisma studio
+    ports:
+      - "5555:5555"
+    depends_on:
+      - postgres
+
+  pgadmin:
+    image: dpage/pgadmin4:7.6      #pin to stable version
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+  pgadmin_data:

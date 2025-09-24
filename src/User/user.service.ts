@@ -6,8 +6,8 @@ import { MailService } from 'src/Mail/mail.service';
 import { CreatePermissionTemplateDto } from 'src/Administrator/role/dto/create-permission-template.dto';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
-import { UserEmailResetTokenDto } from './dto/user-email-reset-token.dto';
+import { RequestUser } from '../Components/types/request-user.interface';
+import { UserEmailResetTokenDto } from './dto/user-email.reset-token.dto';
 import { UserRole } from '@prisma/client';
 
 @Injectable()

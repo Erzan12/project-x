@@ -2,7 +2,7 @@ import { NestFactory, Reflector} from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 
@@ -57,8 +57,6 @@ async function bootstrap() {
   writeFileSync('./API_documentation/swagger-spec.json', JSON.stringify(document, null, 2));
 
   await app.listen(3000);
-
-
 
   //appliead jwt auth guard and role permission guard globally
   const reflector = app.get(Reflector);

@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateSubModuleDto } from './dto/create-sub-module.dto';
-import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
+import { CreateSubModulePermissionDto } from '../sub_module/dto/create-sub-module-permission.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import { UnassignSubmodulePermissionsDto } from './dto/unassign-submodule.dto';
 

@@ -2,7 +2,7 @@ import { Injectable, ForbiddenException, ConflictException, BadRequestException 
 import { PrismaService } from 'prisma/prisma.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { RequestUser } from '../../Components/types/request-user.interface';
 
 @Injectable()
 export class PositionService {

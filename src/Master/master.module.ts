@@ -14,3 +14,4 @@ import { CompanyService } from './company/company.service';
     exports: [],
 })
 export class MasterModule {}
+

@@ -1,14 +1,13 @@
 import { Controller, Body, Post, Get, Patch } from '@nestjs/common';
 import { CreateUserWithTemplateDto } from './dto/create-user-with-template.dto';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
-import { UserService } from './user.service';
-import { Can } from 'src/Auth/components/decorators/can.decorator';
-import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN, MODULE_MNGR } from 'src/Auth/components/decorators/ability';
-import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { SessionUser } from '../Components/decorators/session-user.decorator';
+import { UserService } from '../User/user.service';
+import { Can } from '../Components/decorators/can.decorator';
+import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN, MODULE_MNGR } from '../Components/decorators/ability';
+import { SM_ADMIN } from '../Components/constants/core-constants';
+import { RequestUser } from '../Components/types/request-user.interface';
 import { DeactivateUserAccountDto, ReactivateUserAccountDto } from './dto/user-account-status.dto';
-import { UserEmailResetTokenDto } from './dto/user-email-reset-token.dto';
-
+import { UserEmailResetTokenDto } from './dto/user-email.reset-token.dto';
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}

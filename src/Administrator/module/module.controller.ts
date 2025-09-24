@@ -1,10 +1,10 @@
 import { Controller,Post, Body, Put, Delete } from '@nestjs/common';
 import { ModuleService } from './module.service';
-import { Can } from 'src/Auth/components/decorators/can.decorator';
-import { ACTION_CREATE, MODULE_ADMIN } from 'src/Auth/components/decorators/ability';
-import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { Can } from '../../Components/decorators/can.decorator';
+import { ACTION_CREATE, MODULE_ADMIN } from '../../Components/decorators/ability';
+import { SM_ADMIN } from '../../Components/constants/core-constants';
+import { SessionUser } from '../../Components/decorators/session-user.decorator';
+import { RequestUser } from '../../Components/types/request-user.interface';
 import { CreateModuleDto } from './dto/create-module.dto';
 
 @Controller('administrator')

@@ -863,6 +863,34 @@
         ]
       }
     },
+    "/user-home": {
+      "get": {
+        "operationId": "HomeController_getUserData",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Home"
+        ]
+      }
+    },
+    "/user-profile": {
+      "get": {
+        "operationId": "ProfileController_getUserData",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Profile"
+        ]
+      }
+    },
     "/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -1100,20 +1128,6 @@
         },
         "tags": [
           "User"
-        ]
-      }
-    },
-    "/protected/authorized-only": {
-      "get": {
-        "operationId": "ProtectedController_getHrData",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Protected"
         ]
       }
     },
@@ -1419,34 +1433,6 @@
         },
         "tags": [
           "EmploymentStatus"
-        ]
-      }
-    },
-    "/user-home": {
-      "get": {
-        "operationId": "HomeController_getUserData",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Home"
-        ]
-      }
-    },
-    "/user-profile": {
-      "get": {
-        "operationId": "ProfileController_getUserData",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Profile"
         ]
       }
     }

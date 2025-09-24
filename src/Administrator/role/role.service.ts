@@ -4,11 +4,11 @@ import { PrismaService } from 'prisma/prisma.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
-import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
+import { UpdateRolePermissionsDto } from './dto/update-role-permisisons.dto';
 import { AddPermissionToExistingRoleDto } from './dto/add-permission-template.dto';
 import { AddPermissionToExistingUserDto } from './dto/add-permission-template.dto';
 import { UnassignRolePermissionDto } from './dto/unassign-role-permission.dto';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
+import { SessionUser } from '../../Components/decorators/session-user.decorator';
 
 @Injectable()
 export class RoleService {

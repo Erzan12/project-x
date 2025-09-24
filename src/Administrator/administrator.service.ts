@@ -2,14 +2,14 @@ import { BadRequestException, ConflictException, UnauthorizedException, Forbidde
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateModuleDto } from './module/dto/create-module.dto';
 import { CreateSubModuleDto } from './sub_module/dto/create-sub-module.dto';
-import { CreateSubModulePermissionDto } from './sub_module/dto/create-sub-module-permissions.dto';
+import { CreateSubModulePermissionDto } from '../Administrator/sub_module/dto/create-sub-module-permission.dto'
 import { CreatePermissionTemplateDto } from './role/dto/create-permission-template.dto';
 import { CreateRoleDto } from './role/dto/create-role.dto';
 import { CreateRolePermissionDto } from './role/dto/create-role-permission.dto';
-import { UpdateRolePermissionsDto } from './role/dto/update-role-permissions.dto';
-import { UserRole } from 'src/Auth/components/decorators/ability';
+import { UpdateRolePermissionsDto } from './role/dto/update-role-permisisons.dto';
+import { UserRole } from '../Components/decorators/ability';
 import { AddPermissionToExistingUserDto } from './role/dto/add-permission-template.dto';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { RequestUser } from '../Components/types/request-user.interface';
 
 @Injectable()
 export class AdministratorService {

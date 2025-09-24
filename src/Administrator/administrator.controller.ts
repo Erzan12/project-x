@@ -5,24 +5,24 @@ import {
   MODULE_ADMIN,
   ACTION_UPDATE,
   ACTION_ACCESS
-} from '../Auth/components/decorators/ability';
+} from '../Components/decorators/ability';
 import { AddPermissionToExistingUserDto } from './role/dto/add-permission-template.dto';
-import { CreateUserWithTemplateDto } from 'src/User/dto/create-user-with-template.dto';
+import { CreateUserWithTemplateDto } from '../User/dto/create-user-with-template.dto';
 import { UserService } from 'src/User/user.service';
 import { Body, Controller, Post, Req, Patch, Get } from '@nestjs/common';
 import { AdministratorService } from '../Administrator/administrator.service';
 import { CreateModuleDto } from './module/dto/create-module.dto';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { RequestUser } from '../Components/types/request-user.interface';
 import { CreateSubModuleDto } from './sub_module/dto/create-sub-module.dto';
-import { CreateSubModulePermissionDto } from './sub_module/dto/create-sub-module-permissions.dto';
+import { CreateSubModulePermissionDto } from '../Administrator/sub_module/dto/create-sub-module-permission.dto';
 import { CreateRoleDto } from './role/dto/create-role.dto';
 import { CreateRolePermissionDto } from './role/dto/create-role-permission.dto';
-import { UpdateRolePermissionsDto } from './role/dto/update-role-permissions.dto';
+import { UpdateRolePermissionsDto } from '../Administrator/role/dto/update-role-permisisons.dto';
 import { CreatePermissionTemplateDto } from './role/dto/create-permission-template.dto';
-import { Can } from '../Auth/components/decorators/can.decorator';
-import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
+import { Can } from '../Components/decorators/can.decorator';
+import { SM_ADMIN } from '../Components/constants/core-constants';
 import { ModuleService } from './module/module.service';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
+import { SessionUser } from '../Components/decorators/session-user.decorator';
 
 @Controller('administrator')
 export class AdministratorController {

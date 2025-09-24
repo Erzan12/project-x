@@ -1,11 +1,11 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
-import { ACTION_CREATE, MODULE_ADMIN } from 'src/Auth/components/decorators/ability';
-import { Can } from 'src/Auth/components/decorators/can.decorator';
+import { SM_ADMIN } from '../../Components/constants/core-constants';
+import { ACTION_CREATE, MODULE_ADMIN } from '../../Components/decorators/ability';
+import { Can } from '../../Components/decorators/can.decorator';
 import { CreateSubModuleDto } from './dto/create-sub-module.dto';
-import { CreateSubModulePermissionDto } from './dto/create-sub-module-permissions.dto';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { CreateSubModulePermissionDto } from './dto/create-sub-module-permission.dto';
+import { SessionUser } from '../../Components/decorators/session-user.decorator';
+import { RequestUser } from '../../Components/types/request-user.interface';
 import { SubModuleService } from './sub_module.service';
 
 @Controller('administrator')

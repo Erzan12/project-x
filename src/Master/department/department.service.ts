@@ -2,7 +2,7 @@ import { Injectable, ForbiddenException, ConflictException, BadRequestException 
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDepartmentDto } from './dto/create-dept.dto';
 import { UpdateDeptDto } from './dto/update-dept.dto';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { RequestUser } from '../../Components/types/request-user.interface';
 import { DeactivateDepartmentDto, ReactivateDepartmentDto } from './dto/pos-status.dto';
 
 @Injectable()

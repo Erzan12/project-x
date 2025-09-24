@@ -2,16 +2,16 @@ import { Body, Controller, Post, Patch, Query, Get } from '@nestjs/common';
 import { PositionService } from './position/position.service';
 import { CreatePositionDto } from './position/dto/create-position.dto';
 import { CreateDepartmentDto } from './department/dto/create-dept.dto';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { RequestUser } from '../Components/types/request-user.interface';
 import { DepartmentService } from './department/department.service';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
-import { Can } from 'src/Auth/components/decorators/can.decorator';
-import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN } from 'src/Auth/components/decorators/ability';
-import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
+import { SessionUser } from '../Components/decorators/session-user.decorator';
+import { Can } from '../Components/decorators/can.decorator';
+import { ACTION_CREATE, ACTION_READ, ACTION_UPDATE, MODULE_ADMIN } from '../Components/decorators/ability';
+import { SM_ADMIN } from '../Components/constants/core-constants';
 import { UpdateDeptDto } from './department/dto/update-dept.dto';
 import { UpdatePositionDto } from './position/dto/update-position.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger'; // <-- import these
-import { ApiActivateResponse, ApiDeactivateResponse, ApiGetResponse, ApiPatchResponse, ApiPostResponse } from 'src/Auth/components/helpers/swagger-response.helper';
+import { ApiActivateResponse, ApiDeactivateResponse, ApiGetResponse, ApiPatchResponse, ApiPostResponse } from '../Components/helpers/swagger-response.helper';
 import { DeactivatePositionDto, ReactivatePositionDto } from './position/dto/dept-status.dto';
 import { DeactivateDepartmentDto, ReactivateDepartmentDto } from './department/dto/pos-status.dto';
 

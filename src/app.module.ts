@@ -4,19 +4,17 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailService } from './Mail/mail.service';
 import { ConfigModule } from '@nestjs/config';
-import { PersonService } from './HR/Person/person.service';
-import { PersonController } from './HR/Person/person.controller';
-import { PersonModule } from './HR/Person/person.module';
-import { EmployeeService } from './HR/Employee/employee.service';
-import { EmployeeController } from './HR/Employee/employee.controller';
-import { EmployeeModule } from './HR/Employee/employee.module';
+import { PersonService } from './HR/person/person.service';
+import { PersonController } from './HR/person/person.controller';
+import { PersonModule } from './HR/person/person.module';
+import { EmployeeService } from './HR/employee/employee.service';
+import { EmployeeController } from './HR/employee/employee.controller';
 import { UserService } from './User/user.service';
 import { AdministratorController } from 'src/Administrator/administrator.controller';
 import { AdministratorService } from 'src/Administrator/administrator.service';
 import { AdministratorModule } from 'src/Administrator/administrator.module';
 import { APP_GUARD } from '@nestjs/core';
-import { PermissionsGuard } from './Auth/guards/permissions.guard';
-import { CustomJwtAuthGuard } from './Auth/middleware/jwt.auth.guard';
+import { CustomJwtAuthGuard } from './Components/middleware/jwt.auth.guard';
 import { UserModule } from './User/user.module';
 import { MasterController } from './Master/master.controller';
 import { PositionService } from './Master/position/position.service';
@@ -24,14 +22,19 @@ import { MasterModule } from './Master/master.module';
 import { DepartmentService } from './Master/department/department.service';
 import { CreatePositionDto } from './Master/position/dto/create-position.dto';
 import { CreateDepartmentDto } from './Master/department/dto/create-dept.dto';
-import { CaslModule } from './casl/casl.module';
-import { CaslAbilityService } from './casl/casl.service';
+import { CaslModule } from './Components/casl/casl.module';
+import { CaslAbilityService } from './Components/casl/casl.service';
 import { HrController } from './HR/hr.controller';
 import { HrService } from './HR/hr.service';
 import { HrModule } from './HR/hr.module';
 import { ManagerModule } from './Manager/manager.module';
 import { ManagerController } from './Manager/manager.controller';
-import { JwtStrategy } from './Auth/middleware/jwt.strategy';
+import { JwtStrategy } from './Components/middleware/jwt.strategy';
+import { PrismaModule } from '../prisma/prisma.module';
+import { AuthController } from './Auth/auth.controller';
+import { UserController } from './User/user.controller';
+import { HomeController, ProfileController } from './Global/global.controller';
+
 
 @Module({
   imports: [
@@ -45,12 +48,12 @@ import { JwtStrategy } from './Auth/middleware/jwt.strategy';
     UserModule,
     // ManagerModule, 
     PersonModule,
-    EmployeeModule,
     AdministratorModule,
     MasterModule,
     CaslModule,
     HrModule,
-    ManagerModule
+    ManagerModule,
+    PrismaModule
   ],
   providers: [ 
     // ManagerService,
@@ -71,7 +74,7 @@ import { JwtStrategy } from './Auth/middleware/jwt.strategy';
     PersonService, 
     EmployeeService, UserService, AdministratorService, PositionService, DepartmentService, CreateDepartmentDto, CreatePositionDto, CaslAbilityService, HrService
   ],
-  controllers: [PersonController, EmployeeController, AdministratorController, MasterController, HrController, ManagerController],
+  controllers: [PersonController, EmployeeController, AdministratorController, MasterController, HrController, ManagerController, HomeController, ProfileController, AuthController, UserController],
 })
 export class AppModule {}
 

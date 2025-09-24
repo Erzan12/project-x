@@ -1,15 +1,15 @@
 import { Controller, Get, Post, Body, Patch, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { Can } from 'src/Auth/components/decorators/can.decorator';
-import { SessionUser } from 'src/Auth/components/decorators/session-user.decorator';
-import { RequestUser } from 'src/Auth/components/types/request-user.interface';
+import { Can } from '../../Components/decorators/can.decorator';
+import { SessionUser } from '../../Components/decorators/session-user.decorator';
+import { RequestUser } from '../../Components/types/request-user.interface';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
-import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
+import { UpdateRolePermissionsDto } from './dto/update-role-permisisons.dto';
 import { CreatePermissionTemplateDto } from './dto/create-permission-template.dto';
 import { AddPermissionToExistingRoleDto, AddPermissionToExistingUserDto } from './dto/add-permission-template.dto';
-import { ACTION_CREATE, MODULE_ADMIN, ACTION_UPDATE } from 'src/Auth/components/decorators/ability';
-import { SM_ADMIN } from 'src/Auth/components/constants/core-constants';
+import { ACTION_CREATE, MODULE_ADMIN, ACTION_UPDATE } from '../../Components/decorators/ability';
+import { SM_ADMIN } from '../../Components/constants/core-constants';
 import { UnassignRolePermissionDto } from './dto/unassign-role-permission.dto';
 import { PrismaService } from 'prisma/prisma.service';
 
